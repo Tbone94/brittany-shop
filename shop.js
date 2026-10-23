@@ -59,9 +59,9 @@
   // Load the photos the page shows on hover and as the hero turns, once the page is settled,
   // so they're ready before anyone reaches for them.
   // Phones can't hover, so they skip the hover photos, and fetch the hero's other photos only once someone touches it.
-  const loadHero = () => (window.HERO || []).forEach((slug, k) => load(`${slug}-${k + 1}`));
+  const loadHero = () => (window.HERO || []).forEach((slug, k) => { const p = P.find(x => x.slug === slug); if (p) load(`${slug}-${heroAngle(p, k) + 1}`); });
   addEventListener('load', () => setTimeout(() => {
-    P.forEach(p => { load(`${p.slug}-4`); if (!touchOnly) load(`${p.slug}-6`); });
+    P.forEach(p => { load(`${p.slug}-4`); if (!touchOnly && (!p.angles || p.angles.includes(5))) load(`${p.slug}-6`); });
     if (touchOnly) $('stage').addEventListener('pointerdown', loadHero, { once: true }); else loadHero();
   }, 400));
   // The glass-color splash behind a necklace's photos, and the single small accent shape used elsewhere.
@@ -123,17 +123,18 @@
   // Moving across it flips through the necklaces like stop motion, each shown at its own angle,
   // from left profile (necklace 1) to right profile (necklace 7).
   const heroItems = (window.HERO || P.map(p => p.slug)).map(slug => P.find(p => p.slug === slug)).filter(Boolean).slice(0, N);
+  // Necklaces with real photos (p.angles) show their front; drawn stand-ins turn, necklace n at angle n.
+  const heroAngle = (p, k) => (p.angles ? (p.angles.includes(3) ? 3 : p.angles[0]) : k);
   const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas');
   let cur = -1, intro = null, touched = false, press = null;
 
-  // The photo card is wide (3:2). Wide photos are zoomed in a little so the shoulders just reach the card's sides,
-  // keeping the top of the neck; older square ones fill it, trimmed top and bottom.
+  // Wide (3:2) photos show at full width (p.heroZoom crops in, if a photo needs it); square ones fill, trimmed top and bottom.
   const paintHero = () => {
     if (cur < 0) return;
-    const p = heroItems[cur], src = image(p, cur);
+    const p = heroItems[cur], src = image(p, heroAngle(p, cur));
     if (!src) return;
     const wide = (src.naturalWidth || src.width) > (src.naturalHeight || src.height) * 1.2;
-    paint(heroCanvas, src, wide ? p.heroZoom ?? 1.2 : 1, wide ? 0.3 : 0.5);
+    paint(heroCanvas, src, wide ? p.heroZoom ?? 1 : 1, wide ? 0.3 : 0.5);
   };
   painters.add(paintHero);
 
@@ -156,13 +157,13 @@
   stage.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY }; stopIntro(); });
   stage.addEventListener('pointerup', e => {
     // A click or tap (not a drag) opens the necklace you're looking at.
-    if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 8) openQV(heroItems[cur], cur);
+    if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 8) openQV(heroItems[cur], heroAngle(heroItems[cur], cur));
     press = null;
   });
   stage.addEventListener('pointercancel', () => { press = null; });
   stage.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { stopIntro(); setHero(cur + (e.key === 'ArrowRight' ? 1 : -1)); e.preventDefault(); }
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQV(heroItems[cur], cur); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQV(heroItems[cur], heroAngle(heroItems[cur], cur)); }
   });
 
   setHero(3);
@@ -199,7 +200,8 @@
     painters.add(repaint);
     repaint();
     // Hovering turns the piece a little, so people see it isn't flat.
-    btn.addEventListener('mouseenter', () => { angle = 5; repaint(); });
+    const turns = !p.angles || p.angles.includes(5);  // only when it has a real turned photo
+    btn.addEventListener('mouseenter', () => { if (turns) { angle = 5; repaint(); } });
     btn.addEventListener('mouseleave', () => { angle = 3; repaint(); });
     btn.addEventListener('click', () => openQV(p, 3));
     (p.sold ? soldGrid : grid).appendChild(li);
@@ -367,17 +369,19 @@
 
   /* ---------- Quick view ---------- */
   const qv = $('qv'), qvCanvas = $('qvCanvas'), qvThumbs = $('qvThumbs'), viewer = $('qvViewer'), qvHint = $('qvHint');
-  let qvP = null, qvI = 3, qvPress = false;
+  // qvA: the angles this necklace has real photos for (p.angles, 0-based; all seven if not given); qvJ: which of them shows.
+  let qvP = null, qvI = 3, qvA = [3], qvJ = 0, qvPress = false;
   const paintQV = () => { if (qvP) paint(qvCanvas, image(qvP, qvI)); };
   painters.add(paintQV);
 
-  function setQVAngle(i) {
-    qvI = Math.max(0, Math.min(N - 1, i));
+  function setQVAngle(j) {
+    qvJ = Math.max(0, Math.min(qvA.length - 1, j));
+    qvI = qvA[qvJ];
     paintQV();
     // The splash shifts a little with each angle, like a new stop-motion frame.
     $('qvSplash').innerHTML = splash(qvP, P.indexOf(qvP) * 10 + qvI + 100);
-    [...qvThumbs.children].forEach((b, k) => b.setAttribute('aria-current', String(k === qvI)));
-    $('qvAngle').textContent = `${ANGLE_NAMES[qvI]} · ${qvI + 1} of ${N}`;
+    [...qvThumbs.children].forEach((b, k) => b.setAttribute('aria-current', String(k === qvJ)));
+    $('qvAngle').textContent = `${ANGLE_NAMES[qvI]} · ${qvJ + 1} of ${qvA.length}`;
   }
 
   function updateAdd() {
@@ -406,16 +410,18 @@
     $('qvColors').innerHTML = dots(p.palette);
     $('qvDetails').innerHTML = Object.entries(p.details).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
     qvThumbs.innerHTML = '';
-    for (let k = 0; k < N; k++) {
+    qvA = p.angles || [...Array(N).keys()];
+    qvThumbs.style.setProperty('--n', qvA.length);
+    qvA.forEach((a, j) => {
       const b = document.createElement('button');
-      b.type = 'button'; b.setAttribute('aria-label', ANGLE_NAMES[k]);
+      b.type = 'button'; b.setAttribute('aria-label', ANGLE_NAMES[a]);
       const c = document.createElement('canvas'); c.width = c.height = 160;
-      b.appendChild(c); paintOnce(c, p, k);
-      b.addEventListener('click', () => { qvHint.classList.add('gone'); setQVAngle(k); });
+      b.appendChild(c); paintOnce(c, p, a);
+      b.addEventListener('click', () => { qvHint.classList.add('gone'); setQVAngle(j); });
       qvThumbs.appendChild(b);
-    }
+    });
     updateAdd();
-    setQVAngle(angle);
+    setQVAngle(Math.max(0, qvA.indexOf(angle)));
     qvHint.textContent = touchOnly ? 'Drag to turn' : 'Hover to turn';
     qvHint.classList.remove('gone');
     if (!qv.open) qv.showModal();
@@ -434,12 +440,12 @@
   window.addEventListener('popstate', fromHash);
 
 
-  const qvFromX = e => { const r = viewer.getBoundingClientRect(); setQVAngle(Math.floor((e.clientX - r.left) / r.width * N)); };
+  const qvFromX = e => { const r = viewer.getBoundingClientRect(); setQVAngle(Math.floor((e.clientX - r.left) / r.width * qvA.length)); };
   viewer.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || qvPress) { qvHint.classList.add('gone'); qvFromX(e); } });
   viewer.addEventListener('pointerdown', () => { qvPress = true; });
   ['pointerup', 'pointercancel'].forEach(t => viewer.addEventListener(t, () => { qvPress = false; }));
   qv.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { setQVAngle(qvI + (e.key === 'ArrowRight' ? 1 : -1)); e.preventDefault(); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { setQVAngle(qvJ + (e.key === 'ArrowRight' ? 1 : -1)); e.preventDefault(); }
   });
 
   $('qvAdd').addEventListener('click', async () => {

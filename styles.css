@@ -131,7 +131,9 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
   clip-path: inset(-100vh -100vw 0 -100vw); }  /* cut the splash off flat at the photo's bottom edge, nowhere else */
 .hero-splash { position: absolute; left: 50%; top: 66%; width: 112%; aspect-ratio: 75 / 56; translate: -50% -50%; pointer-events: none; }
 .hero-splash svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.stage .shot { position: absolute; left: 50%; bottom: 0; width: 56.25%; aspect-ratio: 3 / 2; translate: -50% 0; }
+.stage .shot { position: absolute; left: 50%; bottom: 0; width: 56.25%; aspect-ratio: 3 / 2; translate: -50% 0;;
+  /* Some photos run off the frame at the arms; a narrow fade at the sides keeps that from ending in a hard line. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent); }
 .tagline { position: relative; z-index: 2; margin: 18px auto 0; padding: 0 var(--gutter); text-align: center; font-size: var(--tag-size); line-height: .95; color: var(--ink); }
 /* The drawn "!": the real character stays for search and screen readers but is invisible; a stem and a bead dot
    are drawn in its place. play.js hides the dot (.bang.waiting) while the bead bounces in to become it. */
@@ -287,7 +289,7 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .qv-viewer { cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .qv-hint { position: absolute; left: 14px; bottom: 14px; z-index: 2; font-size: 12px; font-weight: 500; background: rgba(255,255,255,.85); backdrop-filter: blur(8px); border-radius: 999px; padding: 6px 12px; pointer-events: none; transition: opacity .4s; }
 .qv-hint.gone { opacity: 0; }
-.qv-thumbs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 12px; }
+.qv-thumbs { display: grid; grid-template-columns: repeat(var(--n, 7), calc((100% - 48px) / 7));  /* same thumbnail size however many angles */ gap: 8px; margin-top: 12px; }
 .qv-thumbs button { padding: 0; aspect-ratio: 1; overflow: hidden; cursor: pointer; border: 0; border-radius: 12px; background: var(--tile-bg, var(--tint)); transition: box-shadow .2s; }
 .qv-thumbs button[aria-current="true"] { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
 .qv-thumbs canvas { width: 100%; height: 100%; }
