@@ -107,8 +107,8 @@
   // keeping the top of the neck; older square ones fill it, trimmed top and bottom.
   const paintHero = () => {
     if (cur < 0) return;
-    const src = image(heroItems[cur], cur), wide = (src.naturalWidth || src.width) > (src.naturalHeight || src.height) * 1.2;
-    paint(heroCanvas, src, wide ? 1.2 : 1, wide ? 0.3 : 0.5);
+    const p = heroItems[cur], src = image(p, cur), wide = (src.naturalWidth || src.width) > (src.naturalHeight || src.height) * 1.2;
+    paint(heroCanvas, src, wide ? p.heroZoom ?? 1.2 : 1, wide ? 0.3 : 0.5);
   };
   painters.add(paintHero);
 
