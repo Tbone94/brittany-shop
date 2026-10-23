@@ -25,7 +25,7 @@ def main():
     parts = [{"inline_data": {"mime_type": "image/png", "data": base64.b64encode(open(r, "rb").read()).decode()}} for r in refs]
     parts.append({"text": open(prompt_file).read()})
     body = {"contents": [{"role": "user", "parts": parts}],
-            "generationConfig": {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": "3:2"}}}
+            "generationConfig": {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": os.environ.get("GEMINI_ASPECT", "3:2")}}}
     models = [os.environ.get("GEMINI_IMAGE_MODEL") or "gemini-3.1-flash-image", "gemini-3-pro-image-preview", "gemini-2.5-flash-image"]
     last = ""
     for model in models:
