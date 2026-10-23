@@ -112,7 +112,9 @@
     paintHero();
     const p = heroItems[i];
     accent(heroEl, p);
-    $('heroSplash').innerHTML = $('heroPop').innerHTML = splash(p, i + 1);
+    // The hero card: the necklace's splash without droplets, stretched wide behind the photo.
+    $('heroSplash').innerHTML = window.Splash.svg(p.splash, i + 1, { shape: p.splashShape, droplets: false });
+    $('heroSplash').firstElementChild?.setAttribute('preserveAspectRatio', 'none');
     $('tagName').textContent = p.name;
     $('tagDesc').textContent = p.desc;
     $('tagPrice').textContent = p.sold ? 'Sold' : money(p.price);
