@@ -110,16 +110,23 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .hero { max-width: 1280px; margin: 0 auto; padding: 20px var(--gutter) clamp(120px, 12vw, 160px); text-align: center; }
 /* The photo takes whatever height is left after the header and the details below it, so everything
    down to the buttons fits on the first screen. The photo card is wide (3:2) so the shoulders show. */
-.stage-wrap { position: relative; width: 100%; max-width: clamp(280px, calc((100svh - 570px) * 1.5), 780px); margin: 0 auto; padding: 96px 0 100px; }
+.stage-wrap { --pt: 80px; --pb: 84px; position: relative; width: 100%; max-width: clamp(280px, calc((100svh - 520px) * 1.5), 900px); margin: 0 auto; padding: var(--pt) 0 var(--pb); }
 .stage { cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; border-radius: 40px; }
-.stage .shot { aspect-ratio: 3 / 2; }
-/* The splash inside the card, and an unclipped copy behind it at the same size and spot, so the shape continues
-   past the card's edges. It's stretched to a wide oval, 1.6× the card's width and about 1.65× its height (29:20),
-   so the shape spills out evenly on every side (about 0.2 card-heights above and below) with the photo centered on it. */
-.stage .splash, .hero-pop { left: 50%; width: 160%; aspect-ratio: 29 / 20; transform: translate(-50%, -50%); }
+.stage .shot { aspect-ratio: 3 / 2; object-fit: cover; }
+/* The splash inside the card, and an unclipped copy behind it at the same size and spot, so the shape runs
+   straight through the card's edge and spills out past it. Stretched to a wide oval (1.85× the card's width,
+   1.5× its height) so it fills the white space on the sides and pokes out a little above and below. */
+.stage .splash, .hero-pop { left: 50%; width: 185%; aspect-ratio: 37 / 20; transform: translate(-50%, -50%); }
 .stage .splash { top: 50%; }
-.hero-pop { position: absolute; z-index: -1; pointer-events: none; top: calc(96px + (100% - 196px) / 2); }
+.hero-pop { position: absolute; z-index: -1; pointer-events: none; top: calc(var(--pt) + (100% - var(--pt) - var(--pb)) / 2); }
 .hero-pop svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* Phones: a taller card (5:4, the photo trimmed at the sides) so the necklace is bigger, and a taller splash. */
+@media (max-width: 640px) {
+  .stage-wrap { --pt: 56px; --pb: 60px; }
+  .stage { border-radius: 28px; }
+  .stage .shot { aspect-ratio: 5 / 4; }
+  .stage .splash, .hero-pop { width: 150%; aspect-ratio: 6 / 5; }
+}
 .pager { display: flex; justify-content: center; gap: 4px; margin-top: 12px; }
 .pager button { width: 22px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
 .pager button::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--line); transition: width .25s var(--ease), background .25s var(--ease); }
