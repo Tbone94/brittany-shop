@@ -249,10 +249,9 @@
       const box = hero.getBoundingClientRect(), rel = r => ({ l: r.left - box.left, r: r.right - box.left, t: r.top - box.top, b: r.bottom - box.top });
       const stage = rel(stageEl.getBoundingClientRect()), b = rel(bang.getBoundingClientRect());
       const fs = parseFloat(getComputedStyle(tagline).fontSize), d = fs * 0.22, R = d / 2;
-      // The line with "hand" on it (the tagline wraps on phones): the text just before the "!".
-      const words = [...tagline.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
+      // The line with the word showing just before the "!" (it rotates, and could wrap on phones).
       const range = document.createRange();
-      range.selectNodeContents(words);
+      range.selectNodeContents(tagline.querySelector('.rot-word.on'));
       const line = rel([...range.getClientRects()].pop());
       const wide = stage.l > 120 || innerWidth > 760, FL = wide ? 52 : 38;
       // Desktop: out in the white space left of the splash, stepping down toward the tagline.
@@ -276,6 +275,7 @@
       playing = true;
       await document.fonts.ready;
       await new Promise(r => requestAnimationFrame(r));
+      tagline.dataset.busy = '1';  // hold the rotating words still while the bead hops along them
       const L = layout();
       bang.classList.add('waiting');
       if (bead) bead.remove();
@@ -301,6 +301,7 @@
       bang.classList.remove('waiting');
       bead.remove(); bead = null;
       tagline.animate([{ translate: '0 0' }, { translate: '0 5px' }, { translate: '0 -2px' }, { translate: '0 0' }], { duration: 420, easing: 'ease-out' });
+      delete tagline.dataset.busy;
       playing = false;
     }
     flowers.forEach(f => f.addEventListener('click', play));
@@ -309,6 +310,39 @@
       bang.classList.add('waiting');
       setTimeout(play, 700);
     }
+  }
+
+  /* ---------- The tagline's words take turns (Brittany's idea) ---------- */
+  // "strung by hand!", then "shiny!", "ooh!", "aah!", one every few seconds: the old word drifts up and fades as the
+  // new one rises in, and the line's width eases so the "!" glides along. Calm on purpose: a long hold, a slow
+  // swap. It waits while the bead is hopping on the words, and while the first screen is out of view.
+  const rot = tagline?.querySelector('.rot');
+  if (rot) {
+    const WORDS = ['strung by hand', 'shiny', 'ooh', 'aah'];
+    const HOLD = 3600, SWAP = 700, ease = 'cubic-bezier(.4, 0, .2, 1)';
+    let k = 0, inView = true;
+    new IntersectionObserver(([e]) => { inView = e.isIntersecting; }).observe(tagline);
+    setInterval(() => {
+      if (tagline.dataset.busy || document.hidden || !inView) return;
+      // Clear any word left over from a swap that was cut short (say, the tab was hidden mid-swap).
+      rot.querySelectorAll('.rot-word:not(.on)').forEach(w => w.remove());
+      const cur = rot.querySelector('.rot-word.on');
+      k = (k + 1) % WORDS.length;
+      const next = document.createElement('span');
+      next.className = 'rot-word';
+      next.textContent = WORDS[k];
+      rot.appendChild(next);
+      rot.style.width = `${rot.offsetWidth}px`;
+      const to = next.offsetWidth;
+      cur.classList.remove('on'); next.classList.add('on');
+      void rot.offsetWidth;  // lock in the old width, so the change to the new one eases
+      rot.style.width = `${to}px`;
+      cur.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-.35em)', opacity: 0 }], { duration: SWAP, easing: ease, fill: 'forwards' })
+        .finished.then(() => cur.remove(), () => cur.remove());
+      next.animate([{ transform: 'translateY(.35em)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { duration: SWAP, easing: ease, fill: 'backwards' });
+    }, HOLD);
+    // A new width on resize: let the word set it again.
+    addEventListener('resize', () => { rot.style.width = ''; });
   }
 
   /* ---------- Moment 2: a bead drops into the strand and knocks one loose ---------- */
