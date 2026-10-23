@@ -1,7 +1,8 @@
 // Small bits of play, kept contained so they never get in the way of shopping:
 //   - a few groovy sprinkles around the page that wiggle when hovered and spin when clicked
 //   - two short moments that play once when they come into view (tap to play again):
-//       1. Hero: a glass bead drops onto a daisy, the flower squishes, and the bead bounces off.
+//       1. Hero: when the page opens, a glass bead bounces down two daisies like steps, lands and rolls
+//          into the "See this one" button.
 //       2. Story: a bead drops into the middle of the bead strand, the strand bounces, and the bead
 //          it replaces falls off and rolls a little way. Tap that bead to put it back in.
 //       3. Footer: a bead drops into the dot of the "i" in the big logo, and the word gives a little bounce.
@@ -53,7 +54,7 @@
   // rainbow divider above the footer. On phones only the ribbons marked small: true show, steeper and thinner.
   const RIBBONS = [
     { in: '.shop', colors: ['--turquoise', '--uranium', '--coral'], top: '27%', angle: 8, height: 240, amp: 28, seed: 9 },
-    { in: '.shop', colors: ['--orchid', '--coral', '--uranium'], top: '54%', angle: -8, height: 240, amp: 28, seed: 14 },
+    { in: '.shop', colors: ['--orchid', '--coral', '--uranium'], top: '76%', angle: -8, height: 240, amp: 28, seed: 14 },
     { in: '.perks', colors: ['--uranium', '--coral', '--rubino'], top: '50%', angle: 10, height: 220, amp: 30, seed: 21, small: true },
   ];
   function rand32(seed) {
@@ -217,23 +218,25 @@
     io.observe(el);
   };
 
-  /* ---------- Moment 1: a bead drops onto a daisy and bounces off ---------- */
-  const heroCopy = document.querySelector('.hero-copy');
-  if (heroCopy) {
-    const box = document.createElement('div');
-    box.className = 'moment-hero';
-    const flower = document.createElement('button');
-    flower.type = 'button';
-    flower.className = 'moment-flower';
-    flower.setAttribute('aria-label', 'Bounce the bead off the flower');
-    flower.innerHTML = SHAPES.daisy(css('--coral'));
-    box.appendChild(flower);
-    heroCopy.appendChild(box);
-
-    const FL = 44, R = 12, H = 170, ground = H - R;
-    const fx = 30 + FL / 2, flowerTop = H - FL * 0.9;
-    let bead = null, playing = false;
-    const giveFlower = () => flower.animate([
+  /* ---------- Moment 1: on the first screen, a bead bounces down two daisies like steps and rolls away ---------- */
+  // The flowers sit in the empty space at the bottom left (on phones, beside the dots and the price). The bead
+  // drops from the top, bounces off each flower, lands level with the "See this one" button and rolls into it,
+  // giving it a little bump. It plays once when the page opens; tap either flower to play it again.
+  const hero = document.querySelector('.hero'), stageEl = document.querySelector('.stage'), btnEl = document.getElementById('heroShop');
+  if (hero && stageEl && btnEl) {
+    const layer = document.createElement('div');
+    layer.className = 'moment-hero';
+    hero.appendChild(layer);
+    const flowers = ['--coral', '--orchid'].map(color => {
+      const f = document.createElement('button');
+      f.type = 'button';
+      f.className = 'moment-flower';
+      f.setAttribute('aria-label', 'Bounce the bead down the flowers');
+      f.innerHTML = SHAPES.daisy(css(color));
+      layer.appendChild(f);
+      return f;
+    });
+    const squish = f => f.animate([
       { transform: 'translateY(0) scale(1, 1)' },
       { transform: 'translateY(5px) scale(1.16, .76)', offset: 0.22 },
       { transform: 'translateY(-3px) scale(.94, 1.08)', offset: 0.55 },
@@ -241,25 +244,71 @@
       { transform: 'translateY(0) scale(1, 1)' },
     ], { duration: 650, easing: 'ease-out' });
 
+    // Where everything goes, measured from the page as it is now (in px, relative to the hero).
+    function layout() {
+      const box = hero.getBoundingClientRect(), rel = el => { const r = el.getBoundingClientRect(); return { l: r.left - box.left, r: r.right - box.left, t: r.top - box.top, b: r.bottom - box.top }; };
+      const card = rel(stageEl), pager = rel(document.querySelector('.pager')), actions = rel(document.querySelector('.hero-actions')), btn = rel(document.getElementById('heroShop'));
+      const H = Math.min(box.height, innerHeight - (box.top + scrollY)), R = 11;
+      const wideGap = card.l > 200;
+      const FL = wideGap ? 52 : 38;
+      let f1, f2;
+      if (wideGap) {
+        // Desktop: two steps down the bottom-left of the first screen, beside the card and then below it.
+        f1 = { x: card.l * 0.2, y: card.t + (card.b - card.t) * 0.6 };
+        f2 = { x: card.l * 0.42, y: Math.min(card.b + 70, H - FL - 70) };
+      } else {
+        // Phones: one step left of the dots, one left of the price.
+        const meta = rel(document.querySelector('.now-meta'));
+        f1 = { x: 30, y: pager.t - 12 };
+        f2 = { x: 44, y: meta.t - 10 };
+      }
+      layer.style.height = `${H}px`;
+      [f1, f2].forEach((f, k) => Object.assign(flowers[k].style, { width: `${FL}px`, left: `${f.x - FL / 2}px`, top: `${f.y}px` }));
+      // The bead lands level with the "See this one" button and rolls into its left side.
+      return { R, H, ground: btn.b - R - 2, top1: f1.y + FL * 0.12, top2: f2.y + FL * 0.12, x1: f1.x, x2: f2.x, stopX: btn.l - R + 1 };
+    }
+    layout();
+    addEventListener('resize', () => { if (!playing) layout(); });
+
+    let bead = null, playing = false;
     async function play() {
       if (playing) return;
       playing = true;
+      // Measure once the fonts are in, so the button is where it will stay.
+      await document.fonts.ready;
+      await new Promise(r => requestAnimationFrame(r));
+      const L = layout();
       if (bead) { await bead.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished.catch(() => {}); bead.remove(); }
-      bead = makeBead(R * 2, { color: css('--cobalt'), kind: 'dots' });
-      box.appendChild(bead);
-      bead.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250 });
-      const D = 1300, hit = 0.38;
-      setTimeout(giveFlower, D * hit);
+      bead = makeBead(L.R * 2, { color: css('--cobalt'), kind: 'dots' });
+      layer.appendChild(bead);
+      bead.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
+
+      // Segment lengths in ms: fall, hop to flower 2, hop to the ground, a little bounce, then the roll.
+      const gap = Math.max(30, L.stopX - L.x2), xLand = L.x2 + gap * 0.3, xHop = xLand + Math.min(44, gap * 0.2);
+      const stopX = Math.max(L.stopX, xHop + 10), roll = stopX - xHop;
+      const seg = [620, 520, 600, 300, Math.max(450, roll * 2.6)];
+      const D = seg.reduce((a, b) => a + b), at = k => seg.slice(0, k).reduce((a, b) => a + b, 0) / D;
+      const mid = k => (at(k) + at(k + 1)) / 2;
+      const h1 = at(1), h2 = at(2), h3 = at(3), h4 = at(4);
+      setTimeout(() => squish(flowers[0]), D * h1);
+      setTimeout(() => squish(flowers[1]), D * h2);
+      // The bead bumps the button when it rolls into it.
+      setTimeout(() => btnEl.animate([
+        { transform: 'translateX(0) rotate(0)' }, { transform: 'translateX(5px) rotate(1.5deg)', offset: 0.3 },
+        { transform: 'translateX(-2px) rotate(-.6deg)', offset: 0.65 }, { transform: 'translateX(0) rotate(0)' },
+      ], { duration: 450, easing: 'ease-out' }), D - 20);
       await fly(bead, {
-        duration: D, spin: 1.6, squashAt: [hit, 0.8],
-        xs: [[0, fx], [hit, fx], [0.62, fx + 52], [0.8, fx + 98], [0.9, fx + 116, OUT], [1, fx + 128]],
-        ys: [[0, -40, IN], [hit, flowerTop - R, OUT], [0.6, flowerTop - 70, IN], [0.8, ground, OUT], [0.9, ground - 14, IN], [1, ground]],
+        duration: D, spin: 1.2 + roll / (2 * Math.PI * L.R), squashAt: [h1, h2, h3, h4],
+        xs: [[0, L.x1], [h1, L.x1], [h2, L.x2], [h3, xLand], [h4, xHop, 'cubic-bezier(.3,.5,.6,.95)'], [1, stopX]],
+        ys: [[0, -30, IN], [h1, L.top1 - L.R, OUT], [mid(1), L.top1 - 80, IN], [h2, L.top2 - L.R, OUT], [mid(2), L.top2 - 70, IN],
+             [h3, L.ground, OUT], [mid(3), L.ground - 20, IN], [h4, L.ground], [1, L.ground]],
       });
       playing = false;
     }
-    flower.addEventListener('click', play);
-    box.addEventListener('click', e => { if (e.target.closest('.gbead')) play(); });
-    setTimeout(() => once(heroCopy, play, 0.5), 600);
+    flowers.forEach(f => f.addEventListener('click', play));
+    layer.addEventListener('click', e => { if (e.target.closest('.gbead')) play(); });
+    // Play once when the page opens, if the hero is on screen.
+    setTimeout(() => { if (hero.getBoundingClientRect().top < innerHeight * 0.5) play(); }, 900);
   }
 
   /* ---------- Moment 2: a bead drops into the strand and knocks one loose ---------- */

@@ -330,10 +330,10 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .gbead-ball::after { content: ''; position: absolute; left: 22%; top: 14%; width: 34%; height: 22%; border-radius: 50%; background: rgba(255,255,255,.7); transform: rotate(-30deg); }
 .gbead.resting { pointer-events: auto; cursor: pointer; }
 
-/* Hero moment: a daisy below the buttons that a bead bounces off. */
-.moment-hero { position: absolute; right: 2%; top: 100%; width: 210px; height: 170px; margin-top: -60px; pointer-events: none; }
+/* Hero moment: two daisies on the first screen that a bead bounces down; play.js places them and sets the height. */
+.moment-hero { position: absolute; left: 0; top: 0; width: 100%; z-index: 2; pointer-events: none; }
 .moment-hero .gbead { pointer-events: auto; cursor: pointer; }
-.moment-flower { position: absolute; left: 30px; bottom: 0; width: 44px; padding: 0; border: 0; background: none; pointer-events: auto; cursor: pointer; transform-origin: 50% 85%; }
+.moment-flower { position: absolute; padding: 0; border: 0; background: none; pointer-events: auto; cursor: pointer; transform-origin: 50% 85%; }
 .moment-flower svg { display: block; width: 100%; height: auto; }
 
 @media (max-width: 920px) {

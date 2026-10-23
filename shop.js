@@ -148,15 +148,7 @@
   $('heroShop').addEventListener('click', () => openQV(heroItems[cur], cur));
 
   setHero(3);
-  if (!reduceMotion) {
-    // One quick turn on load so people see it moves, then it's theirs.
-    const seq = [2, 1, 0, 1, 2, 3, 4, 5, 6, 5, 4, 3];
-    let k = 0;
-    setTimeout(() => {
-      if (touched) return;
-      intro = setInterval(() => { setHero(seq[k++]); if (k === seq.length) { clearInterval(intro); intro = null; } }, 130);
-    }, 700);
-  }
+  // No spin-through on load: it was a lot at once. The bead bouncing down the flowers (play.js) is the opening moment.
 
   /* ---------- Other small accent shapes on the page ---------- */
   const rootStyle = getComputedStyle(document.documentElement);
