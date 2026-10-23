@@ -102,23 +102,8 @@
   });
   let cur = -1, intro = null, touched = false, press = null;
 
-  // The hero is wide (3:2). A wide photo fills it; an older square one sits in the middle with its cut-off sides faded out.
-  function paintWide(canvas, src) {
-    const ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height;
-    const iw = src.naturalWidth || src.width, ih = src.naturalHeight || src.height, s = Math.min(w / iw, h / ih);
-    const dw = iw * s, x = (w - dw) / 2;
-    ctx.clearRect(0, 0, w, h);
-    ctx.drawImage(src, x, (h - ih * s) / 2, dw, ih * s);
-    if (dw < w - 1) {
-      const fade = ctx.createLinearGradient(x, 0, x + dw, 0);
-      fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(0.11, 'rgba(0,0,0,0)');
-      fade.addColorStop(0.89, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.fillStyle = fade; ctx.fillRect(x, 0, dw, h);
-      ctx.globalCompositeOperation = 'source-over';
-    }
-  }
-  const paintHero = () => { if (cur >= 0) paintWide(heroCanvas, image(heroItems[cur], cur)); };
+  // The photo card is wide (3:2): wide photos fill it, older square ones fill it too, trimmed top and bottom.
+  const paintHero = () => { if (cur >= 0) paint(heroCanvas, image(heroItems[cur], cur)); };
   painters.add(paintHero);
 
   function setHero(i) {
@@ -128,9 +113,9 @@
     paintHero();
     const p = heroItems[i];
     accent(heroEl, p);
-    // The hero card: the necklace's splash without droplets, stretched wide behind the photo.
-    $('heroSplash').innerHTML = window.Splash.svg(p.splash, i + 1, { shape: p.splashShape, droplets: false });
-    $('heroSplash').firstElementChild?.setAttribute('preserveAspectRatio', 'none');
+    // The splash inside the photo card and its copy behind, which spills past the card's edges.
+    $('heroSplash').innerHTML = $('heroPop').innerHTML = window.Splash.svg(p.splash, i + 1, { shape: p.splashShape, rich: true })
+      .replace('<svg ', '<svg preserveAspectRatio="none" ');
     $('tagName').textContent = p.name;
     $('tagDesc').textContent = p.desc;
     $('tagPrice').textContent = p.sold ? 'Sold' : money(p.price);

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=55">
+<link rel="stylesheet" href="styles.css?v=64">
 </head>
 <body>
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -28,9 +28,10 @@
     <h1 class="sr">Brittany, handmade glass bead necklaces</h1>
     <!-- One big photo that turns through the necklaces, each at its own angle, as you move across it. -->
     <div class="stage-wrap">
-      <!-- The big splash is the card: the cut-out photo sits right on top of it, with no frame. -->
-      <div class="hero-card" id="heroSplash" aria-hidden="true"></div>
-      <div class="stage" id="stage" tabindex="0" role="button">
+      <!-- The same splash as inside the photo card, unclipped behind it, so the shape spills past the card's edges. -->
+      <div class="hero-pop" id="heroPop" aria-hidden="true"></div>
+      <div class="stage tile" id="stage" tabindex="0" role="button">
+        <div class="splash" id="heroSplash"></div>
         <canvas class="shot" id="heroCanvas" width="1500" height="1000"></canvas>
       </div>
     </div>
@@ -221,10 +222,10 @@
   </div>
 </dialog>
 
-<script src="products.js?v=55"></script>
-<script src="standin.js?v=55"></script>
-<script src="splash.js?v=55"></script>
-<script src="shop.js?v=55"></script>
-<script src="play.js?v=55"></script>
+<script src="products.js?v=64"></script>
+<script src="standin.js?v=64"></script>
+<script src="splash.js?v=64"></script>
+<script src="shop.js?v=64"></script>
+<script src="play.js?v=64"></script>
 </body>
 </html>

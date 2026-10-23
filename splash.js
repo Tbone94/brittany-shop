@@ -102,7 +102,15 @@
 
   const layer = (d, color, alpha) => `<path d="${d}" fill="${color}"${alpha < 1 ? ` fill-opacity="${alpha}"` : ''}/>`;
 
-  function svg(colors, seed, { shape = 'round', droplets = true, minimal = false } = {}) {
+  // A color pushed toward white, for the lighter inner layer.
+  const lighten = (hex, amt) => {
+    const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255];
+    return '#' + c.map(v => Math.round(v + (255 - v) * amt).toString(16).padStart(2, '0')).join('');
+  };
+
+  // `rich` adds more layers of color: a third-color echo behind the main shape and a lighter inner layer,
+  // like light caught inside stacked glass.
+  function svg(colors, seed, { shape = 'round', droplets = true, minimal = false, rich = false } = {}) {
     const rand = rng(seed * 7919 + 17);
     if (minimal) {
       // One crisp shape with a lighter inner layer, like light caught inside a glass bead.
@@ -121,6 +129,17 @@
     const [c1, c2 = c1, c3 = c2] = colors;
     const ox = (rand() - 0.5) * 34, oy = (rand() - 0.5) * 34;
     let out = '';
+    // Extra layers draw from their own random stream, so a splash keeps its shape with or without them.
+    const extra = rng(seed * 104729 + 3);
+    if (rich) {
+      const turn = extra() * TAU, ex = -ox * 0.7, ey = -oy * 0.7;
+      out += layer(
+        shape === 'bloom' ? bloom(ex, ey, 116, turn)
+          : shape === 'daisy' ? daisy(ex, ey, 120, 9, turn)
+          : shape === 'burst' ? burst(extra, ex, ey, 106)
+          : shape === 'shard' ? shard(extra, ex, ey, 124)
+          : wavy(extra, ex, ey, 110), c3, 0.7);
+    }
 
     if (shape === 'burst') {
       out += layer(burst(rand, 0, 0, 96), c1, 1);
@@ -146,6 +165,13 @@
       out += layer(wavy(rand, 0, 0, 98), c1, 1);
       out += layer(wavy(rand, ox, oy, 64), c2, 0.85);
       out += layer(wavy(rand, -ox * 0.8, -oy * 0.6 + 6, 32), c3, 0.8);
+    }
+
+    if (rich) {
+      const lx = ox * 0.5 + (extra() - 0.5) * 20, ly = oy * 0.5 + (extra() - 0.5) * 20;
+      out += layer(shape === 'bloom' ? bloom(lx, ly, 40, extra() * TAU)
+        : shape === 'daisy' ? daisy(lx, ly, 44, 8, extra() * TAU)
+        : wavy(extra, lx, ly, 40), lighten(c2, 0.45), 0.9);
     }
 
     if (droplets) {
