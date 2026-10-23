@@ -43,6 +43,19 @@ colors (Effetre Cobalt, Uranium Yellow, CiM Smurfy turquoise and others). Splash
 per necklace in `products.js` with `splashShape`: `round` (soft blobs), `burst` (pointy) and `shard` (sharp, like
 broken glass). Their layers overlap with multiply blending, the way stacked transparent glass mixes.
 
+## Before launch (all required)
+
+Launch target: mid-November 2026, before Black Friday (Nov 27). None of these can be skipped:
+
+- [ ] **Shop name.** "Brittany" is a placeholder, and nobody can find a shop by searching a first name.
+- [ ] **Own domain** instead of tbone94.github.io, set up on GitHub Pages.
+- [ ] **Real photos** of every necklace, then run `python3 tools/webp.py`.
+- [ ] **Real names, prices, descriptions and details** for every necklace in `products.js`.
+- [ ] **Real collection names.** "Mushroom Club" and "Starstruck" are made up; "Chaotic Good" is Brittany's.
+- [ ] **Turn on search:** in `tools/seo.py` set `SITE` to the new domain and `INDEXABLE = True`, then run
+      `python3 tools/seo.py`. Until this is done, every page tells Google not to list it.
+- [ ] **Google Search Console:** add the domain and submit `sitemap.xml`.
+
 ## Placeholders to replace
 
 - **Shop name.** "Brittany" for now.
