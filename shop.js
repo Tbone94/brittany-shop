@@ -46,11 +46,12 @@
   const splash = (p, seed) => window.Splash.svg(p.splash, seed, { shape: p.splashShape, rich: true });
   const shape = (color, kind, seed) => window.Splash.svg([color], seed, { shape: kind, minimal: true });
 
-  function paint(canvas, src) {
+  // `zoom` crops in past a plain fill; `fy` is where the crop sits top to bottom (0 top, 0.5 middle).
+  function paint(canvas, src, zoom = 1, fy = 0.5) {
     const ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
-    const iw = src.naturalWidth || src.width, ih = src.naturalHeight || src.height, s = Math.max(w / iw, h / ih);
-    ctx.drawImage(src, (w - iw * s) / 2, (h - ih * s) / 2, iw * s, ih * s);
+    const iw = src.naturalWidth || src.width, ih = src.naturalHeight || src.height, s = Math.max(w / iw, h / ih) * zoom;
+    ctx.drawImage(src, (w - iw * s) / 2, (h - ih * s) * fy, iw * s, ih * s);
   }
 
   /* ---------- Logo dot: line the bead up with where the font draws the dot of its "i" ---------- */
@@ -102,8 +103,13 @@
   });
   let cur = -1, intro = null, touched = false, press = null;
 
-  // The photo card is wide (3:2): wide photos fill it, older square ones fill it too, trimmed top and bottom.
-  const paintHero = () => { if (cur >= 0) paint(heroCanvas, image(heroItems[cur], cur)); };
+  // The photo card is wide (3:2). Wide photos are zoomed in a little so the shoulders just reach the card's sides,
+  // keeping the top of the neck; older square ones fill it, trimmed top and bottom.
+  const paintHero = () => {
+    if (cur < 0) return;
+    const src = image(heroItems[cur], cur), wide = (src.naturalWidth || src.width) > (src.naturalHeight || src.height) * 1.2;
+    paint(heroCanvas, src, wide ? 1.2 : 1, wide ? 0.3 : 0.5);
+  };
   painters.add(paintHero);
 
   function setHero(i) {
