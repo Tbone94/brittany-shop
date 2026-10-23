@@ -9,7 +9,11 @@
   const dots = colors => colors.map(c => `<span class="dot-c" style="--c:${c}"></span>`).join('');
   const touchOnly = matchMedia('(hover: none)').matches;
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const accent = (el, p) => { el.style.setProperty('--accent', p.backdrop); el.style.setProperty('--accent-ink', p.accentInk); };
+  // A necklace's colors on an element: its accent, and a light two-tone background for its photo tiles
+  // (a tint of the splash's second color, so no white shows behind the chest shots).
+  const tintHex = (hex, amt) => { const n = parseInt(hex.slice(1), 16); return `rgb(${[n >> 16, (n >> 8) & 255, n & 255].map(v => Math.round(v + (255 - v) * amt))})`; };
+  const tileBg = p => tintHex(p.splash[1] || p.splash[0], 0.5);
+  const accent = (el, p) => { el.style.setProperty('--accent', p.backdrop); el.style.setProperty('--accent-ink', p.accentInk); el.style.setProperty('--tile-bg', tileBg(p)); };
 
   // Chest shots: photos/<slug>-1.png … <slug>-7.png (or .jpg), one necklace at seven angles,
   // left profile → right profile, on a transparent background. Until a photo exists, a drawn stand-in is used.
@@ -84,10 +88,10 @@
   const save = () => { try { localStorage.setItem('bag', JSON.stringify(bag)); } catch { /* private mode: bag just won't persist */ } };
   const inBag = p => bag.includes(p.slug);
 
-  /* ---------- Hero: the necklace you're on, big and centered, with its shoulder views on the sides ---------- */
-  // Moving across the big photo flips through the necklaces like stop motion; the side views flip with it.
-  // The right side is the necklace's angled photo (angle 6); the left side is the same photo mirrored.
-  const heroItems = P.slice(0, N), FRONT = 3, SIDE = 5;
+  /* ---------- Hero: one big centered photo that turns through the necklaces ---------- */
+  // Moving across it flips through the necklaces like stop motion, each shown at its own angle,
+  // from left profile (necklace 1) to right profile (necklace 7).
+  const heroItems = P.slice(0, N);
   const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas'), pager = $('pager');
   heroItems.forEach((p, k) => {
     const b = document.createElement('button');
@@ -98,13 +102,7 @@
   });
   let cur = -1, intro = null, touched = false, press = null;
 
-  const paintHero = () => {
-    if (cur < 0) return;
-    const p = heroItems[cur];
-    paint(heroCanvas, image(p, FRONT));
-    paint($('sideLeftCanvas'), image(p, SIDE));
-    paint($('sideRightCanvas'), image(p, SIDE));
-  };
+  const paintHero = () => { if (cur >= 0) paint(heroCanvas, image(heroItems[cur], cur)); };
   painters.add(paintHero);
 
   function setHero(i) {
@@ -115,10 +113,6 @@
     const p = heroItems[i];
     accent(heroEl, p);
     $('heroSplash').innerHTML = splash(p, i + 1);
-    $('sideLeftSplash').innerHTML = splash(p, i + 21);
-    $('sideRightSplash').innerHTML = splash(p, i + 41);
-    $('sideLeft').setAttribute('aria-label', `${p.name}, left side`);
-    $('sideRight').setAttribute('aria-label', `${p.name}, right side`);
     $('tagName').textContent = p.name;
     $('tagDesc').textContent = p.desc;
     $('tagPrice').textContent = p.sold ? 'Sold' : money(p.price);
@@ -134,17 +128,15 @@
   stage.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY }; stopIntro(); });
   stage.addEventListener('pointerup', e => {
     // A click or tap (not a drag) opens the necklace you're looking at.
-    if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 8) openQV(heroItems[cur], FRONT);
+    if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 8) openQV(heroItems[cur], cur);
     press = null;
   });
   stage.addEventListener('pointercancel', () => { press = null; });
   stage.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { stopIntro(); setHero(cur + (e.key === 'ArrowRight' ? 1 : -1)); e.preventDefault(); }
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQV(heroItems[cur], FRONT); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQV(heroItems[cur], cur); }
   });
-  $('heroShop').addEventListener('click', () => openQV(heroItems[cur], FRONT));
-  $('sideLeft').addEventListener('click', () => { stopIntro(); openQV(heroItems[cur], SIDE); });
-  $('sideRight').addEventListener('click', () => { stopIntro(); openQV(heroItems[cur], SIDE); });
+  $('heroShop').addEventListener('click', () => openQV(heroItems[cur], cur));
   if (touchOnly) $('stageHint').textContent = 'Drag to turn';
 
   $('heroBatch').textContent = `New batch · ${heroItems.length} necklaces`;
@@ -173,7 +165,7 @@
     const li = document.createElement('li');
     li.className = 'card' + (p.sold ? ' sold' : '');
     li.dataset.family = p.family;
-    li.style.setProperty('--accent', p.backdrop);
+    accent(li, p);
     li.innerHTML = `
       <button class="card-btn" type="button" aria-label="${p.name}, ${p.sold ? 'sold' : money(p.price)}">
         <div class="tile">
@@ -319,7 +311,7 @@
     items.forEach(p => {
       const li = document.createElement('li');
       li.className = 'bag-item';
-      li.style.setProperty('--accent', p.backdrop);
+      accent(li, p);
       li.innerHTML = `<canvas width="168" height="168" aria-hidden="true"></canvas>
         <div><div class="name">${p.name}</div><button class="link-btn" type="button">Remove</button></div>
         <span>${money(p.price)}</span>`;
@@ -375,7 +367,7 @@
   // Sold pieces to pick from.
   const soldPick = $('soldPick'), sold = P.filter(p => p.sold);
   soldPick.innerHTML = sold.length ? sold.map(p => `
-      <label class="sold-card" style="--accent:${p.backdrop}">
+      <label class="sold-card" style="--accent:${p.backdrop};--tile-bg:${tileBg(p)}">
         <input type="radio" name="soldPiece" value="${p.slug}">
         <span class="tile"><canvas class="shot" width="320" height="320"></canvas></span>
         <span class="sc-name">${p.name}</span>

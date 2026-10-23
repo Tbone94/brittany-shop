@@ -48,12 +48,14 @@
   /* ---------- Wavy ribbons in the page background ---------- */
   // 70s-style bands of stacked wavy stripes that flow edge to edge behind the content. They use soft
   // pastel tints of the glass colors so they set the mood without competing with the photos.
+  // Placement follows research/ribbon-layout.md: two shallow angles alternating down the page (never flat),
+  // ends always run off the edges, about one ribbon per screen, nothing crossing text, and none near the
+  // rainbow divider above the footer. On phones only the ribbons marked small: true show, steeper and thinner.
   const RIBBONS = [
-    { in: '.hero', colors: ['--coral', '--uranium', '--turquoise', '--orchid'], top: '44%', height: 320, amp: 70, seed: 3 },
-    { in: '.shop', colors: ['--turquoise', '--uranium', '--coral'], top: '30%', height: 280, amp: 64, seed: 9 },
-    { in: '.shop', colors: ['--orchid', '--coral', '--uranium'], top: '54%', height: 260, amp: 56, seed: 14 },
-    { in: '.story', colors: ['--uranium', '--coral', '--rubino'], top: '96%', height: 200, amp: 40, seed: 21 },
-    { in: '.signup', colors: ['--turquoise', '--orchid', '--coral'], top: '90%', height: 200, amp: 36, seed: 27 },
+    { in: '.hero', colors: ['--coral', '--uranium', '--turquoise', '--orchid'], top: '42%', angle: -8, height: 300, amp: 46, seed: 3, small: true },
+    { in: '.shop', colors: ['--turquoise', '--uranium', '--coral'], top: '27%', angle: 8, height: 240, amp: 28, seed: 9 },
+    { in: '.shop', colors: ['--orchid', '--coral', '--uranium'], top: '54%', angle: -8, height: 240, amp: 28, seed: 14 },
+    { in: '.perks', colors: ['--uranium', '--coral', '--rubino'], top: '50%', angle: 10, height: 220, amp: 30, seed: 21, small: true },
   ];
   function rand32(seed) {
     return () => {
@@ -70,23 +72,25 @@
   // One wavy line drawn smoothly through points, then repeated a stripe-width lower for each color.
   function ribbonSVG(w, r) {
     const rand = rand32(r.seed), stripe = Math.max(16, Math.min(34, w * 0.026));
-    const mid = r.height / 2 - (stripe * (r.colors.length - 1)) / 2, pts = [];
+    const colors = w < 640 ? r.colors.slice(0, 3) : r.colors;
+    const mid = r.height / 2 - (stripe * (colors.length - 1)) / 2, pts = [];
     for (let x = -240; x <= w + 240; x += 240) pts.push([x, mid + (rand() - 0.5) * 2 * r.amp]);
     let d = `M${pts[0][0]} ${pts[0][1].toFixed(1)}`;
     for (let i = 0; i < pts.length - 1; i++) {
       const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
       d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)} ${p2[0]} ${p2[1].toFixed(1)}`;
     }
-    const bands = r.colors.map((c, k) => `<path d="${d}" transform="translate(0 ${(k * stripe).toFixed(1)})" fill="none" stroke="${tint(css(c), 0.5)}" stroke-width="${(stripe + 0.6).toFixed(1)}"/>`).join('');
+    const bands = colors.map((c, k) => `<path d="${d}" transform="translate(0 ${(k * stripe).toFixed(1)})" fill="none" stroke="${tint(css(c), 0.5)}" stroke-width="${(stripe + 0.6).toFixed(1)}"/>`).join('');
     return `<svg width="${w}" height="${r.height}" viewBox="0 0 ${w} ${r.height}" aria-hidden="true" focusable="false">${bands}</svg>`;
   }
   const ribbonEls = RIBBONS.map(r => {
     const host = document.querySelector(r.in);
     if (!host) return null;
     const el = document.createElement('div');
-    el.className = 'ribbon';
+    el.className = 'ribbon' + (r.small ? '' : ' hide-small');
     el.setAttribute('aria-hidden', 'true');
     el.style.top = r.top;
+    el.style.setProperty('--angle', `${r.angle}deg`);
     el.style.height = `${r.height}px`;
     el.style.marginTop = `${-r.height / 2}px`;
     host.prepend(el);
@@ -97,7 +101,7 @@
     const w = document.documentElement.clientWidth;
     if (w === ribbonW) return;
     ribbonW = w;
-    ribbonEls.forEach(({ el, r }) => { el.innerHTML = ribbonSVG(w, r); });
+    ribbonEls.forEach(({ el, r }) => { el.innerHTML = ribbonSVG(Math.round(w * 1.3), r); });
   }
   drawRibbons();
   window.addEventListener('resize', drawRibbons);

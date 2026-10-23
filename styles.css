@@ -64,8 +64,9 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 
 /* Photo tiles: a pale tint of the necklace's color with a crisp glass-color splash behind the cutout photo.
    The body covers most of the splash, so it shows around the neck and over the shoulders. */
-.tile { position: relative; overflow: hidden; border-radius: var(--radius); background: color-mix(in srgb, var(--accent, var(--ink)) 6%, #fff); }
-.tile .splash { position: absolute; z-index: 0; left: 50%; top: 26%; width: 116%; aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; }
+.tile { position: relative; overflow: hidden; border-radius: var(--radius); background: var(--tile-bg, color-mix(in srgb, var(--accent, var(--ink)) 6%, #fff)); }
+/* The groovy shape sweeps across the whole tile, over its tinted background: two-tone, no white. */
+.tile .splash { position: absolute; z-index: 0; left: 50%; top: 34%; width: 150%; aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; }
 .tile .splash svg { display: block; width: 100%; height: 100%; }
 .shot { position: relative; z-index: 1; display: block; width: 100%; aspect-ratio: 1; transition: transform .35s var(--ease); }
 
@@ -108,15 +109,8 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 /* Hero: the necklace big and centered, its shoulder views tilted on the sides, details centered below. */
 .hero { max-width: 1280px; margin: 0 auto; padding: clamp(32px, 5vw, 64px) var(--gutter) clamp(120px, 12vw, 160px); text-align: center; }
 .hero-eyebrow { margin-bottom: 22px; }
-.trio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.75fr) minmax(0, 1fr); gap: clamp(16px, 3vw, 40px); align-items: center; max-width: 1160px; margin: 0 auto; }
-.stage-wrap { position: relative; width: 100%; }
-.stage { cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; border-radius: 36px; }
-.side { display: block; padding: 0; border: 0; cursor: pointer; border-radius: 26px; transition: transform .35s var(--ease); }
-.side-left { transform: translateY(36px) rotate(-4deg); }
-.side-right { transform: translateY(36px) rotate(4deg); }
-.side-left:hover { transform: translateY(28px) rotate(-6deg); }
-.side-right:hover { transform: translateY(28px) rotate(6deg); }
-.side-left .shot { scale: -1 1; }
+.stage-wrap { position: relative; width: 100%; max-width: 640px; margin: 0 auto; }
+.stage { cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; border-radius: 40px; }
 .pager { display: flex; justify-content: center; gap: 4px; margin-top: 26px; }
 .pager button { width: 22px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
 .pager button::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--line); transition: width .25s var(--ease), background .25s var(--ease); }
@@ -175,7 +169,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 
 /* Signup */
 .signup { position: relative; overflow: hidden; text-align: center; padding: clamp(64px, 8vw, 112px) var(--gutter); border-top: 1px solid var(--line); }
-.signup > :not(.accent-shape):not(.gbead):not(.ribbon) { position: relative; z-index: 1; }
+.signup > :not(.accent-shape):not(.gbead) { position: relative; z-index: 1; }
 .signup-shape { width: 92px; top: 6%; left: calc(50% - 440px); }
 .signup form { display: flex; gap: 10px; max-width: 480px; margin: 28px auto 0; }
 .signup input, .ask input, .ask textarea { flex: 1; min-width: 0; font: 17px var(--sans); padding: 13px 20px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); }
@@ -202,7 +196,7 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .qv-hint { position: absolute; left: 14px; bottom: 14px; z-index: 2; font-size: 12px; font-weight: 500; background: rgba(255,255,255,.85); backdrop-filter: blur(8px); border-radius: 999px; padding: 6px 12px; pointer-events: none; transition: opacity .4s; }
 .qv-hint.gone { opacity: 0; }
 .qv-thumbs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 12px; }
-.qv-thumbs button { padding: 0; aspect-ratio: 1; overflow: hidden; cursor: pointer; border: 0; border-radius: 12px; background: var(--tint); transition: box-shadow .2s; }
+.qv-thumbs button { padding: 0; aspect-ratio: 1; overflow: hidden; cursor: pointer; border: 0; border-radius: 12px; background: var(--tile-bg, var(--tint)); transition: box-shadow .2s; }
 .qv-thumbs button[aria-current="true"] { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
 .qv-thumbs canvas { width: 100%; height: 100%; }
 .qv-angle { margin-top: 12px; text-align: center; font-size: 13px; color: var(--ink-2); }
@@ -289,7 +283,7 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .bag-head .close { position: static; }
 .bag-items { list-style: none; flex: 1; overflow: auto; padding: 4px 24px; }
 .bag-item { display: grid; grid-template-columns: 76px 1fr auto; gap: 14px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); }
-.bag-item canvas { width: 76px; height: 76px; border-radius: 14px; background: var(--tint); }
+.bag-item canvas { width: 76px; height: 76px; border-radius: 14px; background: var(--tile-bg, var(--tint)); }
 .bag-item .name { font-weight: 600; }
 .bag-item .link-btn { font-size: 13px; }
 .bag-empty { padding: 48px 0; text-align: center; }
@@ -303,7 +297,7 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 /* Each section is its own stacking layer, so ribbons sit above its background but behind its content.
    Ribbons span the full window width, centered on the section. */
 .hero, .shop, .story, .perks, .signup, footer { position: relative; isolation: isolate; }
-.ribbon { position: absolute; left: 50%; width: 100vw; translate: -50% 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.ribbon { position: absolute; left: 50%; width: 130vw; translate: -50% 0; rotate: var(--angle, 0deg); z-index: -1; pointer-events: none; overflow: hidden; }
 .ribbon svg { display: block; }
 
 /* ---------- Play: sprinkles and two small bead moments (play.js) ---------- */
@@ -332,12 +326,6 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 
 @media (max-width: 920px) {
   .now-name { font-size: clamp(36px, 10.5vw, 64px); }
-  /* On small screens the side views peek out from behind the big photo. */
-  .trio { display: block; position: relative; }
-  .trio .stage-wrap { width: 76%; margin: 0 auto; z-index: 2; }
-  .side { position: absolute; top: 22%; width: 34%; z-index: 1; }
-  .side-left { left: -4%; }
-  .side-right { right: -4%; }
   .grid, .found .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .story-inner, .perks { grid-template-columns: 1fr; }
   .qv-body { grid-template-columns: 1fr; }
@@ -360,6 +348,7 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
   .ask-you { grid-template-columns: 1fr; }
   .signup form { flex-direction: column; }
   .hide-small { display: none; }
+  .ribbon { rotate: calc(var(--angle, 0deg) * 2); }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }

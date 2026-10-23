@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=36">
+<link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -28,22 +28,12 @@
     <h1 class="sr">Brittany, handmade glass bead necklaces</h1>
     <p class="eyebrow hero-eyebrow" id="heroBatch"></p>
 
-    <!-- The necklace you're on, big in the middle, with its left and right shoulder views on the sides. -->
-    <div class="trio">
-      <button class="side side-left tile" id="sideLeft" type="button">
-        <span class="splash" id="sideLeftSplash"></span>
-        <canvas class="shot" id="sideLeftCanvas" width="600" height="600"></canvas>
-      </button>
-      <div class="stage-wrap">
-        <div class="stage tile" id="stage" tabindex="0" role="button" aria-describedby="stageHint">
-          <div class="splash" id="heroSplash"></div>
-          <canvas class="shot" id="heroCanvas" width="900" height="900"></canvas>
-        </div>
+    <!-- One big photo that turns through the necklaces, each at its own angle, as you move across it. -->
+    <div class="stage-wrap">
+      <div class="stage tile" id="stage" tabindex="0" role="button" aria-describedby="stageHint">
+        <div class="splash" id="heroSplash"></div>
+        <canvas class="shot" id="heroCanvas" width="1000" height="1000"></canvas>
       </div>
-      <button class="side side-right tile" id="sideRight" type="button">
-        <span class="splash" id="sideRightSplash"></span>
-        <canvas class="shot" id="sideRightCanvas" width="600" height="600"></canvas>
-      </button>
     </div>
     <div class="pager" id="pager" role="group" aria-label="Choose a necklace"></div>
     <p class="stage-hint" id="stageHint">Hover to turn</p>
@@ -233,10 +223,10 @@
   </div>
 </dialog>
 
-<script src="products.js?v=36"></script>
-<script src="standin.js?v=36"></script>
-<script src="splash.js?v=36"></script>
-<script src="shop.js?v=36"></script>
-<script src="play.js?v=36"></script>
+<script src="products.js?v=39"></script>
+<script src="standin.js?v=39"></script>
+<script src="splash.js?v=39"></script>
+<script src="shop.js?v=39"></script>
+<script src="play.js?v=39"></script>
 </body>
 </html>
