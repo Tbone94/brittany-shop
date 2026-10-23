@@ -84,13 +84,27 @@
   const save = () => { try { localStorage.setItem('bag', JSON.stringify(bag)); } catch { /* private mode: bag just won't persist */ } };
   const inBag = p => bag.includes(p.slug);
 
-  /* ---------- Hero: turning chest shots, a different necklace at each angle ---------- */
-  const heroItems = P.slice(0, N);
+  /* ---------- Hero: the necklace you're on, big and centered, with its shoulder views on the sides ---------- */
+  // Moving across the big photo flips through the necklaces like stop motion; the side views flip with it.
+  // The right side is the necklace's angled photo (angle 6); the left side is the same photo mirrored.
+  const heroItems = P.slice(0, N), FRONT = 3, SIDE = 5;
   const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas'), pager = $('pager');
-  heroItems.forEach(() => pager.appendChild(document.createElement('span')));
+  heroItems.forEach((p, k) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', p.name);
+    b.addEventListener('click', () => { stopIntro(); setHero(k); });
+    pager.appendChild(b);
+  });
   let cur = -1, intro = null, touched = false, press = null;
 
-  const paintHero = () => { if (cur >= 0) paint(heroCanvas, image(heroItems[cur], cur)); };
+  const paintHero = () => {
+    if (cur < 0) return;
+    const p = heroItems[cur];
+    paint(heroCanvas, image(p, FRONT));
+    paint($('sideLeftCanvas'), image(p, SIDE));
+    paint($('sideRightCanvas'), image(p, SIDE));
+  };
   painters.add(paintHero);
 
   function setHero(i) {
@@ -101,12 +115,16 @@
     const p = heroItems[i];
     accent(heroEl, p);
     $('heroSplash').innerHTML = splash(p, i + 1);
+    $('sideLeftSplash').innerHTML = splash(p, i + 21);
+    $('sideRightSplash').innerHTML = splash(p, i + 41);
+    $('sideLeft').setAttribute('aria-label', `${p.name}, left side`);
+    $('sideRight').setAttribute('aria-label', `${p.name}, right side`);
     $('tagName').textContent = p.name;
     $('tagDesc').textContent = p.desc;
     $('tagPrice').textContent = p.sold ? 'Sold' : money(p.price);
     $('tagLength').textContent = p.details.Length;
     $('tagDots').innerHTML = dots(p.palette);
-    [...pager.children].forEach((t, k) => t.classList.toggle('on', k === i));
+    [...pager.children].forEach((t, k) => { t.classList.toggle('on', k === i); t.setAttribute('aria-current', String(k === i)); });
     stage.setAttribute('aria-label', `${p.name}, ${p.sold ? 'sold' : money(p.price)}. Press Enter for details, arrow keys to turn.`);
   }
   const stopIntro = () => { touched = true; clearInterval(intro); intro = null; };
@@ -116,15 +134,17 @@
   stage.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY }; stopIntro(); });
   stage.addEventListener('pointerup', e => {
     // A click or tap (not a drag) opens the necklace you're looking at.
-    if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 8) openQV(heroItems[cur], cur);
+    if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 8) openQV(heroItems[cur], FRONT);
     press = null;
   });
   stage.addEventListener('pointercancel', () => { press = null; });
   stage.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { stopIntro(); setHero(cur + (e.key === 'ArrowRight' ? 1 : -1)); e.preventDefault(); }
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQV(heroItems[cur], cur); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQV(heroItems[cur], FRONT); }
   });
-  $('heroShop').addEventListener('click', () => openQV(heroItems[cur], cur));
+  $('heroShop').addEventListener('click', () => openQV(heroItems[cur], FRONT));
+  $('sideLeft').addEventListener('click', () => { stopIntro(); openQV(heroItems[cur], SIDE); });
+  $('sideRight').addEventListener('click', () => { stopIntro(); openQV(heroItems[cur], SIDE); });
   if (touchOnly) $('stageHint').textContent = 'Drag to turn';
 
   $('heroBatch').textContent = `New batch · ${heroItems.length} necklaces`;

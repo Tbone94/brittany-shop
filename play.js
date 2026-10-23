@@ -45,6 +45,31 @@
     s.animate([{ rotate: '0deg' }, { rotate: '360deg' }], { duration: 700, easing: 'cubic-bezier(.2,.7,.2,1)' });
   });
 
+  /* ---------- Big color splashes in the page background ---------- */
+  // Static, behind the content, mostly bleeding off the edges of the page. Sizes in px (scaled down on phones).
+  const BIG = [
+    { in: '.hero', shape: 'round', colors: ['--coral', '--uranium', '--rubino'], size: 560, style: 'left:-260px;top:-140px', seed: 3 },
+    { in: '.hero', shape: 'shard', colors: ['--turquoise', '--cobalt', '--emerald'], size: 500, style: 'right:-250px;top:28%', seed: 7 },
+    { in: '.hero', shape: 'daisy', colors: ['--orchid', '--coral', '--uranium'], size: 300, style: 'left:-90px;bottom:40px', seed: 11, small: false },
+    { in: '.shop', shape: 'burst', colors: ['--uranium', '--coral', '--sangre'], size: 520, style: 'right:-300px;top:120px', seed: 13 },
+    { in: '.shop', shape: 'daisy', colors: ['--turquoise', '--cobalt', '--uranium'], size: 460, style: 'left:-290px;top:700px', seed: 17, small: false },
+    { in: '.shop', shape: 'round', colors: ['--orchid', '--rubino', '--coral'], size: 520, style: 'right:-330px;bottom:-200px', seed: 19, small: false },
+    { in: '.story', shape: 'shard', colors: ['--coral', '--rubino', '--uranium'], size: 480, style: 'right:-220px;top:24%', seed: 23 },
+    { in: '.perks', shape: 'round', colors: ['--turquoise', '--emerald', '--uranium'], size: 460, style: 'left:-260px;top:-60px', seed: 29 },
+    { in: '.signup', shape: 'burst', colors: ['--cobalt', '--turquoise', '--orchid'], size: 420, style: 'right:-200px;top:-80px', seed: 31 },
+    { in: 'footer', shape: 'daisy', colors: ['--coral', '--uranium', '--orchid'], size: 380, style: 'left:-170px;bottom:-170px', seed: 37 },
+  ];
+  BIG.forEach(b => {
+    const host = document.querySelector(b.in);
+    if (!host || !window.Splash) return;
+    const el = document.createElement('div');
+    el.className = 'bg-splash' + (b.small === false ? ' hide-small' : '');
+    el.setAttribute('aria-hidden', 'true');
+    el.style.cssText = `${b.style};--w:${b.size}px`;
+    el.innerHTML = window.Splash.svg(b.colors.map(css), b.seed, { shape: b.shape });
+    host.prepend(el);
+  });
+
   /* ---------- The bead strand in the story section ---------- */
   const strandEl = document.getElementById('strand');
   const strand = { beads: [], slot: -1, look: null, raf: 0 };

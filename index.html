@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=28">
+<link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -25,19 +25,30 @@
 
 <main>
   <section class="hero" id="hero">
-    <div class="stage-wrap">
-      <div class="stage tile" id="stage" tabindex="0" role="button" aria-describedby="stageHint">
-        <div class="splash" id="heroSplash"></div>
-        <canvas class="shot" id="heroCanvas" width="900" height="900"></canvas>
+    <h1 class="sr">Brittany, handmade glass bead necklaces</h1>
+    <p class="eyebrow hero-eyebrow" id="heroBatch"></p>
+
+    <!-- The necklace you're on, big in the middle, with its left and right shoulder views on the sides. -->
+    <div class="trio">
+      <button class="side side-left tile" id="sideLeft" type="button">
+        <span class="splash" id="sideLeftSplash"></span>
+        <canvas class="shot" id="sideLeftCanvas" width="600" height="600"></canvas>
+      </button>
+      <div class="stage-wrap">
+        <div class="stage tile" id="stage" tabindex="0" role="button" aria-describedby="stageHint">
+          <div class="splash" id="heroSplash"></div>
+          <canvas class="shot" id="heroCanvas" width="900" height="900"></canvas>
+        </div>
       </div>
-      <div class="pager" id="pager" aria-hidden="true"></div>
-      <p class="stage-hint" id="stageHint">Hover to turn</p>
+      <button class="side side-right tile" id="sideRight" type="button">
+        <span class="splash" id="sideRightSplash"></span>
+        <canvas class="shot" id="sideRightCanvas" width="600" height="600"></canvas>
+      </button>
     </div>
+    <div class="pager" id="pager" role="group" aria-label="Choose a necklace"></div>
+    <p class="stage-hint" id="stageHint">Hover to turn</p>
 
     <div class="hero-copy">
-      <h1 class="sr">Brittany, handmade glass bead necklaces</h1>
-      <p class="eyebrow" id="heroBatch"></p>
-      <!-- The necklace on the left: its name and details change as the photos turn. -->
       <div class="now" aria-live="polite">
         <p class="now-name" id="tagName"></p>
         <p class="now-desc" id="tagDesc"></p>
@@ -222,10 +233,10 @@
   </div>
 </dialog>
 
-<script src="products.js?v=28"></script>
-<script src="standin.js?v=28"></script>
-<script src="splash.js?v=28"></script>
-<script src="shop.js?v=28"></script>
-<script src="play.js?v=28"></script>
+<script src="products.js?v=32"></script>
+<script src="standin.js?v=32"></script>
+<script src="splash.js?v=32"></script>
+<script src="shop.js?v=32"></script>
+<script src="play.js?v=32"></script>
 </body>
 </html>
