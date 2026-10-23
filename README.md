@@ -1,5 +1,9 @@
 # Brittany — handmade glass-bead jewelry
 
+**Live preview:** https://tbone94.github.io/brittany-shop/
+
+To update it, commit and push to `main`; GitHub Pages republishes in about a minute.
+
 Business plan (online doc): https://claude.ai/code/artifact/8783c375-5827-49ec-aa10-8c531d60a881
 Research on how shops like this are laid out: [research/browse-and-buy.md](research/browse-and-buy.md)
 Glass colors behind the brand palette: [research/glass-colors.md](research/glass-colors.md)
