@@ -1,0 +1,340 @@
+// Small bits of play, kept contained so they never get in the way of shopping:
+//   - a few groovy sprinkles around the page that wiggle when hovered and spin when clicked
+//   - two short moments that play once when they come into view (tap to play again):
+//       1. Hero: a glass bead drops onto a daisy, the flower squishes, and the bead bounces off.
+//       2. Story: a bead drops into the middle of the bead strand, the strand bounces, and the bead
+//          it replaces falls off and rolls a little way. Tap that bead to put it back in.
+//       3. Footer: a bead drops into the dot of the "i" in the big logo, and the word gives a little bounce.
+//   - two that answer something you do: adding to the bag sends a bead arcing into the Bag button,
+//     and joining the email list pops a few beads up like confetti.
+// Only transform and opacity are animated (Web Animations API), and nothing runs while scrolling.
+(() => {
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const P = window.PRODUCTS, S = window.StandIn;
+
+  /* ---------- Sprinkles ---------- */
+  const SHAPES = {
+    daisy: c => `<svg viewBox="0 0 40 40">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="20" cy="9.5" rx="6.2" ry="9" fill="${c}" transform="rotate(${a} 20 20)"/>`).join('')}<circle cx="20" cy="20" r="5.2" fill="#fff"/><circle cx="20" cy="20" r="5.2" fill="${c}" fill-opacity=".25"/></svg>`,
+    sparkle: c => `<svg viewBox="0 0 40 40"><path d="M20 2C21.6 14 26 18.4 38 20 26 21.6 21.6 26 20 38 18.4 26 14 21.6 2 20 14 18.4 18.4 14 20 2Z" fill="${c}"/></svg>`,
+    squiggle: c => `<svg viewBox="0 0 48 24"><path d="M3 15Q9 4 15 15T27 15T39 15T51 15" fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round"/></svg>`,
+    bead: c => `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="${c}"/><g fill="#fff">${[[20, 9], [30, 17], [27, 29], [13, 29], [10, 17]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6"/>`).join('')}</g><ellipse cx="14" cy="12" rx="5" ry="3" fill="#fff" fill-opacity=".55" transform="rotate(-35 14 12)"/></svg>`,
+  };
+  // Where each sprinkle sits: inside which element, its shape, color and position.
+  const PLACES = [
+    { in: '.hero', shape: 'sparkle', color: '--uranium', size: 30, style: 'top:7%;right:6%' },
+    { in: '.shop .section-head', shape: 'squiggle', color: '--coral', size: 46, style: 'top:4px;left:calc(min(520px, 56%))', small: false },
+    { in: '.found .section-head', shape: 'bead', color: '--turquoise', size: 24, style: 'top:2px;left:250px', small: false },
+    { in: '.story', shape: 'daisy', color: '--orchid', size: 30, style: 'bottom:14%;right:5%' },
+    { in: '.signup', shape: 'sparkle', color: '--cobalt', size: 26, style: 'top:30%;right:calc(50% - 320px)' },
+    { in: 'footer', shape: 'daisy', color: '--uranium', size: 22, style: 'top:20px;right:calc(var(--gutter) + 4px)' },
+  ];
+  PLACES.forEach(p => {
+    const host = document.querySelector(p.in);
+    if (!host) return;
+    const el = document.createElement('span');
+    el.className = 'sprinkle' + (p.small === false ? ' hide-small' : '');
+    el.setAttribute('aria-hidden', 'true');
+    el.style.cssText = `${p.style};width:${p.size}px`;
+    el.innerHTML = SHAPES[p.shape](css(p.color));
+    host.appendChild(el);
+  });
+  document.addEventListener('click', e => {
+    const s = e.target.closest('.sprinkle');
+    if (!s || reduceMotion) return;
+    s.animate([{ rotate: '0deg' }, { rotate: '360deg' }], { duration: 700, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  });
+
+  /* ---------- The bead strand in the story section ---------- */
+  const strandEl = document.getElementById('strand');
+  const strand = { beads: [], slot: -1, look: null, raf: 0 };
+  // The cord hangs in a curve; `amp` is how deep it sags (it springs when a bead lands).
+  const sag = (x, w, amp = 92) => 28 + amp * (1 - ((x - w / 2) / (w / 2)) ** 2);
+  let placeResting = null;
+
+  function layoutStrand() {
+    const w = strandEl.clientWidth;
+    const rand = S.rng(5), colors = P.flatMap(p => [...p.palette, p.focal.color]);
+    strand.beads = [];
+    for (let x = -10; x < w + 24;) {
+      const big = rand() < 0.55, r = big ? 11 + rand() * 11 : 5, roll = rand();
+      x += r;
+      strand.beads.push(big
+        ? { x, r, kind: roll < 0.3 ? 'dots' : roll < 0.45 ? 'stripe' : 'glass', color: colors[Math.floor(rand() * colors.length)], dot: '#fff8ee', seed: rand() * 6 }
+        : { x, r, kind: 'spacer', metal: roll < 0.5 ? 'gold' : 'silver' });
+      x += r + 1;
+    }
+    // The big bead nearest the middle is the one that gets swapped.
+    let best = -1;
+    strand.beads.forEach((b, i) => { if (b.kind !== 'spacer' && b.r > 15 && (best < 0 || Math.abs(b.x - w / 2) < Math.abs(strand.beads[best].x - w / 2))) best = i; });
+    strand.slot = best;
+  }
+  function drawStrand(amp = 92) {
+    const dpr = Math.min(2, window.devicePixelRatio || 1), w = strandEl.clientWidth, h = strandEl.clientHeight;
+    if (!w) return;
+    if (strandEl.width !== Math.round(w * dpr)) { strandEl.width = w * dpr; strandEl.height = h * dpr; }
+    const ctx = strandEl.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = '#a1a1a6'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(-10, sag(-10, w, amp));
+    for (let x = -4; x <= w + 10; x += 6) ctx.lineTo(x, sag(x, w, amp));
+    ctx.stroke();
+    strand.beads.forEach((b, i) => {
+      const bead = i === strand.slot && strand.look ? { ...b, ...strand.look, r: b.r } : b;
+      S.drawBead(ctx, bead, b.x, sag(b.x, w, amp), 0);
+    });
+  }
+  // A damped spring: the cord dips and wobbles for about a second.
+  function bounceStrand() {
+    const t0 = performance.now();
+    cancelAnimationFrame(strand.raf);
+    const anim = now => {
+      const t = now - t0;
+      drawStrand(92 * (1 + 0.12 * Math.exp(-t / 300) * Math.sin(t / 60)));
+      strand.raf = t < 1300 ? requestAnimationFrame(anim) : 0;
+      if (!strand.raf) drawStrand();
+    };
+    strand.raf = requestAnimationFrame(anim);
+  }
+  if (strandEl) {
+    layoutStrand(); drawStrand();
+    let lastW = strandEl.clientWidth;
+    new ResizeObserver(() => {
+      if (strandEl.clientWidth === lastW) return;
+      lastW = strandEl.clientWidth;
+      layoutStrand(); drawStrand(); if (placeResting) placeResting();
+    }).observe(strandEl);
+  }
+
+  // Used by shop.js. Without motion these resolve straight away and nothing moves.
+  window.PlayFX = { toBag: () => Promise.resolve(), confetti: () => {} };
+
+  if (reduceMotion) return;
+
+  /* ---------- A glass bead element ---------- */
+  // Nested so the sideways path (outer), up-and-down path (inner) and squash (ball) animate on their
+  // own, which makes curved bounces look natural. The dots spin; the highlight stays put, like glass.
+  function makeBead(size, look) {
+    const el = document.createElement('span');
+    el.className = 'gbead';
+    el.setAttribute('aria-hidden', 'true');
+    el.style.width = el.style.height = `${size}px`;
+    el.innerHTML = `<span class="gbead-y"><span class="gbead-ball"><svg viewBox="0 0 40 40">
+        <g class="gb-dots" fill="#fff">${[[20, 7], [32, 16], [28, 31], [12, 31], [8, 16], [20, 20]].map(([cx, cy], k) => `<circle cx="${cx}" cy="${cy}" r="${k === 5 ? 2.4 : 3}"/>`).join('')}</g>
+        <g class="gb-stripes" fill="none" stroke="#fff8ee" stroke-width="3.2" stroke-linecap="round">${[11, 20, 29].map(y => `<path d="M2 ${y}Q11 ${y - 6} 20 ${y}T38 ${y}"/>`).join('')}</g>
+      </svg></span></span>`;
+    setLook(el, look);
+    return el;
+  }
+  function setLook(el, look) {
+    el.look = look;
+    el.querySelector('.gbead-ball').style.setProperty('--c', look.color);
+    el.querySelector('.gb-dots').style.display = look.kind === 'dots' ? '' : 'none';
+    el.querySelector('.gb-stripes').style.display = look.kind === 'stripe' ? '' : 'none';
+  }
+  const parts = el => ({ y: el.querySelector('.gbead-y'), ball: el.querySelector('.gbead-ball'), svg: el.querySelector('svg') });
+  const IN = 'cubic-bezier(.5, 0, .9, .5)', OUT = 'cubic-bezier(.1, .5, .5, 1)';
+  // Play one bounce path. xs / ys are [offset, value, easing] keyframes for the bead's center, in px.
+  function fly(el, { xs, ys, squashAt = [], spin = 0, duration }) {
+    const r = parseFloat(el.style.width) / 2, p = parts(el);
+    const kf = (list, prop) => list.map(([offset, v, easing]) => ({ offset, transform: `${prop}(${v - r}px)`, easing: easing || 'linear' }));
+    const opts = { duration, fill: 'forwards' };
+    const anims = [el.animate(kf(xs, 'translateX'), opts), p.y.animate(kf(ys, 'translateY'), opts)];
+    if (spin) anims.push(p.svg.animate([{ rotate: '0turn' }, { rotate: `${spin}turn` }], { duration, fill: 'forwards', easing: 'cubic-bezier(.3,.6,.4,1)' }));
+    squashAt.forEach(at => p.ball.animate([
+      { transform: 'scale(1, 1)' }, { transform: 'scale(1, 1)', offset: Math.max(0, at - 0.02) },
+      { transform: 'scale(1.18, .82)', offset: at }, { transform: 'scale(.96, 1.04)', offset: Math.min(1, at + 0.06) },
+      { transform: 'scale(1, 1)', offset: Math.min(1, at + 0.1) }, { transform: 'scale(1, 1)' },
+    ], { duration }));
+    // An interrupted animation shouldn't leave a moment stuck, so cancellations count as done.
+    return Promise.all(anims.map(a => a.finished.catch(() => {})));
+  }
+  const once = (el, cb, threshold = 0.6) => {
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) { io.disconnect(); cb(); }
+    }, { threshold });
+    io.observe(el);
+  };
+
+  /* ---------- Moment 1: a bead drops onto a daisy and bounces off ---------- */
+  const heroCopy = document.querySelector('.hero-copy');
+  if (heroCopy) {
+    const box = document.createElement('div');
+    box.className = 'moment-hero';
+    const flower = document.createElement('button');
+    flower.type = 'button';
+    flower.className = 'moment-flower';
+    flower.setAttribute('aria-label', 'Bounce the bead off the flower');
+    flower.innerHTML = SHAPES.daisy(css('--coral'));
+    box.appendChild(flower);
+    heroCopy.appendChild(box);
+
+    const FL = 44, R = 12, H = 170, ground = H - R;
+    const fx = 30 + FL / 2, flowerTop = H - FL * 0.9;
+    let bead = null, playing = false;
+    const giveFlower = () => flower.animate([
+      { transform: 'translateY(0) scale(1, 1)' },
+      { transform: 'translateY(5px) scale(1.16, .76)', offset: 0.22 },
+      { transform: 'translateY(-3px) scale(.94, 1.08)', offset: 0.55 },
+      { transform: 'translateY(1px) scale(1.03, .97)', offset: 0.8 },
+      { transform: 'translateY(0) scale(1, 1)' },
+    ], { duration: 650, easing: 'ease-out' });
+
+    async function play() {
+      if (playing) return;
+      playing = true;
+      if (bead) { await bead.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished.catch(() => {}); bead.remove(); }
+      bead = makeBead(R * 2, { color: css('--cobalt'), kind: 'dots' });
+      box.appendChild(bead);
+      bead.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250 });
+      const D = 1300, hit = 0.38;
+      setTimeout(giveFlower, D * hit);
+      await fly(bead, {
+        duration: D, spin: 1.6, squashAt: [hit, 0.8],
+        xs: [[0, fx], [hit, fx], [0.62, fx + 52], [0.8, fx + 98], [0.9, fx + 116, OUT], [1, fx + 128]],
+        ys: [[0, -40, IN], [hit, flowerTop - R, OUT], [0.6, flowerTop - 70, IN], [0.8, ground, OUT], [0.9, ground - 14, IN], [1, ground]],
+      });
+      playing = false;
+    }
+    flower.addEventListener('click', play);
+    box.addEventListener('click', e => { if (e.target.closest('.gbead')) play(); });
+    setTimeout(() => once(heroCopy, play, 0.5), 600);
+  }
+
+  /* ---------- Moment 2: a bead drops into the strand and knocks one loose ---------- */
+  const story = document.querySelector('.story');
+  if (strandEl && story && strand.slot >= 0) {
+    let resting = null, side = 1, busy = false, restAt = 0;
+    const slotPos = () => {
+      const b = strand.beads[strand.slot], w = strandEl.clientWidth;
+      return { x: strandEl.offsetLeft + b.x, y: strandEl.offsetTop + sag(b.x, w), r: b.r };
+    };
+    const floorY = r => strandEl.offsetTop + strandEl.clientHeight - r - 4;
+    placeResting = () => {
+      if (!resting) return;
+      const s = slotPos(), r = parseFloat(resting.style.width) / 2;
+      resting.getAnimations({ subtree: true }).forEach(a => a.cancel());
+      resting.style.transform = `translateX(${s.x + restAt - r}px)`;
+      resting.querySelector('.gbead-y').style.transform = `translateY(${floorY(r) - r}px)`;
+    };
+
+    // The bead that was in the slot falls off the strand, bounces and rolls a little way.
+    async function knockLoose(look) {
+      const s = slotPos(), el = makeBead(s.r * 2, look);
+      el.classList.add('resting');
+      el.removeAttribute('aria-hidden');
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', 'Put this bead back on the necklace');
+      story.appendChild(el);
+      const fy = floorY(s.r), dist = Math.min(150, strandEl.clientWidth / 2 - 40) * side;
+      restAt = dist;
+      await fly(el, {
+        duration: 1100, spin: dist / (Math.PI * s.r * 2), squashAt: [0.42, 0.68],
+        xs: [[0, s.x], [0.1, s.x + side * 4], [0.42, s.x + dist * 0.35], [0.68, s.x + dist * 0.75], [1, s.x + dist, OUT]],
+        ys: [[0, s.y, OUT], [0.1, s.y - 14, IN], [0.42, fy, OUT], [0.55, fy - 16, IN], [0.68, fy], [1, fy]],
+      });
+      resting = el;
+      side = -side;
+    }
+    // Put a bead into the slot: the strand bounces and the bead that was there drops out.
+    async function swapIn(el, fromX, fromY) {
+      busy = true;
+      const s = slotPos(), old = strand.look || strand.beads[strand.slot];
+      const fromBelow = fromY > s.y;
+      await fly(el, {
+        duration: fromBelow ? 650 : 560, spin: 0.5,
+        xs: [[0, fromX], [1, s.x, 'ease-in-out']],
+        ys: fromBelow ? [[0, fromY, OUT], [0.5, s.y - 46, IN], [1, s.y]] : [[0, fromY, IN], [1, s.y]],
+      });
+      strand.look = el.look;
+      el.remove();
+      bounceStrand();
+      await knockLoose({ color: old.color, kind: old.kind });
+      busy = false;
+    }
+
+    // First time the strand comes into view: a new bead drops in from above.
+    once(strandEl, () => {
+      const s = slotPos(), el = makeBead(s.r * 2, { color: css('--cobalt'), kind: 'dots' });
+      story.appendChild(el);
+      el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250 });
+      swapIn(el, s.x, s.y - 240);
+    }, 0.7);
+
+    // Tap the loose bead (or press Enter on it) to hop it back in, knocking out the one there now.
+    const putBack = e => {
+      if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+      const el = e.target.closest('.gbead.resting');
+      if (!el || el !== resting || busy) return;
+      const s = slotPos(), r = parseFloat(el.style.width) / 2;
+      const fromX = s.x + restAt, fromY = floorY(r);
+      resting = null;
+      el.classList.remove('resting');
+      el.removeAttribute('role'); el.removeAttribute('tabindex'); el.setAttribute('aria-hidden', 'true');
+      el.getAnimations({ subtree: true }).forEach(a => a.cancel());
+      e.preventDefault();
+      swapIn(el, fromX, fromY);
+    };
+    story.addEventListener('click', putBack);
+    story.addEventListener('keydown', putBack);
+  }
+
+  /* ---------- Moment 3: a bead drops into the footer logo's i-dot ---------- */
+  const footLogo = document.querySelector('footer .logo'), footDot = footLogo?.querySelector('.dot');
+  if (footLogo && footDot) {
+    const foot = document.querySelector('footer');
+    footDot.style.opacity = '0';
+    once(footLogo, async () => {
+      const d = footDot.getBoundingClientRect(), f = foot.getBoundingClientRect();
+      const cx = d.left - f.left + d.width / 2, cy = d.top - f.top + d.height / 2;
+      const el = makeBead(d.width, { color: css('--coral'), kind: 'glass' });
+      foot.appendChild(el);
+      el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
+      await fly(el, { duration: 520, xs: [[0, cx], [1, cx]], ys: [[0, cy - 150, IN], [1, cy]] });
+      el.remove();
+      footDot.style.opacity = '1';
+      footDot.animate([{ scale: '1 1' }, { scale: '1.3 .7' }, { scale: '.9 1.1' }, { scale: '1 1' }], { duration: 380, easing: 'ease-out' });
+      footLogo.animate([{ translate: '0 0' }, { translate: '0 4px' }, { translate: '0 -2px' }, { translate: '0 0' }], { duration: 420, easing: 'ease-out' });
+    }, 0.8);
+  }
+
+  /* ---------- Add to bag: a bead arcs into the Bag button ---------- */
+  window.PlayFX.toBag = async (from, color) => {
+    const target = document.getElementById('bagCount')?.getBoundingClientRect();
+    if (!target) return;
+    const el = makeBead(18, { color, kind: 'dots' });
+    el.style.position = 'fixed';
+    el.style.zIndex = '60';
+    document.body.appendChild(el);
+    const x0 = from.left + from.width / 2, y0 = from.top + from.height / 2;
+    const x1 = target.left + target.width / 2, y1 = target.top + target.height / 2;
+    await fly(el, {
+      duration: 650, spin: 1,
+      xs: [[0, x0], [1, x1, 'cubic-bezier(.4, 0, .6, 1)']],
+      ys: [[0, y0, OUT], [0.4, Math.max(14, Math.min(y0, y1) - 70), IN], [1, y1]],
+    });
+    await el.animate([{ opacity: 1, scale: 1 }, { opacity: 0, scale: 0.4 }], { duration: 140, fill: 'forwards' }).finished.catch(() => {});
+    el.remove();
+  };
+
+  /* ---------- Email signup: a few beads pop up like confetti ---------- */
+  window.PlayFX.confetti = (from, host = document.querySelector('.signup')) => {
+    if (!host) return;
+    const h = host.getBoundingClientRect();
+    const cx = from.left - h.left + from.width / 2, cy = from.top - h.top + from.height / 2;
+    const colors = ['--cobalt', '--coral', '--turquoise', '--uranium', '--orchid', '--rubino'].map(css);
+    colors.forEach((c, i) => {
+      const size = 10 + Math.round(Math.random() * 7), el = makeBead(size, { color: c, kind: i % 2 ? 'dots' : 'glass' });
+      host.appendChild(el);
+      const dx = (i - 2.5) * 34 + (Math.random() - 0.5) * 20, peak = 70 + Math.random() * 60, dur = 900 + Math.random() * 300;
+      fly(el, {
+        duration: dur, spin: dx / 60,
+        xs: [[0, cx], [1, cx + dx * 1.6, OUT]],
+        ys: [[0, cy, OUT], [0.4, cy - peak, IN], [1, cy + 40]],
+      }).then(() => el.remove());
+      el.animate([{ opacity: 1 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }], { duration: dur, fill: 'forwards' });
+    });
+  };
+})();

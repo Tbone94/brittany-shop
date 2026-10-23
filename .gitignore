@@ -1,0 +1,4 @@
+# Preview screenshots and local dev settings
+photos/review/
+.claude/
+.DS_Store
