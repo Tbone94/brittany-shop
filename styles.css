@@ -119,27 +119,31 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .link-btn { background: none; border: 0; padding: 0; cursor: pointer; color: var(--cobalt); font-weight: 500; }
 
 /* Hero (Brittany's drawing): mostly the picture. The chest shot sits at the bottom of a wide board with no card
-   around it, the layered splash big behind it so it wraps around the shoulders, and the bottom of both cut off
-   flat by the section's edge. The tagline is big and black at the bottom left. The photo is 56.25% of the board's width. */
-.hero { --over: clamp(8px, calc(8vw - 44px), 72px); overflow: hidden; padding-top: var(--over); }  /* room for the big name hanging below the 64px bar */
-.stage { position: relative; width: min(100%, calc((100svh - 64px - var(--over)) * 1.6), 1600px); aspect-ratio: 8 / 5; margin: 0 auto; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+   around it, the layered splash big behind it wrapping around the shoulders, and both cut off flat at the photo's
+   bottom edge. The tagline sits big and black below, and everything fits on the first screen.
+   The photo is 56.25% of the board's width; --tag is the room kept for the tagline. */
+.hero { --over: clamp(8px, calc(8vw - 44px), 72px); --tag-size: clamp(40px, 5.4vw, 84px); --tag: calc(var(--tag-size) * .95 + 64px);
+  overflow: hidden; padding: var(--over) 0 20px; }  /* --over: room for the big name hanging below the 64px bar */
+.stage { position: relative; width: min(100%, calc((100svh - 64px - var(--over) - var(--tag) - 20px) * 1.6), 1600px); aspect-ratio: 8 / 5; margin: 0 auto;
+  cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  clip-path: inset(-100vh -100vw 0 -100vw); }  /* cut the splash off flat at the photo's bottom edge, nowhere else */
 .hero-splash { position: absolute; left: 50%; top: 66%; width: 112%; aspect-ratio: 75 / 56; translate: -50% -50%; pointer-events: none; }
 .hero-splash svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .stage .shot { position: absolute; left: 50%; bottom: 0; width: 56.25%; aspect-ratio: 3 / 2; translate: -50% 0; }
-.tagline { position: absolute; z-index: 2; left: var(--gutter); bottom: clamp(18px, 3vw, 40px); max-width: 9em; font-size: clamp(44px, 6.6vw, 104px); line-height: .92; color: var(--ink); paint-order: stroke fill; -webkit-text-stroke: .1em #fff; pointer-events: none; }
-.tagline span { display: block; font: 600 clamp(15px, 1.5vw, 22px)/1.2 var(--label); letter-spacing: .1em; text-transform: uppercase; -webkit-text-stroke: 0; margin-bottom: .5em; }
-.pager { position: absolute; z-index: 2; right: var(--gutter); bottom: clamp(24px, 3.4vw, 48px); display: flex; gap: 4px; padding: 6px 8px; background: #fff; border: 2px solid var(--ink); border-radius: 999px; }
-.pager button { width: 22px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
-.pager button::before { content: ''; width: 9px; height: 9px; border-radius: 999px; background: var(--line); transition: width .25s var(--ease), background .25s var(--ease); }
-.pager button.on { width: 34px; }
-.pager button.on::before { width: 26px; background: var(--accent); }
+.tagline { position: relative; z-index: 2; margin: 18px auto 0; padding: 0 var(--gutter); text-align: center; font-size: var(--tag-size); line-height: .95; color: var(--ink); }
+.tagline .kicker { display: block; font: 600 clamp(14px, 1.4vw, 20px)/1.2 var(--label); letter-spacing: .12em; text-transform: uppercase; margin-bottom: .45em; }
+/* The drawn "!": the real character stays for search and screen readers but is invisible; a stem and a bead dot
+   are drawn in its place. play.js hides the dot (.bang.waiting) while the bead bounces in to become it. */
+.bang { position: relative; display: inline-block; color: transparent; }
+.bang::before { content: ''; position: absolute; left: 50%; top: .08em; width: .19em; height: .5em; translate: -50% 0; border-radius: .1em; background: var(--ink); rotate: 6deg; }
+.bang::after { content: ''; position: absolute; left: 50%; top: .64em; width: var(--bead, .22em); height: var(--bead, .22em); translate: -50% 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--coral) 34%, color-mix(in srgb, var(--coral) 60%, #000) 100%); }
+.bang.waiting::after { visibility: hidden; }
 @media (max-width: 760px) {
-  /* Phones: a square board (the splash's sides are trimmed), photo bigger, tagline and dots below it. */
+  /* Phones: a square board (the splash's sides are trimmed), photo bigger. */
+  .hero { --tag-size: clamp(40px, 12vw, 60px); }
   .stage { width: 100%; aspect-ratio: 1; }
   .stage .shot { width: 90%; }
   .hero-splash { width: 150%; top: 64%; }
-  .tagline { position: static; margin: 18px var(--gutter) 0; font-size: clamp(44px, 13vw, 64px); }
-  .pager { position: static; width: max-content; margin: 18px var(--gutter) 8px; }
 }
 
 /* Section heads from the drawings: three wavy pen lines and a hand-lettered caps title. */
@@ -162,14 +166,16 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .charm { transform-origin: 100px 50px; transition: transform .5s var(--ease); }
 .panel button:hover .charm { transform: rotate(6deg); }
 .panel-label { display: grid; align-content: center; gap: 6px; min-height: 9.5em; padding: 18px 16px; background: #fff; border: 2.5px solid var(--ink); }
-.panel-name { font: 400 clamp(26px, 2.7vw, 40px)/.95 var(--serif); overflow-wrap: anywhere; color: #fff; paint-order: stroke fill; -webkit-text-stroke: .12em var(--ink); text-shadow: .07em .07em 0 var(--panel); text-transform: uppercase; }
+.panel-name { font: 400 clamp(26px, 2.7vw, 40px)/.95 var(--serif); color: #fff; paint-order: stroke fill; -webkit-text-stroke: .12em var(--ink); text-shadow: .07em .07em 0 var(--panel); text-transform: uppercase; }
 .panel-blurb { font-size: 14px; color: var(--ink-2); }
 @media (max-width: 760px) {
   .panels { grid-template-columns: 1fr; }
   .panel + .panel { border-left: 2.5px solid var(--ink); border-top: 0; }
   .panel:first-child { border-radius: 28px 28px 0 0; }
   .panel:last-child { border-radius: 0 0 28px 28px; }
-  .panel button { grid-template-columns: 1fr 1fr; align-items: center; gap: 16px; }
+  .panel button { gap: 20px; }
+  .window { width: min(100%, 240px); justify-self: center; }
+  .panel-label { min-height: 0; }
 }
 
 /* Shop by color: full-width wavy bands, one color each, with its name in big stacked letters (stack.js). */

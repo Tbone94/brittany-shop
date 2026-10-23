@@ -121,14 +121,7 @@
   // Moving across it flips through the necklaces like stop motion, each shown at its own angle,
   // from left profile (necklace 1) to right profile (necklace 7).
   const heroItems = (window.HERO || P.map(p => p.slug)).map(slug => P.find(p => p.slug === slug)).filter(Boolean).slice(0, N);
-  const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas'), pager = $('pager');
-  heroItems.forEach((p, k) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.setAttribute('aria-label', p.name);
-    b.addEventListener('click', () => { stopIntro(); setHero(k); });
-    pager.appendChild(b);
-  });
+  const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas');
   let cur = -1, intro = null, touched = false, press = null;
 
   // The photo card is wide (3:2). Wide photos are zoomed in a little so the shoulders just reach the card's sides,
@@ -152,7 +145,6 @@
     // The layered glass-color splash, big and wrapping around the shoulders, stretched to a wide oval.
     $('heroSplash').innerHTML = window.Splash.svg(p.splash, i + 1, { shape: p.splashShape, rich: true })
       .replace('<svg ', '<svg preserveAspectRatio="none" ');
-    [...pager.children].forEach((t, k) => { t.classList.toggle('on', k === i); t.setAttribute('aria-current', String(k === i)); });
     stage.setAttribute('aria-label', `${p.name}, ${p.sold ? 'sold' : money(p.price)}. Press Enter for details, arrow keys to turn.`);
   }
   const stopIntro = () => { touched = true; clearInterval(intro); intro = null; };

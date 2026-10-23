@@ -1,8 +1,8 @@
 // Small bits of play, kept contained so they never get in the way of shopping:
 //   - a few groovy sprinkles around the page that wiggle when hovered and spin when clicked
 //   - two short moments that play once when they come into view (tap to play again):
-//       1. Hero: when the page opens, a glass bead bounces down two daisies like steps, lands and rolls
-//          into the "See this one" button.
+//       1. Hero: when the page opens, a glass bead bounces down two daisies like steps, hops along the
+//          tagline and lands as the dot of its "!".
 //       2. Story: a bead drops into the middle of the bead strand, the strand bounces, and the bead
 //          it replaces falls off and rolls a little way. Tap that bead to put it back in.
 //       3. Footer: a bead drops into the dot of the "i" in the big logo, and the word gives a little bounce.
@@ -218,12 +218,13 @@
     io.observe(el);
   };
 
-  /* ---------- Moment 1: on the first screen, a bead bounces down two daisies like steps and rolls away ---------- */
-  // The flowers sit in the empty space at the bottom left (on phones, beside the dots and the price). The bead
-  // drops from the top, bounces off each flower, lands level with the "See this one" button and rolls into it,
-  // giving it a little bump. It plays once when the page opens; tap either flower to play it again.
-  const hero = document.querySelector('.hero'), stageEl = document.querySelector('.stage'), btnEl = document.getElementById('heroShop');
-  if (hero && stageEl && btnEl) {
+  /* ---------- Moment 1: on the first screen, a bead bounces in and becomes the dot of the tagline's "!" ---------- */
+  // Two daisies sit on the left of the photo like steps. The bead drops from the top, bounces off each one, hops onto
+  // the tagline's letters (the n, then the d of "hand") and lands as the "!"'s dot, which gives the line a little bounce.
+  // It plays once when the page opens; tap either flower to play it again.
+  const hero = document.querySelector('.hero'), stageEl = document.querySelector('.stage');
+  const tagline = document.querySelector('.tagline'), bang = tagline?.querySelector('.bang');
+  if (hero && stageEl && bang) {
     const layer = document.createElement('div');
     layer.className = 'moment-hero';
     hero.appendChild(layer);
@@ -246,26 +247,25 @@
 
     // Where everything goes, measured from the page as it is now (in px, relative to the hero).
     function layout() {
-      const box = hero.getBoundingClientRect(), rel = el => { const r = el.getBoundingClientRect(); return { l: r.left - box.left, r: r.right - box.left, t: r.top - box.top, b: r.bottom - box.top }; };
-      const card = rel(stageEl), pager = rel(document.querySelector('.pager')), actions = rel(document.querySelector('.hero-actions')), btn = rel(document.getElementById('heroShop'));
-      const H = Math.min(box.height, innerHeight - (box.top + scrollY)), R = 11;
-      const wideGap = card.l > 200;
-      const FL = wideGap ? 52 : 38;
-      let f1, f2;
-      if (wideGap) {
-        // Desktop: two steps down the bottom-left of the first screen, beside the card and then below it.
-        f1 = { x: card.l * 0.2, y: card.t + (card.b - card.t) * 0.6 };
-        f2 = { x: card.l * 0.42, y: Math.min(card.b + 70, H - FL - 70) };
-      } else {
-        // Phones: one step left of the dots, one left of the price.
-        const meta = rel(document.querySelector('.now-meta'));
-        f1 = { x: 30, y: pager.t - 12 };
-        f2 = { x: 44, y: meta.t - 10 };
-      }
-      layer.style.height = `${H}px`;
+      const box = hero.getBoundingClientRect(), rel = r => ({ l: r.left - box.left, r: r.right - box.left, t: r.top - box.top, b: r.bottom - box.top });
+      const stage = rel(stageEl.getBoundingClientRect()), b = rel(bang.getBoundingClientRect());
+      const fs = parseFloat(getComputedStyle(tagline).fontSize), d = fs * 0.22, R = d / 2;
+      // The line with "hand" on it (the tagline wraps on phones): the text just before the "!".
+      const words = [...tagline.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
+      const range = document.createRange();
+      range.selectNodeContents(words);
+      const line = rel([...range.getClientRects()].pop());
+      const wide = stage.l > 120 || innerWidth > 760, FL = wide ? 52 : 38;
+      const f1 = wide ? { x: Math.max(40, line.l - 150), y: stage.t + (stage.b - stage.t) * 0.48 } : { x: 34, y: stage.t + (stage.b - stage.t) * 0.42 };
+      const f2 = wide ? { x: Math.max(80, line.l - 70), y: stage.b - FL * 0.2 } : { x: 56, y: stage.b - FL * 0.6 };
+      layer.style.height = `${box.height}px`;
       [f1, f2].forEach((f, k) => Object.assign(flowers[k].style, { width: `${FL}px`, left: `${f.x - FL / 2}px`, top: `${f.y}px` }));
-      // The bead lands level with the "See this one" button and rolls into its left side.
-      return { R, H, ground: btn.b - R - 2, top1: f1.y + FL * 0.12, top2: f2.y + FL * 0.12, x1: f1.x, x2: f2.x, stopX: btn.l - R + 1 };
+      return {
+        R, H: box.height, x1: f1.x, top1: f1.y + FL * 0.12, x2: f2.x, top2: f2.y + FL * 0.12,
+        // Letter tops: the n's x-height, then the d's ascender, then the dot.
+        xn: b.l - fs * 0.95, topN: line.t + fs * 0.42, xd: b.l - fs * 0.3, topD: line.t + fs * 0.16,
+        cx: (b.l + b.r) / 2, cy: b.t + fs * 0.64 + R,
+      };
     }
     layout();
     addEventListener('resize', () => { if (!playing) layout(); });
@@ -274,41 +274,40 @@
     async function play() {
       if (playing) return;
       playing = true;
-      // Measure once the fonts are in, so the button is where it will stay.
       await document.fonts.ready;
       await new Promise(r => requestAnimationFrame(r));
       const L = layout();
-      if (bead) { await bead.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished.catch(() => {}); bead.remove(); }
-      bead = makeBead(L.R * 2, { color: css('--cobalt'), kind: 'dots' });
+      bang.classList.add('waiting');
+      if (bead) bead.remove();
+      bead = makeBead(L.R * 2, { color: css('--coral'), kind: 'glass' });
       layer.appendChild(bead);
       bead.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
 
-      // Segment lengths in ms: fall, hop to flower 2, hop to the ground, a little bounce, then the roll.
-      const gap = Math.max(30, L.stopX - L.x2), xLand = L.x2 + gap * 0.3, xHop = xLand + Math.min(44, gap * 0.2);
-      const stopX = Math.max(L.stopX, xHop + 10), roll = stopX - xHop;
-      const seg = [620, 520, 600, 300, Math.max(450, roll * 2.6)];
-      const D = seg.reduce((a, b) => a + b), at = k => seg.slice(0, k).reduce((a, b) => a + b, 0) / D;
-      const mid = k => (at(k) + at(k + 1)) / 2;
-      const h1 = at(1), h2 = at(2), h3 = at(3), h4 = at(4);
+      // Segment lengths in ms: fall onto flower 1, hop to flower 2, the long hop onto the n, a hop to the d, into the dot.
+      const seg = [620, 520, 760, 360, 400], D = seg.reduce((a, b) => a + b);
+      const at = k => seg.slice(0, k).reduce((a, b) => a + b, 0) / D, mid = k => (at(k) + at(k + 1)) / 2;
+      const [h1, h2, h3, h4] = [1, 2, 3, 4].map(at);
       setTimeout(() => squish(flowers[0]), D * h1);
       setTimeout(() => squish(flowers[1]), D * h2);
-      // The bead bumps the button when it rolls into it.
-      setTimeout(() => btnEl.animate([
-        { transform: 'translateX(0) rotate(0)' }, { transform: 'translateX(5px) rotate(1.5deg)', offset: 0.3 },
-        { transform: 'translateX(-2px) rotate(-.6deg)', offset: 0.65 }, { transform: 'translateX(0) rotate(0)' },
-      ], { duration: 450, easing: 'ease-out' }), D - 20);
       await fly(bead, {
-        duration: D, spin: 1.2 + roll / (2 * Math.PI * L.R), squashAt: [h1, h2, h3, h4],
-        xs: [[0, L.x1], [h1, L.x1], [h2, L.x2], [h3, xLand], [h4, xHop, 'cubic-bezier(.3,.5,.6,.95)'], [1, stopX]],
-        ys: [[0, -30, IN], [h1, L.top1 - L.R, OUT], [mid(1), L.top1 - 80, IN], [h2, L.top2 - L.R, OUT], [mid(2), L.top2 - 70, IN],
-             [h3, L.ground, OUT], [mid(3), L.ground - 20, IN], [h4, L.ground], [1, L.ground]],
+        duration: D, spin: 1.6, squashAt: [h1, h2, h3, h4],
+        xs: [[0, L.x1], [h1, L.x1], [h2, L.x2], [h3, L.xn], [h4, L.xd], [1, L.cx]],
+        ys: [[0, -30, IN], [h1, L.top1 - L.R, OUT], [mid(1), L.top1 - 80, IN], [h2, L.top2 - L.R, OUT],
+             [mid(2), Math.min(L.top2, L.topN) - 130, IN], [h3, L.topN - L.R, OUT], [mid(3), L.topD - 44, IN],
+             [h4, L.topD - L.R, OUT], [mid(4), L.topD - 40, IN], [1, L.cy]],
       });
+      // Swap the flying bead for the drawn dot, and the line gives a little bounce.
+      bang.classList.remove('waiting');
+      bead.remove(); bead = null;
+      tagline.animate([{ translate: '0 0' }, { translate: '0 5px' }, { translate: '0 -2px' }, { translate: '0 0' }], { duration: 420, easing: 'ease-out' });
       playing = false;
     }
     flowers.forEach(f => f.addEventListener('click', play));
-    layer.addEventListener('click', e => { if (e.target.closest('.gbead')) play(); });
-    // Play once when the page opens, if the hero is on screen.
-    setTimeout(() => { if (hero.getBoundingClientRect().top < innerHeight * 0.5) play(); }, 900);
+    // Play once when the page opens, if the first screen is in view; hide the dot until the bead arrives.
+    if (hero.getBoundingClientRect().top < innerHeight * 0.5) {
+      bang.classList.add('waiting');
+      setTimeout(play, 700);
+    }
   }
 
   /* ---------- Moment 2: a bead drops into the strand and knocks one loose ---------- */
