@@ -52,7 +52,6 @@
   // ends always run off the edges, about one ribbon per screen, nothing crossing text, and none near the
   // rainbow divider above the footer. On phones only the ribbons marked small: true show, steeper and thinner.
   const RIBBONS = [
-    { in: '.hero', colors: ['--coral', '--uranium', '--turquoise', '--orchid'], top: '42%', angle: -8, height: 300, amp: 46, seed: 3, small: true },
     { in: '.shop', colors: ['--turquoise', '--uranium', '--coral'], top: '27%', angle: 8, height: 240, amp: 28, seed: 9 },
     { in: '.shop', colors: ['--orchid', '--coral', '--uranium'], top: '54%', angle: -8, height: 240, amp: 28, seed: 14 },
     { in: '.perks', colors: ['--uranium', '--coral', '--rubino'], top: '50%', angle: 10, height: 220, amp: 30, seed: 21, small: true },

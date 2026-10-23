@@ -104,6 +104,21 @@ Slugs match the file names. Bead sizes are approximate. Keep the same bead order
 
 **`sunday-morning` (Sunday Morning, 18 in).** A playful mixed strand of 8–12 mm round glass beads in random order and slightly varied sizes: peach, mint, butter yellow and lavender opaque pastels, some with small white dots. No two neighboring beads are the same color. At the center is a 14 mm peach focal bead with white dots. Silver-tone wire.
 
+**`garden-party` (Garden Party, Brittany's real necklace).** Match `photos/source/garden-party-original.jpg` exactly,
+bead by bead. The full description is in `photos/source/garden-party-prompt.md` (kept out of the public repo with the photo):
+gold-tone wire-wrapped rosary-style links (no cord). Mirrored sides of peridot rondelles, speckled dusty-rose rounds,
+amber ovals, teal leaves, aqua AB rectangles, forest-green teardrops and peach crackle ovals. Mint seed-bead ring
+connectors, green lampwork cubes with white flowers, and small dangles. An orange glass bell-flower charm hangs at the
+center. Use the **wide hero framing** below.
+
+## Wide hero framing (new shots)
+
+The hero now shows a wide 3:2 photo (1536x1024) sitting right on the splash, with no frame. Same scale as the
+older square photos (the neck and necklace are the same size), but the canvas is wider: both shoulders and both
+upper arms are completely inside the frame, with empty transparent space between the arms and each side edge,
+top to bottom (at least 8% of the width on each side). The top is just below the chin; the torso and ivory top
+continue off the bottom edge only. Test: `photos/review/moss-and-stone-4-wide.png`.
+
 ## Avoid (end of every prompt)
 
 > Do not show: the face, chin, lips or eyes; hands; hair across the neck; earrings or any other jewelry; straps;

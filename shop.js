@@ -91,7 +91,7 @@
   /* ---------- Hero: one big centered photo that turns through the necklaces ---------- */
   // Moving across it flips through the necklaces like stop motion, each shown at its own angle,
   // from left profile (necklace 1) to right profile (necklace 7).
-  const heroItems = P.slice(0, N);
+  const heroItems = (window.HERO || P.map(p => p.slug)).map(slug => P.find(p => p.slug === slug)).filter(Boolean).slice(0, N);
   const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas'), pager = $('pager');
   heroItems.forEach((p, k) => {
     const b = document.createElement('button');
@@ -102,7 +102,23 @@
   });
   let cur = -1, intro = null, touched = false, press = null;
 
-  const paintHero = () => { if (cur >= 0) paint(heroCanvas, image(heroItems[cur], cur)); };
+  // The hero is wide (3:2). A wide photo fills it; an older square one sits in the middle with its cut-off sides faded out.
+  function paintWide(canvas, src) {
+    const ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height;
+    const iw = src.naturalWidth || src.width, ih = src.naturalHeight || src.height, s = Math.min(w / iw, h / ih);
+    const dw = iw * s, x = (w - dw) / 2;
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(src, x, (h - ih * s) / 2, dw, ih * s);
+    if (dw < w - 1) {
+      const fade = ctx.createLinearGradient(x, 0, x + dw, 0);
+      fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(0.11, 'rgba(0,0,0,0)');
+      fade.addColorStop(0.89, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = fade; ctx.fillRect(x, 0, dw, h);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+  const paintHero = () => { if (cur >= 0) paintWide(heroCanvas, image(heroItems[cur], cur)); };
   painters.add(paintHero);
 
   function setHero(i) {

@@ -5,6 +5,17 @@
 // palette / cord / drop / focal / bead() only shape the drawn stand-ins and go away once real photos exist.
 window.PRODUCTS = [
   {
+    // Brittany's first real necklace (photo in photos/source/, prompt in photos/source/garden-party-prompt.md).
+    // Name, price and length are placeholders.
+    slug: 'garden-party', splashShape: 'bloom', name: 'Garden Party', price: 68, family: 'greens', sold: false,
+    backdrop: '#3f8f3a', accentInk: '#ffffff', splash: ['#5aa83c', '#f2b23a', '#f27a5e'],
+    desc: 'Leaf, flower and honey glass on gold wire-wrapped links, with a little orange bell flower at the center.',
+    details: { Length: '18 in', Glass: 'Leaf green, amber, aqua, coral', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
+    palette: ['#6aa83a', '#e0a12a', '#5cc8d8', '#f27a5e'], cord: '#c9a24a', drop: 0.86, rN: 0.6, span: 0.66, seed: 91,
+    focal: { r: 0.14, color: '#f0883e', kind: 'glass', dot: '#fff4e0' },
+    bead(i) { return i % 2 ? { r: 0.034, kind: 'spacer', metal: 'gold' } : { r: 0.07 + (i % 3) * 0.008, kind: i % 6 === 0 ? 'dots' : 'glass', color: this.palette[(i / 2 | 0) % 4], dot: '#ffffff' }; },
+  },
+  {
     slug: 'tide-pool', splashShape: 'round', name: 'Tide Pool', price: 48, family: 'blues', sold: false,
     backdrop: '#1fb5c9', accentInk: '#1b1a22', splash: ['#1fb5c9', '#e4dd3b', '#1f3fa8'],
     desc: 'Seafoam and deep-teal glass with tiny silver spacers and a dotted focal bead.',
@@ -68,6 +79,9 @@ window.PRODUCTS = [
     bead(i, rand) { return { r: 0.065 + rand() * 0.03, kind: rand() < 0.4 ? 'dots' : 'glass', color: this.palette[Math.floor(rand() * 4)], dot: '#fffaf0' }; },
   },
 ];
+
+// The hero turns through these, in order: necklace n is shown at angle n, left profile to right profile.
+window.HERO = ['tide-pool', 'marmalade', 'lilac-hour', 'garden-party', 'cherry-soda', 'midnight', 'sunday-morning'];
 
 // Filter chips, in display order. `color` is the bead shown on the chip.
 window.FAMILIES = [
