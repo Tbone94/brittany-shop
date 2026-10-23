@@ -368,7 +368,7 @@
   soldPick.innerHTML = sold.length ? sold.map(p => `
       <label class="sold-card" style="--accent:${p.backdrop};--tile-bg:${tileBg(p)}">
         <input type="radio" name="soldPiece" value="${p.slug}">
-        <span class="tile"><canvas class="shot" width="320" height="320"></canvas></span>
+        <span class="tile"><span class="splash">${splash(p, P.indexOf(p) + 40)}</span><canvas class="shot" width="320" height="320"></canvas></span>
         <span class="sc-name">${p.name}</span>
         <span class="sc-sub">Sold in ${p.soldOn}</span>
       </label>`).join('') : '<p class="ask-empty">Nothing has sold yet. Try "Something new".</p>';
