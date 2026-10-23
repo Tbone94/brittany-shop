@@ -43,7 +43,7 @@
     return drawn.get(key);
   }
   // The glass-color splash behind a necklace's photos, and the single small accent shape used elsewhere.
-  const splash = (p, seed) => window.Splash.svg(p.splash, seed, { shape: p.splashShape });
+  const splash = (p, seed) => window.Splash.svg(p.splash, seed, { shape: p.splashShape, rich: true });
   const shape = (color, kind, seed) => window.Splash.svg([color], seed, { shape: kind, minimal: true });
 
   function paint(canvas, src) {
