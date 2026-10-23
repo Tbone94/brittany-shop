@@ -74,22 +74,34 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .accent-shape { position: absolute; z-index: 0; width: 132px; aspect-ratio: 1; pointer-events: none; }
 .accent-shape svg { display: block; width: 100%; height: 100%; overflow: visible; }
 
-/* Header */
+/* Header (Brittany's drawing): the name big and black at the top left, the menu to its right.
+   The header bar itself stays slim; the big name hangs below it and shrinks into the bar once you scroll,
+   using a transform so nothing on the page moves. */
 .top {
-  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 32px;
-  padding: 12px var(--gutter); background: rgba(255,255,255,.97);
-  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 32px; height: 64px;
+  padding: 0 var(--gutter); background: transparent; transition: background .25s, box-shadow .25s;
 }
-.logo { font-family: var(--logo); font-size: 28px; line-height: 1; text-decoration: none; color: var(--ink); }
+.top.small { background: rgba(255,255,255,.97); box-shadow: 0 1px 0 var(--line); }
+.logo { font-family: var(--serif); font-size: 28px; line-height: 1; text-decoration: none; color: var(--ink); }
+.top .logo { align-self: flex-start; margin-top: 12px; white-space: nowrap; font-size: clamp(42px, 8vw, 112px); transform-origin: 0 0; transition: transform .35s var(--ease); }
+.top.small .logo { transform: translateY(-3px) scale(var(--logo-small, .3)); }
 .logo .i { position: relative; display: inline-block; }
 /* The logo uses a dotless ı; this bead is its dot. shop.js measures where the font draws the real dot. */
 .logo .dot { position: absolute; left: var(--dot-left, .06em); top: var(--dot-top, .02em); width: var(--dot-size, .26em); height: var(--dot-size, .26em); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--coral) 34%, color-mix(in srgb, var(--coral) 60%, #000) 100%); }
-.nav { display: flex; gap: 28px; margin-left: auto; font-size: 14px; }
-.nav a { text-decoration: none; color: var(--ink); opacity: .82; }
-.nav a:hover { opacity: 1; }
-.bag-btn { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 500; background: var(--alt); border: 0; border-radius: 999px; padding: 7px 8px 7px 14px; }
-.bag-btn:hover { background: #ebebef; }
-.bag-btn .count { display: grid; place-items: center; min-width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; }
+.nav { display: flex; align-items: center; gap: 28px; margin-left: auto; font-size: 17px; font-weight: 500; }
+.nav a { text-decoration: none; color: var(--ink); }
+.nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.menu { position: relative; }
+.menu-btn { display: flex; align-items: center; gap: 8px; padding: 0; cursor: pointer; background: none; border: 0; font: inherit; }
+.menu-btn::after { content: ''; width: 7px; height: 7px; border-right: 2px solid; border-bottom: 2px solid; rotate: 45deg; translate: 0 -2px; transition: rotate .2s var(--ease), translate .2s; }
+.menu-btn[aria-expanded="true"]::after { rotate: 225deg; translate: 0 2px; }
+.menu-list { position: absolute; top: 100%; left: -16px; margin-top: 12px; list-style: none; min-width: 200px; padding: 8px; background: #fff; border: 2px solid var(--ink); border-radius: 18px; box-shadow: 5px 5px 0 var(--ink); }
+.menu-list::before { content: ''; position: absolute; left: 0; right: 0; top: -16px; height: 16px; }  /* keeps hover alive across the gap */
+.menu-list a { display: block; padding: 9px 12px; border-radius: 10px; }
+.menu-list a:hover { background: var(--alt); text-decoration: none; }
+.bag-btn { display: flex; align-items: center; gap: 8px; cursor: pointer; font: 600 14px var(--label); letter-spacing: .08em; text-transform: uppercase; background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 5px 6px 5px 14px; }
+.bag-btn:hover { background: var(--alt); }
+.bag-btn .count { display: grid; place-items: center; min-width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; letter-spacing: 0; }
 .bag-btn.bump .count { animation: bump .35s var(--ease); }
 @keyframes bump { 50% { transform: scale(1.3); background: var(--cobalt); } }
 
@@ -106,43 +118,93 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .more:hover { text-decoration: underline; text-underline-offset: 3px; }
 .link-btn { background: none; border: 0; padding: 0; cursor: pointer; color: var(--cobalt); font-weight: 500; }
 
-/* Hero: the necklace big and centered, its shoulder views tilted on the sides, details centered below. */
-.hero { max-width: 1280px; margin: 0 auto; padding: 12px var(--gutter) clamp(120px, 12vw, 160px); text-align: center; }
-/* The photo takes whatever height is left after the header and the details below it, so everything
-   down to the buttons fits on the first screen. The photo card is wide (3:2) so the shoulders show. */
-.stage-wrap { --pt: 70px; --pb: 76px; position: relative; width: 100%; max-width: clamp(300px, calc((100svh - 505px) * 1.5), 900px); margin: 0 auto; padding: var(--pt) 0 var(--pb); }
-.stage { cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; border-radius: 40px; }
-.stage .shot { aspect-ratio: 3 / 2; object-fit: cover; }
-/* The splash inside the card, and an unclipped copy behind it at the same size and spot, so the shape continues
-   past the card's edges. It's stretched to a wide oval, 1.25× the card's width and 1.4× its height (75:56), so it
-   spills out all around while the card's own pale color still shows at its edges. */
-.stage .splash, .hero-pop { left: 50%; width: 125%; aspect-ratio: 75 / 56; transform: translate(-50%, -50%); }
-.stage .splash { top: 50%; }
-.hero-pop { position: absolute; z-index: -1; pointer-events: none; top: calc(var(--pt) + (100% - var(--pt) - var(--pb)) / 2); }
-.hero-pop svg { display: block; width: 100%; height: 100%; overflow: visible; }
-@media (max-width: 640px) {
-  .stage-wrap { --pt: 52px; --pb: 56px; }
-  .stage { border-radius: 28px; }
-}
-.pager { display: flex; justify-content: center; gap: 4px; margin-top: 12px; }
+/* Hero (Brittany's drawing): mostly the picture. The chest shot sits at the bottom of a wide board with no card
+   around it, the layered splash big behind it so it wraps around the shoulders, and the bottom of both cut off
+   flat by the section's edge. The tagline is big and black at the bottom left. The photo is 56.25% of the board's width. */
+.hero { --over: clamp(8px, calc(8vw - 44px), 72px); overflow: hidden; padding-top: var(--over); }  /* room for the big name hanging below the 64px bar */
+.stage { position: relative; width: min(100%, calc((100svh - 64px - var(--over)) * 1.6), 1600px); aspect-ratio: 8 / 5; margin: 0 auto; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.hero-splash { position: absolute; left: 50%; top: 66%; width: 112%; aspect-ratio: 75 / 56; translate: -50% -50%; pointer-events: none; }
+.hero-splash svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.stage .shot { position: absolute; left: 50%; bottom: 0; width: 56.25%; aspect-ratio: 3 / 2; translate: -50% 0; }
+.tagline { position: absolute; z-index: 2; left: var(--gutter); bottom: clamp(18px, 3vw, 40px); max-width: 9em; font-size: clamp(44px, 6.6vw, 104px); line-height: .92; color: var(--ink); paint-order: stroke fill; -webkit-text-stroke: .1em #fff; pointer-events: none; }
+.tagline span { display: block; font: 600 clamp(15px, 1.5vw, 22px)/1.2 var(--label); letter-spacing: .1em; text-transform: uppercase; -webkit-text-stroke: 0; margin-bottom: .5em; }
+.pager { position: absolute; z-index: 2; right: var(--gutter); bottom: clamp(24px, 3.4vw, 48px); display: flex; gap: 4px; padding: 6px 8px; background: #fff; border: 2px solid var(--ink); border-radius: 999px; }
 .pager button { width: 22px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
-.pager button::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--line); transition: width .25s var(--ease), background .25s var(--ease); }
+.pager button::before { content: ''; width: 9px; height: 9px; border-radius: 999px; background: var(--line); transition: width .25s var(--ease), background .25s var(--ease); }
 .pager button.on { width: 34px; }
 .pager button.on::before { width: 26px; background: var(--accent); }
+@media (max-width: 760px) {
+  /* Phones: a square board (the splash's sides are trimmed), photo bigger, tagline and dots below it. */
+  .stage { width: 100%; aspect-ratio: 1; }
+  .stage .shot { width: 90%; }
+  .hero-splash { width: 150%; top: 64%; }
+  .tagline { position: static; margin: 18px var(--gutter) 0; font-size: clamp(44px, 13vw, 64px); }
+  .pager { position: static; width: max-content; margin: 18px var(--gutter) 8px; }
+}
 
-/* The necklace's name, description and details. Heights are fixed so nothing jumps while turning. */
-.hero-copy { max-width: 640px; margin: 6px auto 0; }
-.now { display: grid; gap: 8px; justify-items: center; }
-.now-name { font-family: var(--serif); font-size: clamp(36px, min(6vw, 7svh), 76px); line-height: 1; letter-spacing: -.01em; white-space: nowrap; }
-.now-desc { font-size: 19px; color: var(--ink-2); max-width: 40ch; min-height: 3em; }
-.now-meta { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 17px; }
-.now-sep { width: 4px; height: 4px; border-radius: 50%; background: var(--line); }
-.hero-actions { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
+/* Section heads from the drawings: three wavy pen lines and a hand-lettered caps title. */
+.collections, .colors { padding-top: clamp(64px, 8vw, 112px); }
+.lines-head { max-width: 1240px; margin: 0 auto 28px; padding: 0 var(--gutter); }
+.lines { display: block; width: 100%; height: 40px; }
+.lines path { fill: none; stroke: var(--ink); stroke-width: 2.2; vector-effect: non-scaling-stroke; }
+.lines-head h2 { margin-top: 14px; font: 500 clamp(22px, 2.6vw, 34px)/1.1 var(--label); letter-spacing: .14em; text-transform: uppercase; }
+
+/* Shop by collection: three tall color panels, each with the photo in a window of its own shape. */
+.panels { list-style: none; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.panel { background: var(--panel); border: 2.5px solid var(--ink); }
+.panel + .panel { border-left: 0; }
+.panel:first-child { border-radius: 28px 0 0 28px; }
+.panel:last-child { border-radius: 0 28px 28px 0; }
+.panel button { display: grid; grid-template-rows: auto 1fr; gap: 28px; width: 100%; height: 100%; padding: clamp(22px, 3vw, 40px); background: none; border: 0; cursor: pointer; text-align: center; }
+.window { display: block; width: 100%; height: auto; overflow: visible; transition: transform .35s var(--ease); }
+.win-edge > * { fill: var(--ink); stroke: var(--ink); stroke-width: 9; }
+.panel button:hover .window { transform: rotate(-3deg) scale(1.03); }
+.charm { transform-origin: 100px 50px; transition: transform .5s var(--ease); }
+.panel button:hover .charm { transform: rotate(6deg); }
+.panel-label { display: grid; align-content: center; gap: 6px; min-height: 9.5em; padding: 18px 16px; background: #fff; border: 2.5px solid var(--ink); }
+.panel-name { font: 400 clamp(26px, 2.7vw, 40px)/.95 var(--serif); overflow-wrap: anywhere; color: #fff; paint-order: stroke fill; -webkit-text-stroke: .12em var(--ink); text-shadow: .07em .07em 0 var(--panel); text-transform: uppercase; }
+.panel-blurb { font-size: 14px; color: var(--ink-2); }
+@media (max-width: 760px) {
+  .panels { grid-template-columns: 1fr; }
+  .panel + .panel { border-left: 2.5px solid var(--ink); border-top: 0; }
+  .panel:first-child { border-radius: 28px 28px 0 0; }
+  .panel:last-child { border-radius: 0 0 28px 28px; }
+  .panel button { grid-template-columns: 1fr 1fr; align-items: center; gap: 16px; }
+}
+
+/* Shop by color: full-width wavy bands, one color each, with its name in big stacked letters (stack.js). */
+.bands { margin-top: 8px; }
+.band { position: relative; isolation: isolate; margin-top: -48px; padding: clamp(72px, 8vw, 104px) var(--gutter) clamp(88px, 10vw, 128px); }
+.band:first-child { margin-top: 0; }
+.band-bg { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; }
+.band-fill { fill: var(--band); }
+.band-edge { fill: none; stroke: var(--ink); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+.band-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 72px); align-items: center; }
+.band.flip .band-photo { order: 2; rotate: 2deg; }
+.band-photo { display: block; padding: 0; overflow: hidden; cursor: pointer; aspect-ratio: 1; background: var(--tile-bg); border: 4px solid var(--ink); border-radius: 36px; rotate: -2deg; transition: transform .35s var(--ease); }
+.band-photo:hover { transform: scale(1.03); }
+.band-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.band-words { display: grid; justify-items: center; gap: 14px; }
+.stack { position: relative; width: 100%; height: clamp(170px, 21vw, 290px); font: 400 calc(clamp(76px, 10.5vw, 156px) * var(--fit, 1))/1 var(--serif); margin-bottom: .2em; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.stack .ch { position: absolute; left: 0; top: 0; display: grid; place-items: center; line-height: 1; padding-bottom: .13em;  /* Bagel's caps sit low in the line; this centers them in their box */
+  color: #fff; paint-order: stroke fill; -webkit-text-stroke: .09em var(--ink); text-shadow: .045em .055em 0 var(--ink); will-change: transform; }
+.stack .ch.up { z-index: 1; }  /* wedged letters sit in front of the ones holding them up */
+.stack.waiting .ch { visibility: hidden; }
+.shades { font: 600 15px var(--label); letter-spacing: .16em; text-transform: uppercase; color: var(--ink); text-align: center; }
+.band-go { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font: 500 16px var(--sans); background: #fff; color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 9px 10px 9px 20px; box-shadow: 3px 3px 0 var(--ink); transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+.band-go:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+.band-go .n { display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; }
+@media (max-width: 760px) {
+  .band-inner { grid-template-columns: 1fr; }
+  .band.flip .band-photo { order: 0; }
+  .band-photo { width: min(78%, 320px); justify-self: center; }
+}
 
 /* Shop */
 .shop { max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 104px) var(--gutter); }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; }
-.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 40px; }
+.filter-by { display: inline-grid; grid-template-columns: repeat(4, auto); margin-top: 24px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 40px; }
 .chip { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 500; padding: 8px 14px 8px 10px; background: var(--alt); border: 0; border-radius: 999px; transition: background .2s var(--ease); }
 .chip:hover { background: #ebebef; }
 .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
@@ -248,7 +310,8 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .ask-label span { text-transform: none; letter-spacing: 0; font-weight: 400; }
 .ask textarea { width: 100%; resize: vertical; border-radius: 18px; font: 16px/1.4 var(--sans); }
 .ask-panel { display: grid; gap: 6px; }
-.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--alt); border-radius: 999px; margin: 6px 0 4px; }
+.ask .seg { grid-template-columns: 1fr 1fr; }
+.seg { display: grid; gap: 4px; padding: 4px; background: var(--alt); border-radius: 999px; margin: 6px 0 4px; }
 .seg button { border: 0; background: none; border-radius: 999px; padding: 10px 12px; font: 500 15px var(--sans); cursor: pointer; color: var(--ink-2); transition: background .2s var(--ease), color .2s; }
 .seg button[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 
@@ -308,12 +371,12 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 /* ---------- Wavy ribbons in the page background (play.js) ---------- */
 /* Each section is its own stacking layer, so ribbons sit above its background but behind its content.
    Ribbons span the full window width, centered on the section. */
-.hero, .shop, .story, .perks, .signup, footer { position: relative; isolation: isolate; }
+.hero, .collections, .colors, .shop, .story, .perks, .signup, footer { position: relative; isolation: isolate; }
 .ribbon { position: absolute; left: 50%; width: 130vw; translate: -50% 0; rotate: var(--angle, 0deg); z-index: -1; pointer-events: none; overflow: hidden; }
 .ribbon svg { display: block; }
 
 /* ---------- Play: sprinkles and two small bead moments (play.js) ---------- */
-.hero, .hero-copy, .section-head, .story, .perks, footer { position: relative; }
+.hero, .section-head, .story, .perks, footer { position: relative; }
 .sprinkle { position: absolute; z-index: 1; display: block; cursor: pointer; transition: transform .3s var(--ease); }
 .sprinkle svg { display: block; width: 100%; height: auto; overflow: visible; }
 .sprinkle:hover { transform: rotate(-14deg) scale(1.15); }
@@ -337,7 +400,6 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .moment-flower svg { display: block; width: 100%; height: auto; }
 
 @media (max-width: 920px) {
-  .now-name { font-size: clamp(36px, 10.5vw, 64px); }
   .grid, .found .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .story-inner, .perks { grid-template-columns: 1fr; }
   .qv-body { grid-template-columns: 1fr; }
@@ -345,8 +407,9 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
   .accent-shape { display: none; }
 }
 @media (max-width: 640px) {
-  .nav { display: none; }
-  .top { justify-content: space-between; }
+  .nav > a { display: none; }
+  .top { gap: 16px; }
+  .top .logo { --logo-small: .62; font-size: clamp(36px, 11vw, 48px); }
   .grid { gap: 32px 14px; }
   .card-name { font-size: 16px; }
   .card .badge { top: 10px; left: 10px; font-size: 10px; }

@@ -1,4 +1,5 @@
 // The necklaces. Names, prices, copy and details are placeholders for Brittany to replace.
+// `collection`, `beadType` and `metal` drive the Shop menu's "by collection / bead type / metal" (placeholders too).
 // Colors come from the glass palette in styles.css. `backdrop` is the piece's accent, matched to its own glass:
 // dots and badges use it at full strength. `splash` is the 2–3 glass colors layered behind its photos, and
 // `splashShape` their shape: 'round' (wavy blob), 'daisy' or 'bloom' (flowers). 'burst' and 'shard' are pointy options.
@@ -8,7 +9,7 @@ window.PRODUCTS = [
     // Brittany's first real necklace (photo in photos/source/, prompt in photos/source/garden-party-prompt.md).
     // Name, price and length are placeholders.
     // heroZoom: how far the hero crops into a wide photo (default 1.2). Her shoulders sit wider in this shot.
-    slug: 'garden-party', splashShape: 'bloom', heroZoom: 1, name: 'Garden Party', price: 68, family: 'greens', sold: false,
+    slug: 'garden-party', collection: 'mushroom-club', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', heroZoom: 1, name: 'Garden Party', price: 68, family: 'greens', sold: false,
     backdrop: '#3f8f3a', accentInk: '#ffffff', splash: ['#5aa83c', '#f2b23a', '#f27a5e'],
     desc: 'Leaf, flower and honey glass on gold wire-wrapped links, with a little orange bell flower at the center.',
     details: { Length: '18 in', Glass: 'Leaf green, amber, aqua, coral', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -17,7 +18,7 @@ window.PRODUCTS = [
     bead(i) { return i % 2 ? { r: 0.034, kind: 'spacer', metal: 'gold' } : { r: 0.07 + (i % 3) * 0.008, kind: i % 6 === 0 ? 'dots' : 'glass', color: this.palette[(i / 2 | 0) % 4], dot: '#ffffff' }; },
   },
   {
-    slug: 'tide-pool', splashShape: 'round', name: 'Tide Pool', price: 48, family: 'blues', sold: false,
+    slug: 'tide-pool', collection: 'chaotic-good', beadType: 'Dotted', metal: 'Silver', splashShape: 'round', name: 'Tide Pool', price: 48, family: 'blues', sold: false,
     backdrop: '#1fb5c9', accentInk: '#1b1a22', splash: ['#1fb5c9', '#e4dd3b', '#1f3fa8'],
     desc: 'Seafoam and deep-teal glass with tiny silver spacers and a dotted focal bead.',
     details: { Length: '18 in', Glass: 'Teal, seafoam, mint', Spacers: 'Silver-tone', Clasp: 'Lobster' },
@@ -26,7 +27,7 @@ window.PRODUCTS = [
     bead(i) { return i % 2 ? { r: 0.038, kind: 'spacer', metal: 'silver' } : { r: 0.078, kind: 'glass', color: this.palette[(i / 2 | 0) % 3] }; },
   },
   {
-    slug: 'marmalade', splashShape: 'bloom', name: 'Marmalade', price: 42, family: 'warm', sold: false,
+    slug: 'marmalade', collection: 'mushroom-club', beadType: 'Chunky', metal: 'None', splashShape: 'bloom', name: 'Marmalade', price: 42, family: 'warm', sold: false,
     backdrop: '#f2674a', accentInk: '#1b1a22', splash: ['#f2674a', '#e4dd3b', '#a8265e'],
     desc: 'Chunky amber and honey beads on a short, choker-length cord.',
     details: { Length: '15 in', Glass: 'Amber, honey, burnt orange', Cord: 'Waxed cotton', Clasp: 'Toggle' },
@@ -35,7 +36,7 @@ window.PRODUCTS = [
     bead(i) { return { r: i % 3 === 1 ? 0.085 : 0.1, kind: i % 4 === 0 ? 'dots' : 'glass', color: this.palette[i % 3], dot: '#fff1cc' }; },
   },
   {
-    slug: 'lilac-hour', splashShape: 'daisy', name: 'Lilac Hour', price: 56, family: 'purples', sold: false,
+    slug: 'lilac-hour', collection: 'starstruck', beadType: 'Graduated', metal: 'Silver', splashShape: 'daisy', name: 'Lilac Hour', price: 56, family: 'purples', sold: false,
     backdrop: '#8a4fbf', accentInk: '#ffffff', splash: ['#8a4fbf', '#1fb5c9', '#e4dd3b'],
     desc: 'Graduated violet and clear glass, biggest at the center and tapering to the clasp.',
     details: { Length: '19 in', Glass: 'Violet, lilac, clear', Cord: 'Silver-tone wire', Clasp: 'Lobster' },
@@ -44,7 +45,7 @@ window.PRODUCTS = [
     bead(i) { return { r: Math.max(0.05, 0.11 - i * 0.007), kind: i % 3 === 0 ? 'dots' : 'glass', color: this.palette[i % 3], dot: '#ffffff' }; },
   },
   {
-    slug: 'moss-and-stone', splashShape: 'round', name: 'Moss & Stone', price: 64, family: 'greens', sold: false,
+    slug: 'moss-and-stone', collection: 'mushroom-club', beadType: 'Clusters', metal: 'None', splashShape: 'round', name: 'Moss & Stone', price: 64, family: 'greens', sold: false,
     backdrop: '#0f6b45', accentInk: '#ffffff', splash: ['#0f6b45', '#e4dd3b', '#f2674a'],
     desc: 'Little clusters of olive, forest and bone glass spaced along a leather cord.',
     details: { Length: '22 in', Glass: 'Olive, forest, bone', Cord: 'Leather', Clasp: 'Slide knot, adjustable' },
@@ -53,7 +54,7 @@ window.PRODUCTS = [
     bead(i) { const k = (i - 1) % 4; return k === 3 ? { gap: 0.2 } : { r: 0.075, kind: 'glass', color: this.palette[k] }; },
   },
   {
-    slug: 'cherry-soda', splashShape: 'daisy', name: 'Cherry Soda', price: 38, family: 'pinks', sold: false,
+    slug: 'cherry-soda', collection: 'starstruck', beadType: 'Dotted', metal: 'Silver', splashShape: 'daisy', name: 'Cherry Soda', price: 38, family: 'pinks', sold: false,
     backdrop: '#c8321f', accentInk: '#ffffff', splash: ['#c8321f', '#f2674a', '#e4dd3b'],
     desc: 'Small red and pink glass beads around one big polka-dot cherry.',
     details: { Length: '17 in', Glass: 'Cherry red, bubblegum, blush', Cord: 'Silver-tone wire', Clasp: 'Lobster' },
@@ -62,7 +63,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.05, kind: 'glass', color: this.palette[i % 3] }; },
   },
   {
-    slug: 'midnight', splashShape: 'bloom', name: 'Midnight', price: 72, family: 'blues', sold: true, soldOn: 'October',
+    slug: 'midnight', collection: 'starstruck', beadType: 'Swirled', metal: 'Gold', splashShape: 'bloom', name: 'Midnight', price: 72, family: 'blues', sold: true, soldOn: 'October',
     backdrop: '#1f3fa8', accentInk: '#ffffff', splash: ['#1f3fa8', '#1fb5c9', '#8a4fbf'],
     desc: 'Cobalt and navy glass with gold swirls and gold spacers.',
     details: { Length: '18 in', Glass: 'Cobalt, navy, cornflower', Spacers: 'Gold-tone', Clasp: 'Lobster' },
@@ -71,7 +72,7 @@ window.PRODUCTS = [
     bead(i) { return i % 2 ? { r: 0.034, kind: 'spacer', metal: 'gold' } : { r: 0.082, kind: i % 4 === 0 ? 'stripe' : 'glass', color: this.palette[(i / 2 | 0) % 3], dot: '#e3c06a' }; },
   },
   {
-    slug: 'sunday-morning', splashShape: 'round', name: 'Sunday Morning', price: 52, family: 'pastels', sold: false,
+    slug: 'sunday-morning', collection: 'chaotic-good', beadType: 'Mixed', metal: 'Silver', splashShape: 'round', name: 'Sunday Morning', price: 52, family: 'pastels', sold: false,
     backdrop: '#e4dd3b', accentInk: '#1b1a22', splash: ['#e4dd3b', '#f2674a', '#8a4fbf'],
     desc: 'A happy jumble of pastel glass. No two beads match.',
     details: { Length: '18 in', Glass: 'Peach, mint, butter, lavender', Cord: 'Silver-tone wire', Clasp: 'Lobster' },
@@ -84,13 +85,23 @@ window.PRODUCTS = [
 // The hero turns through these, in order: necklace n is shown at angle n, left profile to right profile.
 window.HERO = ['tide-pool', 'marmalade', 'lilac-hour', 'garden-party', 'cherry-soda', 'midnight', 'sunday-morning'];
 
-// Filter chips, in display order. `color` is the bead shown on the chip.
+// Color filter chips, in display order. `color` is the bead shown on the chip.
+// The "Shop by color" bands use `word` (the big stacked letters), `band` (the band's color), `ink` (letter outlines)
+// and `shades` (the small line under the word).
 window.FAMILIES = [
   { key: 'all', label: 'All', color: '#1b1a22' },
-  { key: 'blues', label: 'Blues', color: '#1f3fa8' },
-  { key: 'greens', label: 'Greens', color: '#0f6b45' },
-  { key: 'warm', label: 'Warm', color: '#f2674a' },
-  { key: 'pinks', label: 'Reds & pinks', color: '#c8321f' },
-  { key: 'purples', label: 'Purples', color: '#8a4fbf' },
-  { key: 'pastels', label: 'Pastels', color: '#f6c9b8' },
+  { key: 'greens', label: 'Greens', color: '#0f6b45', word: 'Green', band: '#7ccf4a', ink: '#14532d', shades: ['Olive', 'Sage', 'Lime', 'Forest'] },
+  { key: 'purples', label: 'Purples', color: '#8a4fbf', word: 'Purple', band: '#b48ae6', ink: '#3f1d6b', shades: ['Lilac', 'Violet', 'Plum', 'Orchid'] },
+  { key: 'blues', label: 'Blues', color: '#1f3fa8', word: 'Blue', band: '#4cc3e6', ink: '#13306e', shades: ['Cobalt', 'Navy', 'Teal', 'Sky'] },
+  { key: 'warm', label: 'Warm', color: '#f2674a', word: 'Warm', band: '#f7a23b', ink: '#7a2e0e', shades: ['Amber', 'Honey', 'Rust', 'Tangerine'] },
+  { key: 'pinks', label: 'Reds & pinks', color: '#c8321f', word: 'Pink', band: '#f58aa8', ink: '#7a1230', shades: ['Cherry', 'Bubblegum', 'Blush', 'Ruby'] },
+  { key: 'pastels', label: 'Pastels', color: '#f6c9b8', word: 'Pastel', band: '#f6dfa0', ink: '#6b4a1a', shades: ['Peach', 'Mint', 'Butter', 'Lavender'] },
+];
+
+// "Shop by collection": one tall panel each, with the photo in a window of its own shape ('blob', 'star', 'cloud').
+// Names are placeholders for Brittany's own (Chaotic Good is hers).
+window.COLLECTIONS = [
+  { key: 'mushroom-club', name: 'Mushroom Club', color: '#e8262d', shape: 'blob', blurb: 'Earthy glass, little mushrooms and flowers.' },
+  { key: 'starstruck', name: 'Starstruck', color: '#7a1f73', shape: 'star', blurb: 'Deep colors with a little sparkle.' },
+  { key: 'chaotic-good', name: 'Chaotic Good', color: '#1ea7dc', shape: 'cloud', blurb: 'Happy faces and mismatched beads.' },
 ];

@@ -16,6 +16,7 @@
   const accent = (el, p) => { el.style.setProperty('--accent', p.backdrop); el.style.setProperty('--accent-ink', p.accentInk); el.style.setProperty('--tile-bg', tileBg(p)); };
 
   // Chest shots: photos/<slug>-1.png … <slug>-7.png (or .jpg), one necklace at seven angles,
+  // with a small .webp copy of each (made by tools/webp.py) that loads first.
   // left profile → right profile, on a transparent background. Until a photo exists, a drawn stand-in is used.
   // The hero shows necklace n at angle n, so it uses the same files.
   // Add ?review to the address to preview images waiting for approval in photos/review/
@@ -28,7 +29,7 @@
   function load(base) {
     if (photos.has(base)) return;
     photos.set(base, 'loading');
-    const tries = [...(REVIEW ? [`photos/review/${base}.png`] : []), `photos/${base}.png`, `photos/${base}.jpg`];
+    const tries = [...(REVIEW ? [`photos/review/${base}.png`] : []), `photos/${base}.webp`, `photos/${base}.png`, `photos/${base}.jpg`];
     const img = new Image();
     const done = v => { photos.set(base, v); painters.forEach(fn => fn()); waiting.forEach((fn, c) => { if (fn()) waiting.delete(c); }); };
     img.onload = () => done(img);
@@ -78,10 +79,11 @@
   // Draw "i" and the dotless "ı" in the logo font; the pixels only "i" has are its dot.
   // Load both characters first: Google Fonts keeps "ı" in a separate file, and measuring against a
   // fallback font's "ı" would make the dot far too big.
-  document.fonts.load('200px Shrikhand', 'iı').then(() => {
+  const LOGO_FONT = getComputedStyle(document.querySelector('.logo')).fontFamily.split(',')[0].replace(/["']/g, '').trim();
+  document.fonts.load(`200px "${LOGO_FONT}"`, 'iı').then(() => {
     const size = 200, c = document.createElement('canvas'), ctx = c.getContext('2d', { willReadFrequently: true });
     c.width = c.height = 400;
-    ctx.font = `${size}px Shrikhand`;
+    ctx.font = `${size}px "${LOGO_FONT}"`;
     const m = ctx.measureText('i'), A = m.fontBoundingBoxAscent, D = m.fontBoundingBoxDescent;
     const draw = ch => { ctx.clearRect(0, 0, 400, 400); ctx.fillText(ch, 100, 300); return ctx.getImageData(0, 0, 400, 400).data; };
     const withDot = draw('i'), noDot = draw('ı');
@@ -102,6 +104,12 @@
     root.setProperty('--dot-left', `${((cx - d / 2) / size).toFixed(4)}em`);
     root.setProperty('--dot-top', `${((cy - d / 2) / size).toFixed(4)}em`);
   });
+
+  // The big name shrinks into the header bar once the page scrolls.
+  const topBar = $('top'), onScroll = () => topBar.classList.toggle('small', scrollY > 24);
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('load', onScroll);  // the browser may restore a scroll position after load
+  onScroll();
 
   /* ---------- Bag state (kept in this browser only) ---------- */
   let bag = [];
@@ -141,14 +149,9 @@
     paintHero();
     const p = heroItems[i];
     accent(heroEl, p);
-    // The splash inside the photo card and its copy behind, which spills past the card's edges.
-    $('heroSplash').innerHTML = $('heroPop').innerHTML = window.Splash.svg(p.splash, i + 1, { shape: p.splashShape, rich: true })
+    // The layered glass-color splash, big and wrapping around the shoulders, stretched to a wide oval.
+    $('heroSplash').innerHTML = window.Splash.svg(p.splash, i + 1, { shape: p.splashShape, rich: true })
       .replace('<svg ', '<svg preserveAspectRatio="none" ');
-    $('tagName').textContent = p.name;
-    $('tagDesc').textContent = p.desc;
-    $('tagPrice').textContent = p.sold ? 'Sold' : money(p.price);
-    $('tagLength').textContent = p.details.Length;
-    $('tagDots').innerHTML = dots(p.palette);
     [...pager.children].forEach((t, k) => { t.classList.toggle('on', k === i); t.setAttribute('aria-current', String(k === i)); });
     stage.setAttribute('aria-label', `${p.name}, ${p.sold ? 'sold' : money(p.price)}. Press Enter for details, arrow keys to turn.`);
   }
@@ -167,7 +170,6 @@
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { stopIntro(); setHero(cur + (e.key === 'ArrowRight' ? 1 : -1)); e.preventDefault(); }
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQV(heroItems[cur], cur); }
   });
-  $('heroShop').addEventListener('click', () => openQV(heroItems[cur], cur));
 
   setHero(3);
   // No spin-through on load: it was a lot at once. The bead bouncing down the flowers (play.js) is the opening moment.
@@ -180,12 +182,12 @@
 
   /* ---------- Shop grid + color filters ---------- */
   const grid = $('grid'), soldGrid = $('soldGrid'), filters = $('filters');
+  grid.innerHTML = soldGrid.innerHTML = '';  // drop the plain list written in for search engines (tools/seo.py)
   $('shopCount').textContent = `${P.filter(p => !p.sold).length} available`;
 
   const cards = P.map(p => {
     const li = document.createElement('li');
     li.className = 'card' + (p.sold ? ' sold' : '');
-    li.dataset.family = p.family;
     accent(li, p);
     li.innerHTML = `
       <button class="card-btn" type="button" aria-label="${p.name}, ${p.sold ? 'sold' : money(p.price)}">
@@ -210,28 +212,164 @@
     return li;
   });
 
-  FAMILIES.forEach(f => {
-    const count = f.key === 'all' ? P.length : P.filter(p => p.family === f.key).length;
-    if (!count) return;
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'chip'; b.dataset.family = f.key;
-    b.innerHTML = `<span class="dot-c" style="--c:${f.color}"></span>${f.label}<span class="n">${count}</span>`;
-    filters.appendChild(b);
-  });
-  function setFamily(key) {
-    filters.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.family === key)));
+  // The chips change with what you shop by: color, collection, bead type or metal.
+  const COLLECTIONS = window.COLLECTIONS || [];
+  const uniq = k => [...new Set(P.map(p => p[k]))].filter(Boolean);
+  const metalDot = { Gold: '#d4a640', Silver: '#b9bec4', None: '#8a5a3a' };
+  const OPTIONS = {
+    family: FAMILIES.filter(f => f.key !== 'all').map(f => ({ key: f.key, label: f.label, color: f.color })),
+    collection: COLLECTIONS.map(c => ({ key: c.key, label: c.name, color: c.color })),
+    beadType: uniq('beadType').map(v => ({ key: v, label: v, color: '#1b1a22' })),
+    metal: uniq('metal').map(v => ({ key: v, label: v === 'None' ? 'No metal' : v, color: metalDot[v] || '#1b1a22' })),
+  };
+  let by = 'family', pick = 'all';
+  const filterBy = $('filterBy');
+  function drawChips() {
+    filterBy.querySelectorAll('[data-by]').forEach(t => t.setAttribute('aria-selected', String(t.dataset.by === by)));
+    const opts = [{ key: 'all', label: 'All', color: '#1b1a22' }, ...OPTIONS[by]];
+    filters.innerHTML = '';
+    opts.forEach(o => {
+      const count = o.key === 'all' ? P.length : P.filter(p => p[by] === o.key).length;
+      if (!count) return;
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.dataset.pick = o.key;
+      b.setAttribute('aria-pressed', String(o.key === pick));
+      b.innerHTML = `<span class="dot-c" style="--c:${o.color}"></span>${o.label}<span class="n">${count}</span>`;
+      filters.appendChild(b);
+    });
+  }
+  // Show only the necklaces that match, e.g. setFilter('collection', 'chaotic-good'); setFilter(by) clears the pick.
+  function setFilter(kind = by, key = 'all') {
+    by = kind; pick = key;
+    drawChips();
     let shown = 0, shownSold = 0;
-    cards.forEach(li => {
-      const on = key === 'all' || li.dataset.family === key;
+    cards.forEach((li, k) => {
+      const on = key === 'all' || P[k][by] === key;
       li.hidden = !on;
       if (on) li.classList.contains('sold') ? shownSold++ : shown++;
     });
     $('empty').hidden = shown > 0;
     $('found').hidden = shownSold === 0;
   }
-  filters.addEventListener('click', e => { const c = e.target.closest('.chip'); if (c) setFamily(c.dataset.family); });
-  $('empty').addEventListener('click', e => { if (e.target.closest('[data-family]')) setFamily('all'); });
-  setFamily('all');
+  filters.addEventListener('click', e => { const c = e.target.closest('.chip'); if (c) setFilter(by, c.dataset.pick); });
+  filterBy.addEventListener('click', e => { const t = e.target.closest('[data-by]'); if (t) setFilter(t.dataset.by); });
+  $('empty').addEventListener('click', e => { if (e.target.closest('[data-family]')) setFilter(by); });
+  setFilter('family');
+  const shopAt = (kind, key) => { setFilter(kind, key); $('shop').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); };
+
+  /* ---------- Shop menu: by collection, bead type, color or metal ---------- */
+  const menuBtn = $('shopMenuBtn'), menu = $('shopMenu');
+  const setMenu = open => { menu.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open)); };
+  menuBtn.addEventListener('click', () => setMenu(menu.hidden));
+  $('shopMenuWrap').addEventListener('mouseenter', () => { if (!touchOnly) setMenu(true); });
+  $('shopMenuWrap').addEventListener('mouseleave', () => { if (!touchOnly) setMenu(false); });
+  document.addEventListener('click', e => { if (!e.target.closest('#shopMenuWrap')) setMenu(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
+  menu.addEventListener('click', e => {
+    const a = e.target.closest('a');
+    if (!a) return;
+    setMenu(false);
+    if (a.dataset.by) { e.preventDefault(); shopAt(a.dataset.by === 'all' ? 'family' : a.dataset.by); }
+  });
+
+  // The front photo of a necklace as a plain <img>, for places that don't turn (and for search engines).
+  const photoSrc = p => `photos/${p.slug}-4.webp`;
+
+  /* ---------- Shop by collection: tall color panels with a shaped photo window ---------- */
+  // Window outlines on a 200×200 board, from the drawing: a soft five-lobed blob, a spiky star, a puffy cloud.
+  const ring = (n, r1, r2, wob = []) => Array.from({ length: n * 2 }, (_, k) => {
+    const a = -Math.PI / 2 + k * Math.PI / n, r = (k % 2 ? r2 : r1) + (wob[k % wob.length] || 0);
+    return [100 + Math.cos(a) * r, 104 + Math.sin(a) * r];
+  });
+  const WINDOWS = {
+    blob: `<path d="${window.Splash.smooth(ring(5, 90, 74, [0, 4, -6, 2, 5, -3, -4, 3, 6, 0]))}"/>`,
+    star: `<path d="M${ring(9, 96, 42, [0, 2, -14, 0, 6, -3, -8, 2, 4, 0, -10, 3, 8, -2, -4, 0, 2, 4]).map(p => p.map(v => v.toFixed(1)).join(' ')).join('L')}Z"/>`,
+    cloud: [[100, 58, 46], [56, 86, 40], [146, 84, 42], [44, 134, 38], [100, 128, 52], [156, 136, 38], [90, 168, 30], [130, 166, 28]]
+      .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join(''),
+  };
+  // Little drawn charms that fit each collection's name, on the same 200×200 board as the windows.
+  const INK = '#1d1d1f', line = `stroke="${INK}" stroke-width="4" stroke-linejoin="round"`;
+  const shine = d => `<path d="${d}" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="5" stroke-linecap="round"/>`;
+  const jumpRing = (x, y) => `<circle cx="${x}" cy="${y}" r="8" fill="none" stroke="${INK}" stroke-width="8"/><circle cx="${x}" cy="${y}" r="8" fill="none" stroke="#e3b341" stroke-width="3.5"/>`;
+  const mushroom = (cap, spots) => `
+    ${jumpRing(100, 44)}
+    <path d="M86 112C84 130 81 146 87 156L113 156C119 146 116 130 114 112Z" fill="#fff4e0" ${line}/>
+    <path d="M48 114C46 72 76 52 100 52S154 72 152 114Q100 124 48 114Z" fill="${cap}" ${line}/>
+    ${spots.map(([x, y, r]) => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * 0.85}" fill="#fff"/>`).join('')}
+    ${shine('M62 98q0-24 24-36')}`;
+  const daisyBead = (x, y, r, petal, mid) => [0, 1, 2, 3, 4].map(k => {
+    const a = k * Math.PI * 2 / 5 - Math.PI / 2;
+    return `<circle cx="${(x + Math.cos(a) * r).toFixed(1)}" cy="${(y + Math.sin(a) * r).toFixed(1)}" r="${r * 0.72}" fill="${petal}" ${line}/>`;
+  }).join('') + `<circle cx="${x}" cy="${y}" r="${r * 0.62}" fill="${mid}" ${line}/>`;
+  const starPath = (cx, cy, R, r, n = 5) => 'M' + Array.from({ length: n * 2 }, (_, k) => {
+    const a = -Math.PI / 2 + k * Math.PI / n, rr = k % 2 ? r : R;
+    return `${(cx + Math.cos(a) * rr).toFixed(1)} ${(cy + Math.sin(a) * rr).toFixed(1)}`;
+  }).join('L') + 'Z';
+  const sparkle = (x, y, s, c) => `<path d="M${x} ${y - s}Q${x + s * 0.15} ${y - s * 0.15} ${x + s} ${y}Q${x + s * 0.15} ${y + s * 0.15} ${x} ${y + s}Q${x - s * 0.15} ${y + s * 0.15} ${x - s} ${y}Q${x - s * 0.15} ${y - s * 0.15} ${x} ${y - s}Z" fill="${c}" ${line}/>`;
+  const smiley = (x, y, r, c, wink) => `
+    <circle cx="${x}" cy="${y}" r="${r}" fill="${c}" ${line}/>
+    ${wink ? `<path d="M${x - r * 0.42} ${y - r * 0.18}q${r * 0.14} -${r * 0.16} ${r * 0.28} 0" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`
+      : `<ellipse cx="${x - r * 0.3}" cy="${y - r * 0.2}" rx="${r * 0.09}" ry="${r * 0.15}" fill="${INK}"/>`}
+    <ellipse cx="${x + r * 0.3}" cy="${y - r * 0.2}" rx="${r * 0.09}" ry="${r * 0.15}" fill="${INK}"/>
+    <path d="M${x - r * 0.45} ${y + r * 0.12}Q${x} ${y + r * 0.62} ${x + r * 0.45} ${y + r * 0.12}" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
+    ${shine(`M${x - r * 0.68} ${y - r * 0.05}q${r * 0.05} -${r * 0.45} ${r * 0.42} -${r * 0.6}`)}`;
+  const CHARMS = {
+    blob: `${mushroom('#e8262d', [[76, 84, 9], [104, 66, 7], [128, 88, 10], [96, 100, 5]])}
+      <g transform="translate(150 146) rotate(14) scale(.42) translate(-100 -104)">${mushroom('#f28a2e', [[80, 86, 10], [118, 76, 9]])}</g>
+      ${daisyBead(50, 150, 11, '#fff4e0', '#f2b23a')}`,
+    star: `${jumpRing(100, 62)}
+      <path d="${starPath(100, 112, 50, 23)}" fill="#f4c542" ${line}/>
+      ${shine('M80 104l12-4')}
+      ${sparkle(164, 93, 12, '#fff')}${sparkle(58, 54, 11, '#c9a6ff')}${sparkle(78, 164, 10, '#fff')}
+      <circle cx="124" cy="166" r="6" fill="#c9a6ff" ${line}/>`,
+    cloud: `${smiley(70, 94, 30, '#ffd23f')}${smiley(132, 90, 28, '#ff8fb1', true)}${smiley(102, 146, 30, '#7fd36b')}`,
+  };
+  $('panels').innerHTML = COLLECTIONS.map((c, k) => {
+    const items = P.filter(p => p.collection === c.key);
+    if (!items.length) return '';
+    return `<li class="panel" style="--panel:${c.color}">
+      <button type="button" data-collection="${c.key}" aria-label="Shop the ${c.name} collection, ${items.length} necklace${items.length === 1 ? '' : 's'}">
+        <svg class="window" viewBox="-6 -6 212 212" aria-hidden="true">
+          <defs><clipPath id="win${k}">${WINDOWS[c.shape]}</clipPath></defs>
+          <g class="win-edge">${WINDOWS[c.shape]}</g>
+          <g clip-path="url(#win${k})">
+            <rect x="-6" y="-6" width="212" height="212" fill="${tintHex(c.color, 0.88)}"/>
+            <g class="charm">${CHARMS[c.shape]}</g>
+          </g>
+        </svg>
+        <span class="panel-label"><span class="panel-name">${c.name}</span><span class="panel-blurb">${c.blurb}</span></span>
+      </button>
+    </li>`;
+  }).join('');
+  $('panels').addEventListener('click', e => { const b = e.target.closest('[data-collection]'); if (b) shopAt('collection', b.dataset.collection); });
+
+  /* ---------- Shop by color: full-width wavy bands with the color's name in big stacked letters ---------- */
+  // stack.js drops the letters of each word into a little pile.
+  const WAVES = ['M0 40C180 0 330 0 500 30S820 70 1000 24', 'M0 22C200 60 380 64 560 30S860 -4 1000 36'];
+  const bandFams = FAMILIES.filter(f => f.word && P.some(p => p.family === f.key));
+  $('bands').innerHTML = bandFams.map((f, k) => {
+    const items = P.filter(p => p.family === f.key), p = items.find(x => !x.sold) || items[0];
+    if (!p) return '';
+    const top = WAVES[k % 2];
+    return `<article class="band${k % 2 ? ' flip' : ''}" style="--band:${f.band};--ink:${f.ink}" data-family="${f.key}" aria-labelledby="band-${f.key}">
+      <svg class="band-bg" viewBox="0 0 1000 440" preserveAspectRatio="none" aria-hidden="true">
+        ${k ? `<rect width="1000" height="80" fill="${bandFams[k - 1].band}"/>` : ''}
+        <path class="band-fill" d="${top}L1000 440L0 440Z"/>
+        <path class="band-edge" d="${top}"/>
+      </svg>
+      <div class="band-inner">
+        <button class="band-photo" type="button" data-family="${f.key}" style="--tile-bg:${tileBg(p)}" aria-label="Shop ${f.label.toLowerCase()}">
+          <img src="${photoSrc(p)}" alt="${p.name}, a ${f.word.toLowerCase()} glass bead necklace" width="1024" height="1024" loading="lazy">
+        </button>
+        <div class="band-words">
+          <h3 class="stack" id="band-${f.key}" data-word="${f.word.toUpperCase()}">${f.word}</h3>
+          <p class="shades">${f.shades.join(' · ')}</p>
+          <button class="band-go" type="button" data-family="${f.key}">Shop ${f.label.toLowerCase()} <span class="n">${items.length}</span></button>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  $('bands').addEventListener('click', e => { const b = e.target.closest('button[data-family]'); if (b) shopAt('family', b.dataset.family); });
 
   /* ---------- Quick view ---------- */
   const qv = $('qv'), qvCanvas = $('qvCanvas'), qvThumbs = $('qvThumbs'), viewer = $('qvViewer'), qvHint = $('qvHint');
@@ -357,6 +495,9 @@
   });
   renderBag();
   fromHash();
+  // A necklace's own page (n/<slug>/, made by tools/seo.py) opens with that necklace showing.
+  const own = P.find(p => p.slug === document.body.dataset.product);
+  if (own) openQV(own, 3, true);
 
   // Close buttons, and clicking the dimmed area outside a popup.
   document.querySelectorAll('dialog').forEach(d => {

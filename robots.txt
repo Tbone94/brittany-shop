@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tbone94.github.io/brittany-shop/sitemap.xml

@@ -1,8 +1,16 @@
 # Brittany — handmade glass-bead jewelry
 
-**Live preview:** https://tbone94.github.io/brittany-shop/
+**Live previews, to compare:**
+- v3 (branch `design/v3`, built from Brittany's drawings): https://tbone94.github.io/brittany-shop/ (push to `main` here)
+- v2 (branch `design/centered-hero-colorful`): https://tbone94.github.io/brittany-shop-v2/ (`git push v2 design/centered-hero-colorful:main`)
+- v1 is kept as the tag `v1-first-preview`.
 
-To update it, commit and push to `main`; GitHub Pages republishes in about a minute.
+GitHub Pages republishes about a minute after a push.
+
+**SEO:** after changing necklaces, photos or `index.html`, run `python3 tools/webp.py` (small photo copies) and
+`python3 tools/seo.py` (titles, link previews, Google product data, a page per necklace in `n/`, preview images in
+`og/`, sitemap). The previews are marked noindex; at launch, set the real domain and `INDEXABLE = True` in
+`tools/seo.py` and run it again.
 
 Business plan (online doc): https://claude.ai/code/artifact/8783c375-5827-49ec-aa10-8c531d60a881
 Research on how shops like this are laid out: [research/browse-and-buy.md](research/browse-and-buy.md)

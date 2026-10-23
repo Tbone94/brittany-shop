@@ -195,5 +195,6 @@
     return `<svg viewBox="-130 -130 260 260" aria-hidden="true" focusable="false">${out}</svg>`;
   }
 
-  window.Splash = { svg };
+  // Smooth outline helper, for the collection windows.
+  window.Splash = { svg, smooth };
 })();
