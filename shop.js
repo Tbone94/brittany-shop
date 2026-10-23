@@ -112,7 +112,7 @@
     paintHero();
     const p = heroItems[i];
     accent(heroEl, p);
-    $('heroSplash').innerHTML = splash(p, i + 1);
+    $('heroSplash').innerHTML = $('heroPop').innerHTML = splash(p, i + 1);
     $('tagName').textContent = p.name;
     $('tagDesc').textContent = p.desc;
     $('tagPrice').textContent = p.sold ? 'Sold' : money(p.price);
