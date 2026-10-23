@@ -21,18 +21,26 @@
   // Add ?review to the address to preview images waiting for approval in photos/review/
   // (approved ones in photos/ still show).
   const REVIEW = new URLSearchParams(location.search).has('review');
-  const drawn = new Map(), photos = new Map(), painters = new Set();
+  // A photo is 'loading', then an Image, or 'missing' once every file has failed. While it loads, image()
+  // returns null and paint() leaves the canvas as it is, so a drawn stand-in never flashes up before a real
+  // photo; the stand-in is only used when there's no photo at all.
+  const drawn = new Map(), photos = new Map(), painters = new Set(), waiting = new Map();
+  function load(base) {
+    if (photos.has(base)) return;
+    photos.set(base, 'loading');
+    const tries = [...(REVIEW ? [`photos/review/${base}.png`] : []), `photos/${base}.png`, `photos/${base}.jpg`];
+    const img = new Image();
+    const done = v => { photos.set(base, v); painters.forEach(fn => fn()); waiting.forEach((fn, c) => { if (fn()) waiting.delete(c); }); };
+    img.onload = () => done(img);
+    img.onerror = () => { tries.shift(); if (tries.length) img.src = tries[0]; else done('missing'); };
+    img.src = tries[0];
+  }
   function image(p, i) {
     const base = `${p.slug}-${i + 1}`;
-    if (!photos.has(base)) {
-      photos.set(base, null);
-      const tries = [...(REVIEW ? [`photos/review/${base}.png`] : []), `photos/${base}.png`, `photos/${base}.jpg`];
-      const img = new Image();
-      img.onload = () => { photos.set(base, img); painters.forEach(fn => fn()); };
-      img.onerror = () => { tries.shift(); if (tries.length) img.src = tries[0]; };
-      img.src = tries[0];
-    }
-    if (photos.get(base)) return photos.get(base);
+    load(base);
+    const got = photos.get(base);
+    if (got === 'loading') return null;
+    if (got !== 'missing') return got;
     const key = `${p.slug}:${i}`;
     if (!drawn.has(key)) {
       const c = document.createElement('canvas');
@@ -42,12 +50,24 @@
     }
     return drawn.get(key);
   }
+  // For canvases that always show the same picture (thumbnails, the bag): paint now, or as soon as it loads.
+  function paintOnce(canvas, p, i) {
+    const go = () => { const src = image(p, i); if (src) paint(canvas, src); return !!src; };
+    if (!go()) waiting.set(canvas, go);
+  }
+  // Load the photos the page shows on hover and as the hero turns, once the page is settled,
+  // so they're ready before anyone reaches for them.
+  addEventListener('load', () => setTimeout(() => {
+    P.forEach(p => { load(`${p.slug}-4`); load(`${p.slug}-6`); });
+    (window.HERO || []).forEach((slug, k) => load(`${slug}-${k + 1}`));
+  }, 400));
   // The glass-color splash behind a necklace's photos, and the single small accent shape used elsewhere.
   const splash = (p, seed) => window.Splash.svg(p.splash, seed, { shape: p.splashShape, rich: true });
   const shape = (color, kind, seed) => window.Splash.svg([color], seed, { shape: kind, minimal: true });
 
   // `zoom` crops in past a plain fill; `fy` is where the crop sits top to bottom (0 top, 0.5 middle).
   function paint(canvas, src, zoom = 1, fy = 0.5) {
+    if (!src) return;  // still loading: keep what's there
     const ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
     const iw = src.naturalWidth || src.width, ih = src.naturalHeight || src.height, s = Math.max(w / iw, h / ih) * zoom;
@@ -107,7 +127,9 @@
   // keeping the top of the neck; older square ones fill it, trimmed top and bottom.
   const paintHero = () => {
     if (cur < 0) return;
-    const p = heroItems[cur], src = image(p, cur), wide = (src.naturalWidth || src.width) > (src.naturalHeight || src.height) * 1.2;
+    const p = heroItems[cur], src = image(p, cur);
+    if (!src) return;
+    const wide = (src.naturalWidth || src.width) > (src.naturalHeight || src.height) * 1.2;
     paint(heroCanvas, src, wide ? p.heroZoom ?? 1.2 : 1, wide ? 0.3 : 0.5);
   };
   painters.add(paintHero);
@@ -256,7 +278,7 @@
       const b = document.createElement('button');
       b.type = 'button'; b.setAttribute('aria-label', ANGLE_NAMES[k]);
       const c = document.createElement('canvas'); c.width = c.height = 160;
-      b.appendChild(c); paint(c, image(p, k));
+      b.appendChild(c); paintOnce(c, p, k);
       b.addEventListener('click', () => { qvHint.classList.add('gone'); setQVAngle(k); });
       qvThumbs.appendChild(b);
     }
@@ -314,7 +336,7 @@
       li.innerHTML = `<canvas width="168" height="168" aria-hidden="true"></canvas>
         <div><div class="name">${p.name}</div><button class="link-btn" type="button">Remove</button></div>
         <span>${money(p.price)}</span>`;
-      paint(li.querySelector('canvas'), image(p, 3));
+      paintOnce(li.querySelector('canvas'), p, 3);
       li.querySelector('.link-btn').addEventListener('click', () => { bag = bag.filter(s => s !== p.slug); save(); renderBag(); });
       list.appendChild(li);
     });
