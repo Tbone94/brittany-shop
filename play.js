@@ -45,30 +45,62 @@
     s.animate([{ rotate: '0deg' }, { rotate: '360deg' }], { duration: 700, easing: 'cubic-bezier(.2,.7,.2,1)' });
   });
 
-  /* ---------- Big color splashes in the page background ---------- */
-  // Static, behind the content, mostly bleeding off the edges of the page. Sizes in px (scaled down on phones).
-  const BIG = [
-    { in: '.hero', shape: 'round', colors: ['--coral', '--uranium', '--rubino'], size: 560, style: 'left:-260px;top:-140px', seed: 3 },
-    { in: '.hero', shape: 'bloom', colors: ['--turquoise', '--cobalt', '--emerald'], size: 500, style: 'right:-250px;top:28%', seed: 7 },
-    { in: '.hero', shape: 'daisy', colors: ['--orchid', '--coral', '--uranium'], size: 300, style: 'left:-90px;bottom:40px', seed: 11, small: false },
-    { in: '.shop', shape: 'bloom', colors: ['--uranium', '--coral', '--sangre'], size: 520, style: 'right:-300px;top:300px', seed: 13 },
-    { in: '.shop', shape: 'daisy', colors: ['--turquoise', '--cobalt', '--uranium'], size: 460, style: 'left:-290px;top:700px', seed: 17, small: false },
-    { in: '.shop', shape: 'round', colors: ['--orchid', '--rubino', '--coral'], size: 520, style: 'right:-330px;bottom:-200px', seed: 19, small: false },
-    { in: '.story', shape: 'daisy', colors: ['--coral', '--rubino', '--uranium'], size: 480, style: 'right:-220px;top:24%', seed: 23 },
-    { in: '.perks', shape: 'round', colors: ['--turquoise', '--emerald', '--uranium'], size: 460, style: 'left:-260px;top:-60px', seed: 29 },
-    { in: '.signup', shape: 'bloom', colors: ['--cobalt', '--turquoise', '--orchid'], size: 420, style: 'right:-200px;top:-80px', seed: 31 },
-    { in: 'footer', shape: 'daisy', colors: ['--coral', '--uranium', '--orchid'], size: 380, style: 'left:-170px;bottom:-170px', seed: 37 },
+  /* ---------- Wavy ribbons in the page background ---------- */
+  // 70s-style bands of stacked wavy stripes that flow edge to edge behind the content. They use soft
+  // pastel tints of the glass colors so they set the mood without competing with the photos.
+  const RIBBONS = [
+    { in: '.hero', colors: ['--coral', '--uranium', '--turquoise', '--orchid'], top: '44%', height: 320, amp: 70, seed: 3 },
+    { in: '.shop', colors: ['--turquoise', '--uranium', '--coral'], top: '30%', height: 280, amp: 64, seed: 9 },
+    { in: '.shop', colors: ['--orchid', '--coral', '--uranium'], top: '54%', height: 260, amp: 56, seed: 14 },
+    { in: '.story', colors: ['--uranium', '--coral', '--rubino'], top: '96%', height: 200, amp: 40, seed: 21 },
+    { in: '.signup', colors: ['--turquoise', '--orchid', '--coral'], top: '90%', height: 200, amp: 36, seed: 27 },
   ];
-  BIG.forEach(b => {
-    const host = document.querySelector(b.in);
-    if (!host || !window.Splash) return;
+  function rand32(seed) {
+    return () => {
+      seed = seed + 0x6D2B79F5 | 0;
+      let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const tint = (hex, amt) => {
+    const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255];
+    return `rgb(${c.map(v => Math.round(v + (255 - v) * amt)).join(',')})`;
+  };
+  // One wavy line drawn smoothly through points, then repeated a stripe-width lower for each color.
+  function ribbonSVG(w, r) {
+    const rand = rand32(r.seed), stripe = Math.max(16, Math.min(34, w * 0.026));
+    const mid = r.height / 2 - (stripe * (r.colors.length - 1)) / 2, pts = [];
+    for (let x = -240; x <= w + 240; x += 240) pts.push([x, mid + (rand() - 0.5) * 2 * r.amp]);
+    let d = `M${pts[0][0]} ${pts[0][1].toFixed(1)}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)} ${p2[0]} ${p2[1].toFixed(1)}`;
+    }
+    const bands = r.colors.map((c, k) => `<path d="${d}" transform="translate(0 ${(k * stripe).toFixed(1)})" fill="none" stroke="${tint(css(c), 0.5)}" stroke-width="${(stripe + 0.6).toFixed(1)}"/>`).join('');
+    return `<svg width="${w}" height="${r.height}" viewBox="0 0 ${w} ${r.height}" aria-hidden="true" focusable="false">${bands}</svg>`;
+  }
+  const ribbonEls = RIBBONS.map(r => {
+    const host = document.querySelector(r.in);
+    if (!host) return null;
     const el = document.createElement('div');
-    el.className = 'bg-splash' + (b.small === false ? ' hide-small' : '');
+    el.className = 'ribbon';
     el.setAttribute('aria-hidden', 'true');
-    el.style.cssText = `${b.style};--w:${b.size}px`;
-    el.innerHTML = window.Splash.svg(b.colors.map(css), b.seed, { shape: b.shape });
+    el.style.top = r.top;
+    el.style.height = `${r.height}px`;
+    el.style.marginTop = `${-r.height / 2}px`;
     host.prepend(el);
-  });
+    return { el, r };
+  }).filter(Boolean);
+  let ribbonW = 0;
+  function drawRibbons() {
+    const w = document.documentElement.clientWidth;
+    if (w === ribbonW) return;
+    ribbonW = w;
+    ribbonEls.forEach(({ el, r }) => { el.innerHTML = ribbonSVG(w, r); });
+  }
+  drawRibbons();
+  window.addEventListener('resize', drawRibbons);
 
   /* ---------- The bead strand in the story section ---------- */
   const strandEl = document.getElementById('strand');
