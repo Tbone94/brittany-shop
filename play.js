@@ -49,14 +49,14 @@
   // Static, behind the content, mostly bleeding off the edges of the page. Sizes in px (scaled down on phones).
   const BIG = [
     { in: '.hero', shape: 'round', colors: ['--coral', '--uranium', '--rubino'], size: 560, style: 'left:-260px;top:-140px', seed: 3 },
-    { in: '.hero', shape: 'shard', colors: ['--turquoise', '--cobalt', '--emerald'], size: 500, style: 'right:-250px;top:28%', seed: 7 },
+    { in: '.hero', shape: 'bloom', colors: ['--turquoise', '--cobalt', '--emerald'], size: 500, style: 'right:-250px;top:28%', seed: 7 },
     { in: '.hero', shape: 'daisy', colors: ['--orchid', '--coral', '--uranium'], size: 300, style: 'left:-90px;bottom:40px', seed: 11, small: false },
-    { in: '.shop', shape: 'burst', colors: ['--uranium', '--coral', '--sangre'], size: 520, style: 'right:-300px;top:120px', seed: 13 },
+    { in: '.shop', shape: 'bloom', colors: ['--uranium', '--coral', '--sangre'], size: 520, style: 'right:-300px;top:300px', seed: 13 },
     { in: '.shop', shape: 'daisy', colors: ['--turquoise', '--cobalt', '--uranium'], size: 460, style: 'left:-290px;top:700px', seed: 17, small: false },
     { in: '.shop', shape: 'round', colors: ['--orchid', '--rubino', '--coral'], size: 520, style: 'right:-330px;bottom:-200px', seed: 19, small: false },
-    { in: '.story', shape: 'shard', colors: ['--coral', '--rubino', '--uranium'], size: 480, style: 'right:-220px;top:24%', seed: 23 },
+    { in: '.story', shape: 'daisy', colors: ['--coral', '--rubino', '--uranium'], size: 480, style: 'right:-220px;top:24%', seed: 23 },
     { in: '.perks', shape: 'round', colors: ['--turquoise', '--emerald', '--uranium'], size: 460, style: 'left:-260px;top:-60px', seed: 29 },
-    { in: '.signup', shape: 'burst', colors: ['--cobalt', '--turquoise', '--orchid'], size: 420, style: 'right:-200px;top:-80px', seed: 31 },
+    { in: '.signup', shape: 'bloom', colors: ['--cobalt', '--turquoise', '--orchid'], size: 420, style: 'right:-200px;top:-80px', seed: 31 },
     { in: 'footer', shape: 'daisy', colors: ['--coral', '--uranium', '--orchid'], size: 380, style: 'left:-170px;bottom:-170px', seed: 37 },
   ];
   BIG.forEach(b => {

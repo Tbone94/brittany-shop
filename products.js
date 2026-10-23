@@ -1,7 +1,7 @@
 // The necklaces. Names, prices, copy and details are placeholders for Brittany to replace.
 // Colors come from the glass palette in styles.css. `backdrop` is the piece's accent, matched to its own glass:
 // dots and badges use it at full strength. `splash` is the 2–3 glass colors layered behind its photos, and
-// `splashShape` their shape: 'round' (wavy blob), 'daisy', 'burst' (pointy) or 'shard' (sharp, like broken glass).
+// `splashShape` their shape: 'round' (wavy blob), 'daisy' or 'bloom' (flowers). 'burst' and 'shard' are pointy options.
 // palette / cord / drop / focal / bead() only shape the drawn stand-ins and go away once real photos exist.
 window.PRODUCTS = [
   {
@@ -14,7 +14,7 @@ window.PRODUCTS = [
     bead(i) { return i % 2 ? { r: 0.038, kind: 'spacer', metal: 'silver' } : { r: 0.078, kind: 'glass', color: this.palette[(i / 2 | 0) % 3] }; },
   },
   {
-    slug: 'marmalade', splashShape: 'burst', name: 'Marmalade', price: 42, family: 'warm', sold: false,
+    slug: 'marmalade', splashShape: 'bloom', name: 'Marmalade', price: 42, family: 'warm', sold: false,
     backdrop: '#f2674a', accentInk: '#1b1a22', splash: ['#f2674a', '#e4dd3b', '#a8265e'],
     desc: 'Chunky amber and honey beads on a short, choker-length cord.',
     details: { Length: '15 in', Glass: 'Amber, honey, burnt orange', Cord: 'Waxed cotton', Clasp: 'Toggle' },
@@ -50,7 +50,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.05, kind: 'glass', color: this.palette[i % 3] }; },
   },
   {
-    slug: 'midnight', splashShape: 'shard', name: 'Midnight', price: 72, family: 'blues', sold: true, soldOn: 'October',
+    slug: 'midnight', splashShape: 'bloom', name: 'Midnight', price: 72, family: 'blues', sold: true, soldOn: 'October',
     backdrop: '#1f3fa8', accentInk: '#ffffff', splash: ['#1f3fa8', '#1fb5c9', '#8a4fbf'],
     desc: 'Cobalt and navy glass with gold swirls and gold spacers.',
     details: { Length: '18 in', Glass: 'Cobalt, navy, cornflower', Spacers: 'Gold-tone', Clasp: 'Lobster' },
@@ -59,7 +59,7 @@ window.PRODUCTS = [
     bead(i) { return i % 2 ? { r: 0.034, kind: 'spacer', metal: 'gold' } : { r: 0.082, kind: i % 4 === 0 ? 'stripe' : 'glass', color: this.palette[(i / 2 | 0) % 3], dot: '#e3c06a' }; },
   },
   {
-    slug: 'sunday-morning', splashShape: 'burst', name: 'Sunday Morning', price: 52, family: 'pastels', sold: false,
+    slug: 'sunday-morning', splashShape: 'round', name: 'Sunday Morning', price: 52, family: 'pastels', sold: false,
     backdrop: '#e4dd3b', accentInk: '#1b1a22', splash: ['#e4dd3b', '#f2674a', '#8a4fbf'],
     desc: 'A happy jumble of pastel glass. No two beads match.',
     details: { Length: '18 in', Glass: 'Peach, mint, butter, lavender', Cord: 'Silver-tone wire', Clasp: 'Lobster' },

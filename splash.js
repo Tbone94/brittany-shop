@@ -1,6 +1,7 @@
 // Color splashes behind the chest shots and around the page, in three shapes:
 //   'round'  soft blobs, like drops of molten glass (a wavy, groovy edge in minimal mode)
 //   'daisy'  a 70s flower with rounded petals
+//   'bloom'  a chunky five-petal flower
 //   'burst'  pointy starbursts
 //   'shard'  sharp, angular pieces, like broken glass
 // Layers overlap slightly see-through, like stacked glass.
@@ -89,6 +90,16 @@
     return d;
   }
 
+  // A bloom: five fat round petals.
+  function bloom(cx, cy, r, turn) {
+    let d = '';
+    for (let k = 0; k < 5; k++) {
+      const a = turn + k * TAU / 5, px = cx + Math.cos(a) * r * 0.52, py = cy + Math.sin(a) * r * 0.52, pr = r * 0.46;
+      d += `M${f(px - pr)} ${f(py)}a${f(pr)} ${f(pr)} 0 1 0 ${f(pr * 2)} 0a${f(pr)} ${f(pr)} 0 1 0 ${f(-pr * 2)} 0Z`;
+    }
+    return d;
+  }
+
   const layer = (d, color, alpha) => `<path d="${d}" fill="${color}"${alpha < 1 ? ` fill-opacity="${alpha}"` : ''}/>`;
 
   function svg(colors, seed, { shape = 'round', droplets = true, minimal = false } = {}) {
@@ -96,6 +107,9 @@
     if (minimal) {
       // One crisp shape with a lighter inner layer, like light caught inside a glass bead.
       const open = '<svg viewBox="-130 -130 260 260" aria-hidden="true" focusable="false">';
+      if (shape === 'bloom') {
+        return `${open}<path d="${bloom(0, 0, 108, rand() * TAU)}" fill="${colors[0]}"/><circle r="28" fill="#fff" fill-opacity=".85"/></svg>`;
+      }
       if (shape === 'daisy') {
         const petals = 8 + Math.floor(rand() * 3), turn = rand() * TAU;
         return `${open}<path d="${daisy(0, 0, 112, petals, turn)}" fill="${colors[0]}"/><circle r="30" fill="#fff" fill-opacity=".85"/><circle r="30" fill="${colors[0]}" fill-opacity=".25"/></svg>`;
@@ -117,6 +131,11 @@
       out += layer(shard(rand, ox, oy, 92), c2, 0.85);
       out += layer(shard(rand, -ox * 0.9, -oy * 0.7, 70), c3, 0.8);
       out += layer(shard(rand, oy * 1.6, -ox * 1.4, 40), c1, 0.75);
+    } else if (shape === 'bloom') {
+      const turn = rand() * TAU;
+      out += layer(bloom(0, 0, 104, turn), c1, 1);
+      out += layer(bloom(ox * 0.3, oy * 0.3, 60, turn + 0.6), c2, 0.85);
+      out += `<circle r="24" fill="${c3}" fill-opacity=".9"/>`;
     } else if (shape === 'daisy') {
       const petals = 8 + Math.floor(rand() * 3), turn = rand() * TAU;
       out += layer(daisy(0, 0, 112, petals, turn), c1, 1);
@@ -134,7 +153,7 @@
       for (let k = 0; k < drops; k++) {
         const a = rand() * TAU, d = 108 + rand() * 18, r = 2.2 + rand() * 6, c = [c1, c2, c3][k % 3];
         const x = Math.cos(a) * d, y = Math.sin(a) * d;
-        if (shape === 'round' || shape === 'daisy') {
+        if (shape === 'round' || shape === 'daisy' || shape === 'bloom') {
           out += rand() < 0.3
             ? `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(r * 2.4)}" ry="${f(r * 0.8)}" transform="rotate(${f(a * 180 / Math.PI)} ${f(x)} ${f(y)})" fill="${c}"/>`
             : `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r)}" fill="${c}"/>`;
