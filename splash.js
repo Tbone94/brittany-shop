@@ -132,7 +132,7 @@
     // Extra layers draw from their own random stream, so a splash keeps its shape with or without them.
     const extra = rng(seed * 104729 + 3);
     if (rich) {
-      const turn = extra() * TAU, ex = -ox * 0.7, ey = -oy * 0.7;
+      const turn = extra() * TAU, ex = -ox * 0.25, ey = -oy * 0.25;
       out += layer(
         shape === 'bloom' ? bloom(ex, ey, 116, turn)
           : shape === 'daisy' ? daisy(ex, ey, 120, 9, turn)
