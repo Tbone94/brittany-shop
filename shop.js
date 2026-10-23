@@ -51,7 +51,9 @@
 
   /* ---------- Logo dot: line the bead up with where the font draws the dot of its "i" ---------- */
   // Draw "i" and the dotless "ı" in the logo font; the pixels only "i" has are its dot.
-  document.fonts.load('200px Shrikhand').then(() => {
+  // Load both characters first: Google Fonts keeps "ı" in a separate file, and measuring against a
+  // fallback font's "ı" would make the dot far too big.
+  document.fonts.load('200px Shrikhand', 'iı').then(() => {
     const size = 200, c = document.createElement('canvas'), ctx = c.getContext('2d', { willReadFrequently: true });
     c.width = c.height = 400;
     ctx.font = `${size}px Shrikhand`;
@@ -64,8 +66,11 @@
       if (withDot[k] > 128 && noDot[k] < 40) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
     }
     if (x1 < 0) return;
+    // A real dot is small and near the top; anything else means the font wasn't ready, so keep the defaults.
+    if ((x1 - x0) > size * 0.35 || (y1 - y0) > size * 0.35) return;
     // The .i box starts at the glyph origin; with line-height 1 its top is the baseline minus ascent minus half the leading.
     const boxTop = 300 - A - (size - (A + D)) / 2;
+    if (!Number.isFinite(boxTop)) return;
     const d = Math.max(x1 - x0, y1 - y0) * 1.08, cx = (x0 + x1) / 2 - 100, cy = (y0 + y1) / 2 - boxTop;
     const root = document.documentElement.style;
     root.setProperty('--dot-size', `${(d / size).toFixed(4)}em`);
