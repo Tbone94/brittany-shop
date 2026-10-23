@@ -137,9 +137,7 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQV(heroItems[cur], cur); }
   });
   $('heroShop').addEventListener('click', () => openQV(heroItems[cur], cur));
-  if (touchOnly) $('stageHint').textContent = 'Drag to turn';
 
-  $('heroBatch').textContent = `New batch · ${heroItems.length} necklaces`;
   setHero(3);
   if (!reduceMotion) {
     // One quick turn on load so people see it moves, then it's theirs.

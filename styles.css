@@ -107,25 +107,25 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .link-btn { background: none; border: 0; padding: 0; cursor: pointer; color: var(--cobalt); font-weight: 500; }
 
 /* Hero: the necklace big and centered, its shoulder views tilted on the sides, details centered below. */
-.hero { max-width: 1280px; margin: 0 auto; padding: clamp(32px, 5vw, 64px) var(--gutter) clamp(120px, 12vw, 160px); text-align: center; }
-.hero-eyebrow { margin-bottom: 22px; }
-.stage-wrap { position: relative; width: 100%; max-width: 640px; margin: 0 auto; }
+.hero { max-width: 1280px; margin: 0 auto; padding: 20px var(--gutter) clamp(120px, 12vw, 160px); text-align: center; }
+/* The photo takes whatever height is left after the header and the details below it, so everything
+   down to the buttons fits on the first screen (up to 640px, never under 260px). */
+.stage-wrap { position: relative; width: 100%; max-width: clamp(260px, calc(100svh - 365px), 640px); margin: 0 auto; }
 .stage { cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; border-radius: 40px; }
-.pager { display: flex; justify-content: center; gap: 4px; margin-top: 26px; }
+.pager { display: flex; justify-content: center; gap: 4px; margin-top: 12px; }
 .pager button { width: 22px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
 .pager button::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--line); transition: width .25s var(--ease), background .25s var(--ease); }
 .pager button.on { width: 34px; }
 .pager button.on::before { width: 26px; background: var(--accent); }
-.stage-hint { margin-top: 6px; font-size: 13px; color: var(--ink-2); }
 
 /* The necklace's name, description and details. Heights are fixed so nothing jumps while turning. */
-.hero-copy { max-width: 640px; margin: 28px auto 0; }
-.now { display: grid; gap: 12px; justify-items: center; }
-.now-name { font-family: var(--serif); font-size: clamp(40px, 6vw, 84px); line-height: 1; letter-spacing: -.01em; white-space: nowrap; }
+.hero-copy { max-width: 640px; margin: 6px auto 0; }
+.now { display: grid; gap: 8px; justify-items: center; }
+.now-name { font-family: var(--serif); font-size: clamp(36px, min(6vw, 7svh), 76px); line-height: 1; letter-spacing: -.01em; white-space: nowrap; }
 .now-desc { font-size: 19px; color: var(--ink-2); max-width: 40ch; min-height: 3em; }
 .now-meta { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 17px; }
 .now-sep { width: 4px; height: 4px; border-radius: 50%; background: var(--line); }
-.hero-actions { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 24px; }
+.hero-actions { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
 
 /* Shop */
 .shop { max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 104px) var(--gutter); }
