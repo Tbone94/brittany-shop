@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=104">
+<link rel="stylesheet" href="styles.css?v=106">
 </head>
 <body data-product="moss-and-stone">
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -50,6 +50,8 @@
         <li><a href="#colors">By color</a></li>
         <li><a href="#shop" data-by="metal">By metal</a></li>
         <li><a href="#shop" data-by="all">Everything</a></li>
+        <li class="menu-small"><a href="#story">About</a></li>
+        <li class="menu-small"><a href="#markets">Markets</a></li>
       </ul>
     </div>
     <a href="#story">About</a>
@@ -67,7 +69,7 @@
       <canvas class="shot" id="heroCanvas" width="1500" height="1000"></canvas>
     </div>
     <!-- The "!" is drawn: a stem, and a glass bead for its dot that bounces in when the page opens (play.js). -->
-    <h1 class="tagline"><span class="kicker">Glass bead necklaces,</span> strung by hand<span class="bang">!</span></h1>
+    <h1 class="tagline"><span class="sr">Glass bead necklaces, </span>strung by hand<span class="bang">!</span></h1>
   </section>
 
   <section class="collections" id="collections" aria-labelledby="collectionsTitle">
@@ -113,9 +115,10 @@
   </section>
 
   <section class="story" id="story" aria-labelledby="storyTitle">
+    <svg class="band-bg" viewBox="0 0 1000 440" preserveAspectRatio="none" aria-hidden="true"><path class="band-fill" d="M0 40C180 0 330 0 500 30S820 70 1000 24L1000 440L0 440Z"/><path class="band-edge" d="M0 40C180 0 330 0 500 30S820 70 1000 24"/></svg>
     <canvas class="strand" id="strand" aria-hidden="true"></canvas>
     <div class="story-inner">
-      <h2 id="storyTitle">No two alike.</h2>
+      <h2 class="band-heading" id="storyTitle">No two alike.</h2>
       <div>
         <p>Strung by hand, one bead at a time. Each one is made once.</p>
         <p class="sig">Brittany</p>
@@ -124,17 +127,17 @@
   </section>
 
   <section class="perks" id="markets" aria-label="Shipping, gifts and markets">
-    <div class="perk" style="--accent: var(--turquoise)">
+    <div class="perk" style="--accent: var(--turquoise); --card: #4cc3e6">
       <span class="perk-dot"></span>
       <h3>Ships in 2–3 days</h3>
       <p>Free over $50</p>
     </div>
-    <div class="perk" style="--accent: var(--coral)">
+    <div class="perk" style="--accent: var(--coral); --card: #f7a23b">
       <span class="perk-dot"></span>
       <h3>Gift-boxed</h3>
       <p>With a handwritten note</p>
     </div>
-    <div class="perk" style="--accent: var(--orchid)">
+    <div class="perk" style="--accent: var(--orchid); --card: #b48ae6">
       <span class="perk-dot"></span>
       <h3>Markets</h3>
       <p>Dates coming soon</p>
@@ -142,8 +145,9 @@
   </section>
 
   <section class="signup" aria-labelledby="signupTitle">
-    <div class="accent-shape signup-shape" data-shape="daisy" data-color="--coral" data-seed="51" aria-hidden="true"></div>
-    <h2 id="signupTitle">First dibs on new batches</h2>
+    <svg class="band-bg" viewBox="0 0 1000 440" preserveAspectRatio="none" aria-hidden="true"><path class="band-fill" d="M0 22C200 60 380 64 560 30S860 -4 1000 36L1000 440L0 440Z"/><path class="band-edge" d="M0 22C200 60 380 64 560 30S860 -4 1000 36"/></svg>
+    <div class="accent-shape signup-shape" data-shape="daisy" data-color="--uranium" data-seed="51" aria-hidden="true"></div>
+    <h2 class="band-heading" id="signupTitle">First dibs on new batches</h2>
     <form id="signup">
       <label class="sr" for="email">Email address</label>
       <input id="email" type="email" required placeholder="you@email.com" autocomplete="email">
@@ -153,8 +157,8 @@
   </section>
 </main>
 
-<div class="groove" aria-hidden="true"></div>
 <footer>
+  <svg class="band-bg" viewBox="0 0 1000 440" preserveAspectRatio="none" aria-hidden="true"><path class="band-fill" d="M0 40C180 0 330 0 500 30S820 70 1000 24L1000 440L0 440Z"/><path class="band-edge" d="M0 40C180 0 330 0 500 30S820 70 1000 24"/></svg>
   <div class="foot">
     <a class="logo" href="#" aria-label="Brittany, back to top">Br<span class="i">ı<span class="dot"></span></span>ttany</a>
     <nav aria-label="Footer">
@@ -259,12 +263,12 @@
   </div>
 </dialog>
 
-<script src="products.js?v=104"></script>
-<script src="standin.js?v=104"></script>
-<script src="splash.js?v=104"></script>
-<script src="shop.js?v=104"></script>
-<script src="play.js?v=104"></script>
-<script src="stack.js?v=104" defer></script>
+<script src="products.js?v=106"></script>
+<script src="standin.js?v=106"></script>
+<script src="splash.js?v=106"></script>
+<script src="shop.js?v=106"></script>
+<script src="play.js?v=106"></script>
+<script src="stack.js?v=106" defer></script>
 <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>
 </body>
 </html>

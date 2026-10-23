@@ -26,8 +26,8 @@
     { in: '.hero', shape: 'sparkle', color: '--uranium', size: 30, style: 'top:7%;right:6%' },
     { in: '.shop .section-head', shape: 'squiggle', color: '--coral', size: 46, style: 'top:4px;left:calc(min(520px, 56%))', small: false },
     { in: '.found .section-head', shape: 'bead', color: '--turquoise', size: 24, style: 'top:2px;left:250px', small: false },
-    { in: '.story', shape: 'daisy', color: '--orchid', size: 30, style: 'bottom:14%;right:5%' },
-    { in: '.signup', shape: 'sparkle', color: '--cobalt', size: 26, style: 'top:30%;right:calc(50% - 320px)' },
+    { in: '.story', shape: 'daisy', color: '--coral', size: 30, style: 'bottom:14%;right:5%' },
+    { in: '.signup', shape: 'sparkle', color: '--uranium', size: 26, style: 'top:30%;right:calc(50% - 320px)' },
     { in: 'footer', shape: 'daisy', color: '--uranium', size: 22, style: 'top:20px;right:calc(var(--gutter) + 4px)' },
   ];
   PLACES.forEach(p => {
@@ -55,7 +55,6 @@
   const RIBBONS = [
     { in: '.shop', colors: ['--turquoise', '--uranium', '--coral'], top: '27%', angle: 8, height: 240, amp: 28, seed: 9 },
     { in: '.shop', colors: ['--orchid', '--coral', '--uranium'], top: '76%', angle: -8, height: 240, amp: 28, seed: 14 },
-    { in: '.perks', colors: ['--uranium', '--coral', '--rubino'], top: '50%', angle: 10, height: 220, amp: 30, seed: 21, small: true },
   ];
   function rand32(seed) {
     return () => {
@@ -256,8 +255,9 @@
       range.selectNodeContents(words);
       const line = rel([...range.getClientRects()].pop());
       const wide = stage.l > 120 || innerWidth > 760, FL = wide ? 52 : 38;
-      const f1 = wide ? { x: Math.max(40, line.l - 150), y: stage.t + (stage.b - stage.t) * 0.48 } : { x: 34, y: stage.t + (stage.b - stage.t) * 0.42 };
-      const f2 = wide ? { x: Math.max(80, line.l - 70), y: stage.b - FL * 0.2 } : { x: 56, y: stage.b - FL * 0.6 };
+      // Desktop: out in the white space left of the splash, stepping down toward the tagline.
+      const f1 = wide ? { x: Math.max(44, box.width * 0.07), y: stage.t + (stage.b - stage.t) * 0.42 } : { x: 34, y: stage.t + (stage.b - stage.t) * 0.42 };
+      const f2 = wide ? { x: Math.max(96, box.width * 0.14), y: stage.t + (stage.b - stage.t) * 0.8 } : { x: 56, y: stage.b - FL * 0.6 };
       layer.style.height = `${box.height}px`;
       [f1, f2].forEach((f, k) => Object.assign(flowers[k].style, { width: `${FL}px`, left: `${f.x - FL / 2}px`, top: `${f.y}px` }));
       return {
@@ -284,7 +284,8 @@
       bead.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
 
       // Segment lengths in ms: fall onto flower 1, hop to flower 2, the long hop onto the n, a hop to the d, into the dot.
-      const seg = [620, 520, 760, 360, 400], D = seg.reduce((a, b) => a + b);
+      // The long hop takes longer the farther it has to go.
+      const seg = [620, 520, Math.min(1100, Math.max(700, 500 + Math.abs(L.xn - L.x2) * 0.5)), 360, 400], D = seg.reduce((a, b) => a + b);
       const at = k => seg.slice(0, k).reduce((a, b) => a + b, 0) / D, mid = k => (at(k) + at(k + 1)) / 2;
       const [h1, h2, h3, h4] = [1, 2, 3, 4].map(at);
       setTimeout(() => squish(flowers[0]), D * h1);

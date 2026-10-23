@@ -58,9 +58,11 @@
   }
   // Load the photos the page shows on hover and as the hero turns, once the page is settled,
   // so they're ready before anyone reaches for them.
+  // Phones can't hover, so they skip the hover photos, and fetch the hero's other photos only once someone touches it.
+  const loadHero = () => (window.HERO || []).forEach((slug, k) => load(`${slug}-${k + 1}`));
   addEventListener('load', () => setTimeout(() => {
-    P.forEach(p => { load(`${p.slug}-4`); load(`${p.slug}-6`); });
-    (window.HERO || []).forEach((slug, k) => load(`${slug}-${k + 1}`));
+    P.forEach(p => { load(`${p.slug}-4`); if (!touchOnly) load(`${p.slug}-6`); });
+    if (touchOnly) $('stage').addEventListener('pointerdown', loadHero, { once: true }); else loadHero();
   }, 400));
   // The glass-color splash behind a necklace's photos, and the single small accent shape used elsewhere.
   const splash = (p, seed) => window.Splash.svg(p.splash, seed, { shape: p.splashShape, rich: true });

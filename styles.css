@@ -92,12 +92,14 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .nav a { text-decoration: none; color: var(--ink); }
 .nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
 .menu { position: relative; }
-.menu-btn { display: flex; align-items: center; gap: 8px; padding: 0; cursor: pointer; background: none; border: 0; font: inherit; }
+.menu-btn { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; cursor: pointer; background: none; border: 0; font: inherit; }
 .menu-btn::after { content: ''; width: 7px; height: 7px; border-right: 2px solid; border-bottom: 2px solid; rotate: 45deg; translate: 0 -2px; transition: rotate .2s var(--ease), translate .2s; }
 .menu-btn[aria-expanded="true"]::after { rotate: 225deg; translate: 0 2px; }
 .menu-list { position: absolute; top: 100%; left: -16px; margin-top: 12px; list-style: none; min-width: 200px; padding: 8px; background: #fff; border: 2px solid var(--ink); border-radius: 18px; box-shadow: 5px 5px 0 var(--ink); }
 .menu-list::before { content: ''; position: absolute; left: 0; right: 0; top: -16px; height: 16px; }  /* keeps hover alive across the gap */
-.menu-list a { display: block; padding: 9px 12px; border-radius: 10px; }
+.menu-list a { display: block; padding: 11px 12px; border-radius: 10px; }
+.menu-small { display: none; }  /* About and Markets, in the menu on phones where the bar has no room for them */
+.menu-list li:not(.menu-small) + .menu-small { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 6px; }
 .menu-list a:hover { background: var(--alt); text-decoration: none; }
 .bag-btn { display: flex; align-items: center; gap: 8px; cursor: pointer; font: 600 14px var(--label); letter-spacing: .08em; text-transform: uppercase; background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 5px 6px 5px 14px; }
 .bag-btn:hover { background: var(--alt); }
@@ -122,7 +124,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
    around it, the layered splash big behind it wrapping around the shoulders, and both cut off flat at the photo's
    bottom edge. The tagline sits big and black below, and everything fits on the first screen.
    The photo is 56.25% of the board's width; --tag is the room kept for the tagline. */
-.hero { --over: clamp(8px, calc(8vw - 44px), 72px); --tag-size: clamp(40px, 5.4vw, 84px); --tag: calc(var(--tag-size) * .95 + 64px);
+.hero { --over: clamp(8px, calc(8vw - 44px), 72px); --tag-size: clamp(40px, 5.4vw, 84px); --tag: calc(var(--tag-size) * .95 + 24px);
   overflow: hidden; padding: var(--over) 0 20px; }  /* --over: room for the big name hanging below the 64px bar */
 .stage { position: relative; width: min(100%, calc((100svh - 64px - var(--over) - var(--tag) - 20px) * 1.6), 1600px); aspect-ratio: 8 / 5; margin: 0 auto;
   cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none;
@@ -131,7 +133,6 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .hero-splash svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .stage .shot { position: absolute; left: 50%; bottom: 0; width: 56.25%; aspect-ratio: 3 / 2; translate: -50% 0; }
 .tagline { position: relative; z-index: 2; margin: 18px auto 0; padding: 0 var(--gutter); text-align: center; font-size: var(--tag-size); line-height: .95; color: var(--ink); }
-.tagline .kicker { display: block; font: 600 clamp(14px, 1.4vw, 20px)/1.2 var(--label); letter-spacing: .12em; text-transform: uppercase; margin-bottom: .45em; }
 /* The drawn "!": the real character stays for search and screen readers but is invisible; a stem and a bead dot
    are drawn in its place. play.js hides the dot (.bang.waiting) while the bead bounces in to become it. */
 .bang { position: relative; display: inline-block; color: transparent; }
@@ -233,36 +234,43 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .found .grid { margin-top: 28px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .found .card-name { font-size: 17px; }
 
-/* Story */
-.story { background: var(--alt); padding: 0 var(--gutter) clamp(72px, 9vw, 120px); }
+/* The bottom of the page picks up the top's colors (Brittany's drawings): wavy bands with a pen-line edge
+   (story, signup, footer) and outlined color cards (perks), with the necklace grid above kept white. */
+.band-heading { color: #fff; paint-order: stroke fill; -webkit-text-stroke: .1em var(--ink); text-shadow: .05em .06em 0 var(--ink); }
+
+/* Story: a yellow band, the bead strand across its top */
+.story { --band: #f7d94a; padding: 36px var(--gutter) clamp(96px, 10vw, 140px); }
 .strand { width: 100%; height: 210px; }
 .story-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(24px, 5vw, 88px); align-items: end; }
-.story p { font-size: 19px; max-width: 34ch; color: #3a3a3c; }
+.story h2 { font-size: clamp(44px, 6vw, 84px); }
+.story p { font-size: 19px; max-width: 34ch; color: var(--ink); }
 .story .sig { font-family: var(--logo); font-size: 30px; color: var(--cobalt); margin-top: 20px; }
 
-/* Perks */
-.perks { max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 104px) var(--gutter); display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.perk { background: var(--alt); border-radius: var(--radius); padding: 32px 30px 34px; }
-.perk-dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); margin-bottom: 32px; }
+/* Perks: outlined color cards, like the collection panels */
+.perks { max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 104px) var(--gutter); display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.perk { background: var(--card, var(--alt)); border: 2.5px solid var(--ink); border-radius: var(--radius); box-shadow: 5px 5px 0 var(--ink); padding: 30px 30px 32px; }
+.perk-dot { display: block; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2.5px solid var(--ink); margin-bottom: 28px; }
 .perk h3 { margin-bottom: 6px; }
-.perk p { color: var(--ink-2); }
+.perk p { color: var(--ink); }
 
-/* Signup */
-.signup { position: relative; overflow: hidden; text-align: center; padding: clamp(64px, 8vw, 112px) var(--gutter); border-top: 1px solid var(--line); }
-.signup > :not(.accent-shape):not(.gbead) { position: relative; z-index: 1; }
-.signup-shape { width: 92px; top: 6%; left: calc(50% - 440px); }
+/* Signup: a pink band */
+.signup { --band: #f58aa8; position: relative; overflow: hidden; text-align: center; padding: clamp(88px, 10vw, 136px) var(--gutter) clamp(72px, 9vw, 120px); }
+.signup > :not(.accent-shape):not(.gbead):not(.band-bg) { position: relative; z-index: 1; }
+.signup h2 { font-size: clamp(38px, 5vw, 64px); }
+.signup-shape { width: 92px; top: 18%; left: calc(50% - 560px); }
 .signup form { display: flex; gap: 10px; max-width: 480px; margin: 28px auto 0; }
 .signup input, .ask input, .ask textarea { flex: 1; min-width: 0; font: 17px var(--sans); padding: 13px 20px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); }
-.signup .thanks { margin-top: 18px; font-weight: 500; }
+.signup input { border: 2px solid var(--ink); }
+.signup .thanks { margin-top: 18px; font-weight: 600; }
 
-/* Footer */
-footer { background: var(--alt); padding: 48px var(--gutter) 32px; font-size: 13px; color: var(--ink-2); }
+/* Footer: a cobalt band, everything in white */
+footer { --band: #1f3fa8; margin-top: -40px; padding: 88px var(--gutter) 32px; font-size: 13px; color: rgba(255,255,255,.78); }
 .foot { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 24px; }
-footer .logo { font-size: clamp(56px, 7vw, 84px); }
-footer nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
-footer nav a { text-decoration: none; }
-footer nav a:hover { color: var(--ink); }
-footer .fine { max-width: 1240px; margin: 28px auto 0; padding-top: 16px; border-top: 1px solid var(--line); }
+footer .logo { font-size: clamp(56px, 7vw, 84px); color: #fff; }
+footer nav { display: flex; flex-wrap: wrap; gap: 0 24px; }
+footer nav a { display: inline-block; padding: 12px 0; text-decoration: none; }
+footer nav a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+footer .fine { max-width: 1240px; margin: 28px auto 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.25); }
 
 /* Quick view */
 dialog { border: 0; padding: 0; color: var(--ink); background: transparent; max-width: none; max-height: none; }
@@ -414,6 +422,8 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 }
 @media (max-width: 640px) {
   .nav > a { display: none; }
+  .menu-small { display: block; }
+  .menu-list { left: auto; right: -70px; }
   .top { gap: 16px; }
   .top .logo { --logo-small: .62; font-size: clamp(36px, 11vw, 48px); }
   .grid { gap: 32px 14px; }
