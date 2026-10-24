@@ -60,7 +60,8 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 }
 
 /* Groovy divider: three wavy stripes in glass colors. */
-.groove { height: 30px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='30' viewBox='0 0 72 30' fill='none' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M0 6 Q18 0 36 6 T72 6' stroke='%23f2674a'/%3E%3Cpath d='M0 15 Q18 9 36 15 T72 15' stroke='%23e4dd3b'/%3E%3Cpath d='M0 24 Q18 18 36 24 T72 24' stroke='%231fb5c9'/%3E%3C/svg%3E") center / 72px 30px repeat-x; }
+.groove { position: relative; height: 32px; margin-top: -1px; }  /* drawn by shop.js: thick pastel stripes, the last band's color flowing into the top wave */
+.groove svg { display: block; }
 
 /* Photo tiles: a pale tint of the necklace's color with a crisp glass-color splash behind the cutout photo.
    The body covers most of the splash, so it shows around the neck and over the shoulders. */
