@@ -150,6 +150,24 @@
   const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas');
   let cur = -1, intro = null, touched = false, press = null;
 
+  // A row of little 8-balls along the photo's bottom, one per necklace in its own color, so people can tell the
+  // photo turns. The one showing is big; they hop once, left to right, when the page opens. Tap one to jump to it.
+  const tint = (hex, t) => { const n = parseInt(hex.slice(1), 16), to = t > 0 ? 255 : 0;
+    return '#' + [n >> 16, n >> 8 & 255, n & 255].map(v => Math.round(v + (to - v) * Math.abs(t)).toString(16).padStart(2, '0')).join(''); };
+  const balls = document.createElement('div');
+  balls.className = 'balls';
+  balls.setAttribute('aria-hidden', 'true');
+  balls.innerHTML = heroItems.map((p, k) => `<span class="ball" style="--k:${k}" data-k="${k}"><svg viewBox="0 0 40 40">
+    <defs><radialGradient id="ball${k}" cx=".42" cy=".36" r=".75"><stop offset="0" stop-color="${tint(p.backdrop, .35)}"/><stop offset=".55" stop-color="${p.backdrop}"/><stop offset="1" stop-color="${tint(p.backdrop, -.45)}"/></radialGradient></defs>
+    <circle cx="20" cy="20" r="20" fill="url(#ball${k})"/><circle cx="20" cy="17.5" r="9" fill="#fff"/>
+    <text x="20" y="22.4" text-anchor="middle">8</text>
+    <ellipse cx="11.5" cy="8" rx="5" ry="2.8" fill="#fff" opacity=".6" transform="rotate(-32 11.5 8)"/></svg></span>`).join('');
+  stage.append(balls);
+  const ballAt = e => e.target.closest?.('.ball');
+  // Pressing a ball is a pick, not a press on the photo (which would open the quick view).
+  balls.addEventListener('pointerdown', e => { if (ballAt(e)) e.stopPropagation(); });
+  balls.addEventListener('pointerup', e => { const b = ballAt(e); if (b) { e.stopPropagation(); stopIntro(); setHero(+b.dataset.k); } });
+
   // Wide (3:2) photos show at full width (p.heroZoom crops in, if a photo needs it); square ones fill, trimmed top and bottom.
   const paintHero = () => {
     if (cur < 0) return;
@@ -165,6 +183,7 @@
     if (i === cur) return;
     cur = i;
     paintHero();
+    balls.querySelectorAll('.ball').forEach((b, k) => b.classList.toggle('on', k === i));
     const p = heroItems[i];
     accent(heroEl, p);
     // The layered glass-color splash, big and wrapping around the shoulders, stretched to a wide oval.
@@ -175,7 +194,13 @@
   const stopIntro = () => { touched = true; clearInterval(intro); intro = null; };
   const heroFromX = e => { const r = stage.getBoundingClientRect(); setHero(Math.floor((e.clientX - r.left) / r.width * heroItems.length)); };
 
-  stage.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || press) { stopIntro(); heroFromX(e); } });
+  stage.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse' && !press) return;
+    stopIntro();
+    // Hovering a ball shows its necklace; anywhere else, the spot across the photo picks it.
+    const b = e.pointerType === 'mouse' && ballAt(e);
+    if (b) setHero(+b.dataset.k); else heroFromX(e);
+  });
   stage.addEventListener('pointerdown', e => { press = { x: e.clientX, y: e.clientY }; stopIntro(); });
   stage.addEventListener('pointerup', e => {
     // A click or tap (not a drag) opens the necklace you're looking at.

@@ -200,6 +200,16 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .hero-splash { position: absolute; left: 50%; top: 66%; width: 112%; aspect-ratio: 75 / 56; translate: -50% -50%; pointer-events: none; }
 .hero-splash svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .stage .shot { position: absolute; left: 50%; bottom: 0; width: 56.25%; aspect-ratio: 3 / 2; translate: -50% 0; }
+.balls { position: absolute; z-index: 2; left: 0; right: 0; bottom: 3.5%; display: flex; justify-content: center; align-items: center; gap: clamp(7px, .6vw, 10px); --small: clamp(11px, .9vw, 14px); --big: clamp(21px, 1.7vw, 27px); }
+.ball { width: var(--small); height: var(--small); opacity: .55; cursor: pointer; filter: drop-shadow(0 1px 1.5px rgba(29,29,31,.35));
+  transition: width .3s cubic-bezier(.3,1.6,.5,1), height .3s cubic-bezier(.3,1.6,.5,1), opacity .3s;
+  animation: ball-hop .5s ease-in-out both; animation-delay: calc(1s + var(--k) * .09s); }
+.ball.on { width: var(--big); height: var(--big); opacity: 1; }
+.ball:hover { opacity: .9; }
+.ball svg { display: block; width: 100%; height: 100%; }
+.ball text { font: 700 14px Arial, sans-serif; fill: var(--ink); }
+@keyframes ball-hop { 40% { translate: 0 -7px; } 70% { translate: 0 1px; } }
+@media (prefers-reduced-motion: reduce) { .ball { animation: none; transition: none; } }
 .tagline { position: relative; z-index: 2; margin: 18px auto 0; padding: 0 var(--gutter); text-align: center; font-size: var(--tag-size); line-height: .95; color: var(--ink); }
 /* The drawn "!": the real character stays for search and screen readers but is invisible; a stem and a bead dot
    are drawn in its place. play.js hides the dot (.bang.waiting) while the bead bounces in to become it. */
