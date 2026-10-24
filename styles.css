@@ -323,6 +323,8 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 
 /* Footer: a pastel green band (the wallpaper's pale leaf), everything in ink */
 footer { --band: #c6e8b4; margin-top: -40px; padding: 88px var(--gutter) 32px; font-size: 13px; color: rgba(29,29,31,.72); }
+/* Under the signup band, its pink runs on beneath the footer's wavy top, so no white peeks through where the wave dips (phones). */
+main:has(> .signup:last-child) + footer { background: linear-gradient(#f58aa8 0 96px, transparent 0); }
 .foot { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 24px; }
 footer .logo { font-size: clamp(56px, 7vw, 84px); color: #fff; -webkit-text-stroke: .09em var(--ink); paint-order: stroke fill; }  /* inked like the band titles */
 footer nav { display: flex; flex-wrap: wrap; gap: 0 24px; }
