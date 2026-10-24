@@ -480,14 +480,14 @@
   $('qvAdd').addEventListener('click', async () => {
     const p = qvP, from = $('qvAdd').getBoundingClientRect();
     qv.close();
-    if (!inBag(p)) {
-      bag.push(p.slug); save();
-      // A little bead in the necklace's color arcs into the Bag button, then the count bumps.
-      await window.PlayFX?.toBag(from, p.backdrop);
-      setWax(p.backdrop);
-      renderBag(); bumpBag();
-    }
-    openBag();
+    // Already in the bag: the button reads "view bag", so open it.
+    if (inBag(p)) { openBag(); return; }
+    bag.push(p.slug); save();
+    // A little bead in the necklace's color arcs into the lava lamp, then the count bumps. The bag stays closed so
+    // people can keep shopping; the lamp's new wax color and the count say it went in.
+    await window.PlayFX?.toBag(from, p.backdrop);
+    setWax(p.backdrop);
+    renderBag(); bumpBag();
   });
 
   /* ---------- Bag drawer ---------- */
