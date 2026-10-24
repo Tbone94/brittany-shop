@@ -120,9 +120,10 @@ window.FAMILIES = [
 
 // "Shop by collection": one tall panel each, with the photo in a window of its own shape ('blob', 'star', 'cloud').
 // Names are placeholders for Brittany's own (Chaotic Good is hers).
-// The three panels wear the logo's three o colors: tangerine, turquoise and orchid.
+// The three panels wear the logo's three o colors, in the order they appear in the wordmark:
+// turquoise, tangerine, orchid.
 window.COLLECTIONS = [
-  { key: 'garden-gnome', name: 'Giving Garden Gnome', color: '#f58220', shape: 'blob' },
-  { key: 'photosynthesis', name: 'Photosynthesis Coded', color: '#1fb5c9', shape: 'sun' },
+  { key: 'garden-gnome', name: 'Giving Garden Gnome', color: '#1fb5c9', shape: 'blob' },
+  { key: 'photosynthesis', name: 'Photosynthesis Coded', color: '#f58220', shape: 'sun' },
   { key: 'chaotic-good', name: 'Chaotic Good', color: '#8a4fbf', shape: 'cloud' },
 ];
