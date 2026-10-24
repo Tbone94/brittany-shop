@@ -143,8 +143,9 @@
   // Moving across it flips through the necklaces like stop motion, each shown at its own angle,
   // from left profile (necklace 1) to right profile (necklace 7).
   const heroItems = (window.HERO || P.map(p => p.slug)).map(slug => P.find(p => p.slug === slug)).filter(Boolean).slice(0, N);
-  // Necklace n is shown at angle n, so moving across turns the model from left profile to right profile.
-  const heroAngle = (p, k) => k;
+  // Necklace n is shown at angle n — or its nearest photographed angle, so every frame is a real photo
+  // (ties go to the later angle, keeping the turn moving rightward).
+  const heroAngle = (p, k) => (p.angles || [k]).reduce((a, b) => Math.abs(b - k) <= Math.abs(a - k) ? b : a);
   const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas');
   let cur = -1, intro = null, touched = false, press = null;
 

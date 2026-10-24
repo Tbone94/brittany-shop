@@ -102,8 +102,10 @@ window.PRODUCTS = [
   },
 ];
 
-// The first screen turns through these, in order: necklace n is shown at angle n, left profile to right profile.
-window.HERO = ['mushroom-hunt', 'jewel-box', 'honeysuckle', 'garden-party', 'lavender-wings', 'fruit-salad', 'ember'];
+// The first screen turns through these, in order, left profile to right profile: necklace n is shown at angle n,
+// or its nearest photographed angle (shop.js heroAngle). Lavender Wings holds the front spot people land on —
+// its splash matches the page best.
+window.HERO = ['mushroom-hunt', 'jewel-box', 'honeysuckle', 'lavender-wings', 'garden-party', 'fruit-salad', 'ember'];
 
 // Color filter chips, in display order. `color` is the bead shown on the chip.
 // The "Shop by color" bands use `word` (the big stacked letters), `band` (the band's color), `ink` (letter outlines)
