@@ -245,7 +245,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .band-go:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
 .band-go .n { display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; }
 @media (max-width: 760px) {
-  .band-inner { grid-template-columns: 1fr; }
+  .band-inner, .band.flip .band-inner { grid-template-columns: 1fr; }  /* .band.flip too: its 7fr/5fr desktop split would out-rank the plain rule and crunch the photo */
   .band.flip .band-photo { order: 0; }
   .band-photo { width: min(78%, 320px); justify-self: center; }
 }
