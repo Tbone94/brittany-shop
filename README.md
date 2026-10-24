@@ -51,7 +51,7 @@ Launch target: mid-November 2026, before Black Friday (Nov 27). None of these ca
 - [x] **Own domain:** shopchaoticgoods.com (bought at Porkbun, `CNAME` file in the repo; DNS points at GitHub Pages).
 - [ ] **Real photos** of every necklace, then run `python3 tools/webp.py`.
 - [ ] **Real names, prices, descriptions and details** for every necklace in `products.js`.
-- [ ] **Real collection names.** "Mushroom Club" and "Starstruck" are made up; "Chaotic Good" is Brittany's.
+- [x] **Real collection names:** Giving Garden Gnome, Photosynthesis Coded, Chaotic Good (2026-10-23). Which necklace is in which is still a guess.
 - [ ] **Turn on search:** in `tools/seo.py` (`SITE` is already the new domain) set `INDEXABLE = True`, then run
       `python3 tools/seo.py`. Until this is done, every page tells Google not to list it.
 - [ ] **Google Search Console:** add the domain and submit `sitemap.xml`.

@@ -169,34 +169,39 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 
 /* Section heads from the drawings: three wavy pen lines and a hand-lettered caps title. */
 .collections, .colors { padding-top: clamp(64px, 8vw, 112px); }
-.lines-head { max-width: 1240px; margin: 0 auto 28px; padding: 0 var(--gutter); }
+.lines-head { position: relative; max-width: 1240px; margin: 0 auto 28px; padding: 0 var(--gutter); }
 .lines { display: block; width: 100%; height: 40px; }
 .lines path { fill: none; stroke: var(--ink); stroke-width: 2.2; vector-effect: non-scaling-stroke; }
 .lines-head h2 { margin-top: 14px; font: 500 clamp(22px, 2.6vw, 34px)/1.1 var(--label); letter-spacing: .14em; text-transform: uppercase; }
 
 /* Shop by collection: three tall color panels, each with the photo in a window of its own shape. */
-.panels { list-style: none; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* The wrap holds the panels and the flowers, squiggles and stars scattered around them (play.js). */
+.panels-wrap { position: relative; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
+.panels { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .panel { background: var(--panel); border: 2.5px solid var(--ink); }
 .panel + .panel { border-left: 0; }
 .panel:first-child { border-radius: 28px 0 0 28px; }
 .panel:last-child { border-radius: 0 28px 28px 0; }
-.panel button { display: grid; grid-template-rows: auto 1fr; gap: 28px; width: 100%; height: 100%; padding: clamp(22px, 3vw, 40px); background: none; border: 0; cursor: pointer; text-align: center; }
+.panel button { display: grid; grid-template-rows: auto 1fr; gap: 14px; width: 100%; height: 100%; padding: clamp(14px, 1.8vw, 26px) clamp(10px, 1.4vw, 20px) clamp(24px, 2.6vw, 36px); background: none; border: 0; cursor: pointer; text-align: center; }
 .window { display: block; width: 100%; height: auto; overflow: visible; transition: transform .35s var(--ease); }
 .win-edge > * { fill: var(--ink); stroke: var(--ink); stroke-width: 9; }
 .panel button:hover .window { transform: rotate(-3deg) scale(1.03); }
-.charm { transform-origin: 100px 50px; transition: transform .5s var(--ease); }
-.panel button:hover .charm { transform: rotate(6deg); }
-.panel-label { display: grid; align-content: center; gap: 6px; min-height: 9.5em; padding: 18px 16px; background: #fff; border: 2.5px solid var(--ink); }
-.panel-name { font: 400 clamp(26px, 2.7vw, 40px)/.95 var(--serif); color: #fff; paint-order: stroke fill; -webkit-text-stroke: .12em var(--ink); text-shadow: .07em .07em 0 var(--panel); text-transform: uppercase; }
-.panel-blurb { font-size: 14px; color: var(--ink-2); }
+.charm { transform-origin: 100px 104px; transition: transform .5s var(--ease); }
+.panel button:hover .charm { transform: rotate(5deg) scale(1.04); }
+/* The name sits right on the panel's color (no box), with a small Shop pill under it. */
+.panel-label { display: grid; justify-items: center; align-content: start; gap: 14px; }
+.panel-name { font: 400 clamp(28px, 3vw, 44px)/.92 var(--serif); color: #fff; paint-order: stroke fill; -webkit-text-stroke: .13em var(--ink); text-shadow: .08em .09em 0 var(--ink); text-transform: uppercase; text-wrap: balance; }
+.panel-go { display: inline-flex; align-items: center; gap: 8px; font: 600 14px var(--label); letter-spacing: .06em; text-transform: uppercase; color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 6px 14px; box-shadow: 3px 3px 0 var(--ink); transition: translate .2s var(--ease), box-shadow .2s var(--ease); }
+.panel button:hover .panel-go { translate: -1px -1px; box-shadow: 4px 4px 0 var(--ink); }
+.panel-go span { transition: translate .2s var(--ease); }
+.panel button:hover .panel-go span { translate: 3px 0; }
 @media (max-width: 760px) {
   .panels { grid-template-columns: 1fr; }
   .panel + .panel { border-left: 2.5px solid var(--ink); border-top: 0; }
   .panel:first-child { border-radius: 28px 28px 0 0; }
   .panel:last-child { border-radius: 0 0 28px 28px; }
   .panel button { gap: 20px; }
-  .window { width: min(100%, 240px); justify-self: center; }
-  .panel-label { min-height: 0; }
+  .window { width: min(100%, 280px); justify-self: center; }
 }
 
 /* Shop by color: full-width wavy bands, one color each, with its name in big stacked letters (stack.js). */
@@ -451,6 +456,8 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .sprinkle { position: absolute; z-index: 1; display: block; cursor: pointer; transition: transform .3s var(--ease); }
 .sprinkle svg { display: block; width: 100%; height: auto; overflow: visible; }
 .sprinkle:hover { transform: rotate(-14deg) scale(1.15); }
+.only-wide { display: none; }
+@media (min-width: 1380px) { .only-wide { display: block; } }
 
 /* A glass bead: outer moves sideways, inner moves up and down, ball squashes; dots spin, highlight stays. */
 .gbead { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; }

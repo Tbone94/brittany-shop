@@ -297,7 +297,7 @@
   const photoSrc = p => `photos/${p.slug}-4.webp`;
 
   /* ---------- Shop by collection: tall color panels with a shaped photo window ---------- */
-  // Window outlines on a 200×200 board, from the drawing: a soft five-lobed blob, a spiky star, a puffy cloud.
+  // Window outlines on a 200×200 board, from the drawing: a soft five-lobed blob, a spiky star, a puffy cloud, a sun.
   const ring = (n, r1, r2, wob = []) => Array.from({ length: n * 2 }, (_, k) => {
     const a = -Math.PI / 2 + k * Math.PI / n, r = (k % 2 ? r2 : r1) + (wob[k % wob.length] || 0);
     return [100 + Math.cos(a) * r, 104 + Math.sin(a) * r];
@@ -305,60 +305,35 @@
   const WINDOWS = {
     blob: `<path d="${window.Splash.smooth(ring(5, 90, 74, [0, 4, -6, 2, 5, -3, -4, 3, 6, 0]))}"/>`,
     star: `<path d="M${ring(9, 96, 42, [0, 2, -14, 0, 6, -3, -8, 2, 4, 0, -10, 3, 8, -2, -4, 0, 2, 4]).map(p => p.map(v => v.toFixed(1)).join(' ')).join('L')}Z"/>`,
+    // A sun for Photosynthesis Coded: lots of short rounded rays around a big round middle.
+    sun: `<path d="${window.Splash.smooth(ring(14, 98, 84))}"/>`,
     cloud: [[100, 58, 46], [56, 86, 40], [146, 84, 42], [44, 134, 38], [100, 128, 52], [156, 136, 38], [90, 168, 30], [130, 166, 28]]
       .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join(''),
   };
-  // Little drawn charms that fit each collection's name, on the same 200×200 board as the windows.
-  const INK = '#1d1d1f', line = `stroke="${INK}" stroke-width="4" stroke-linejoin="round"`;
-  const shine = d => `<path d="${d}" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="5" stroke-linecap="round"/>`;
-  const jumpRing = (x, y) => `<circle cx="${x}" cy="${y}" r="8" fill="none" stroke="${INK}" stroke-width="8"/><circle cx="${x}" cy="${y}" r="8" fill="none" stroke="#e3b341" stroke-width="3.5"/>`;
-  const mushroom = (cap, spots) => `
-    ${jumpRing(100, 44)}
-    <path d="M86 112C84 130 81 146 87 156L113 156C119 146 116 130 114 112Z" fill="#fff4e0" ${line}/>
-    <path d="M48 114C46 72 76 52 100 52S154 72 152 114Q100 124 48 114Z" fill="${cap}" ${line}/>
-    ${spots.map(([x, y, r]) => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * 0.85}" fill="#fff"/>`).join('')}
-    ${shine('M62 98q0-24 24-36')}`;
-  const daisyBead = (x, y, r, petal, mid) => [0, 1, 2, 3, 4].map(k => {
-    const a = k * Math.PI * 2 / 5 - Math.PI / 2;
-    return `<circle cx="${(x + Math.cos(a) * r).toFixed(1)}" cy="${(y + Math.sin(a) * r).toFixed(1)}" r="${r * 0.72}" fill="${petal}" ${line}/>`;
-  }).join('') + `<circle cx="${x}" cy="${y}" r="${r * 0.62}" fill="${mid}" ${line}/>`;
-  const starPath = (cx, cy, R, r, n = 5) => 'M' + Array.from({ length: n * 2 }, (_, k) => {
-    const a = -Math.PI / 2 + k * Math.PI / n, rr = k % 2 ? r : R;
-    return `${(cx + Math.cos(a) * rr).toFixed(1)} ${(cy + Math.sin(a) * rr).toFixed(1)}`;
-  }).join('L') + 'Z';
-  const sparkle = (x, y, s, c) => `<path d="M${x} ${y - s}Q${x + s * 0.15} ${y - s * 0.15} ${x + s} ${y}Q${x + s * 0.15} ${y + s * 0.15} ${x} ${y + s}Q${x - s * 0.15} ${y + s * 0.15} ${x - s} ${y}Q${x - s * 0.15} ${y - s * 0.15} ${x} ${y - s}Z" fill="${c}" ${line}/>`;
-  const smiley = (x, y, r, c, wink) => `
-    <circle cx="${x}" cy="${y}" r="${r}" fill="${c}" ${line}/>
-    ${wink ? `<path d="M${x - r * 0.42} ${y - r * 0.18}q${r * 0.14} -${r * 0.16} ${r * 0.28} 0" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`
-      : `<ellipse cx="${x - r * 0.3}" cy="${y - r * 0.2}" rx="${r * 0.09}" ry="${r * 0.15}" fill="${INK}"/>`}
-    <ellipse cx="${x + r * 0.3}" cy="${y - r * 0.2}" rx="${r * 0.09}" ry="${r * 0.15}" fill="${INK}"/>
-    <path d="M${x - r * 0.45} ${y + r * 0.12}Q${x} ${y + r * 0.62} ${x + r * 0.45} ${y + r * 0.12}" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
-    ${shine(`M${x - r * 0.68} ${y - r * 0.05}q${r * 0.05} -${r * 0.45} ${r * 0.42} -${r * 0.6}`)}`;
+  // Brittany's real charms in each window, cut from her necklace photos and cleaned up (photos/charms/, made from
+  // photos/review/charms/). [charm, x, y, size, tilt] on the same 200×200 board: one big charm in the middle and
+  // three around it; the window's edge clips whatever reaches past it.
   const CHARMS = {
-    blob: `${mushroom('#e8262d', [[76, 84, 9], [104, 66, 7], [128, 88, 10], [96, 100, 5]])}
-      <g transform="translate(150 146) rotate(14) scale(.42) translate(-100 -104)">${mushroom('#f28a2e', [[80, 86, 10], [118, 76, 9]])}</g>
-      ${daisyBead(50, 150, 11, '#fff4e0', '#f2b23a')}`,
-    star: `${jumpRing(100, 62)}
-      <path d="${starPath(100, 112, 50, 23)}" fill="#f4c542" ${line}/>
-      ${shine('M80 104l12-4')}
-      ${sparkle(164, 93, 12, '#fff')}${sparkle(58, 54, 11, '#c9a6ff')}${sparkle(78, 164, 10, '#fff')}
-      <circle cx="124" cy="166" r="6" fill="#c9a6ff" ${line}/>`,
-    cloud: `${smiley(70, 94, 30, '#ffd23f')}${smiley(132, 90, 28, '#ff8fb1', true)}${smiley(102, 146, 30, '#7fd36b')}`,
+    'garden-gnome': [['greenbell', 54, 66, 66, -14], ['orangebell', 148, 64, 62, 12], ['mushroom', 152, 148, 50, 18], ['mushroom', 96, 116, 100, -5]],
+    photosynthesis: [['butterfly', 58, 64, 64, -16], ['leaf', 148, 70, 62, 18], ['tealleaf', 60, 146, 58, -24], ['rose', 112, 120, 96, 6]],
+    'chaotic-good': [['apple', 56, 72, 64, -12], ['dotted', 148, 66, 58, 10], ['painted', 150, 148, 56, 16], ['berry', 94, 118, 94, -6]],
   };
+  const charmImgs = key => (CHARMS[key] || []).map(([n, x, y, size, tilt]) =>
+    `<image href="photos/charms/${n}.webp" x="${x - size / 2}" y="${y - size / 2}" width="${size}" height="${size}" transform="rotate(${tilt} ${x} ${y})"/>`).join('');
   $('panels').innerHTML = COLLECTIONS.map((c, k) => {
-    const items = P.filter(p => p.collection === c.key);
+    const items = P.filter(p => p.collection === c.key), left = items.filter(p => !p.sold).length;
     if (!items.length) return '';
     return `<li class="panel" style="--panel:${c.color}">
-      <button type="button" data-collection="${c.key}" aria-label="Shop the ${c.name} collection, ${items.length} necklace${items.length === 1 ? '' : 's'}">
+      <button type="button" data-collection="${c.key}" aria-label="Shop the ${c.name} collection, ${left} available">
         <svg class="window" viewBox="-6 -6 212 212" aria-hidden="true">
           <defs><clipPath id="win${k}">${WINDOWS[c.shape]}</clipPath></defs>
           <g class="win-edge">${WINDOWS[c.shape]}</g>
           <g clip-path="url(#win${k})">
-            <rect x="-6" y="-6" width="212" height="212" fill="${tintHex(c.color, 0.88)}"/>
-            <g class="charm">${CHARMS[c.shape]}</g>
+            <rect x="-6" y="-6" width="212" height="212" fill="${tintHex(c.color, 0.86)}"/>
+            <g class="charm">${charmImgs(c.key)}</g>
           </g>
         </svg>
-        <span class="panel-label"><span class="panel-name">${c.name}</span><span class="panel-blurb">${c.blurb}</span></span>
+        <span class="panel-label"><span class="panel-name">${c.name}</span><span class="panel-go">Shop ${left}<span aria-hidden="true">→</span></span></span>
       </button>
     </li>`;
   }).join('');

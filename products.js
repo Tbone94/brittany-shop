@@ -11,7 +11,7 @@ window.PRODUCTS = [
     // Brittany's first real necklace (photo in photos/source/, prompt in photos/source/garden-party-prompt.md).
     // Name and length are placeholders.
     // heroZoom: how far the hero crops into a wide photo (default 1.2). Her shoulders sit wider in this shot.
-    slug: 'garden-party', angles: [3, 5], collection: 'mushroom-club', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', heroZoom: 1, name: 'Garden Party', price: 75, family: 'greens', sold: false,
+    slug: 'garden-party', angles: [3, 5], collection: 'garden-gnome', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', heroZoom: 1, name: 'Garden Party', price: 75, family: 'greens', sold: false,
     backdrop: '#3f8f3a', accentInk: '#ffffff', splash: ['#5aa83c', '#f2b23a', '#f27a5e'],
     desc: 'Leaf, flower and honey glass on gold wire-wrapped links, with a little orange bell flower at the center.',
     details: { Length: '18 in', Glass: 'Leaf green, amber, aqua, coral', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -20,7 +20,7 @@ window.PRODUCTS = [
     bead(i) { return i % 2 ? { r: 0.034, kind: 'spacer', metal: 'gold' } : { r: 0.07 + (i % 3) * 0.008, kind: i % 6 === 0 ? 'dots' : 'glass', color: this.palette[(i / 2 | 0) % 4], dot: '#ffffff' }; },
   },
   {
-    slug: 'mushroom-hunt', angles: [0, 3, 5], collection: 'mushroom-club', beadType: 'Charms', metal: 'Gold', splashShape: 'round', name: 'Mushroom Hunt', price: 75, family: 'blues', sold: false,
+    slug: 'mushroom-hunt', angles: [0, 3, 5], collection: 'garden-gnome', beadType: 'Charms', metal: 'Gold', splashShape: 'round', name: 'Mushroom Hunt', price: 75, family: 'blues', sold: false,
     backdrop: '#2f6fd1', accentInk: '#ffffff', splash: ['#4c8fe6', '#f2a03a', '#5aa83c'],
     desc: 'Little amber mushrooms and blue glass, with a big glossy spotted mushroom hanging at the center.',
     details: { Length: '18 in', Glass: 'Cobalt, sky blue, amber, leaf green', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -38,7 +38,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'honeysuckle', angles: [2, 3], collection: 'mushroom-club', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', name: 'Honeysuckle', price: 75, family: 'warm', sold: false,
+    slug: 'honeysuckle', angles: [2, 3], collection: 'garden-gnome', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', name: 'Honeysuckle', price: 75, family: 'warm', sold: false,
     backdrop: '#e8692e', accentInk: '#1b1a22', splash: ['#f2803a', '#7ccf4a', '#f2b23a'],
     desc: 'A garden of green glass leaves and peach and orange bell flowers on gold links.',
     details: { Length: '18 in', Glass: 'Leaf green, peach, orange, amber', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -47,7 +47,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'lavender-wings', angles: [3, 4], collection: 'starstruck', beadType: 'Flowers', metal: 'Gold', splashShape: 'daisy', name: 'Lavender Wings', price: 75, family: 'purples', sold: false,
+    slug: 'lavender-wings', angles: [3, 4], collection: 'photosynthesis', beadType: 'Flowers', metal: 'Gold', splashShape: 'daisy', name: 'Lavender Wings', price: 75, family: 'purples', sold: false,
     backdrop: '#8a4fbf', accentInk: '#ffffff', splash: ['#9b6fd6', '#f2803a', '#1fb5c9'],
     desc: 'Shimmering purple glass roses and orange butterflies with pearls and blue crystals.',
     details: { Length: '18 in', Glass: 'Lilac, violet, orange, teal', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -65,7 +65,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'ember', angles: [3, 6], collection: 'starstruck', beadType: 'Seed beads', metal: 'Gold', splashShape: 'round', name: 'Ember', price: 65, family: 'warm', sold: false,
+    slug: 'ember', angles: [3, 6], collection: 'photosynthesis', beadType: 'Seed beads', metal: 'Gold', splashShape: 'round', name: 'Ember', price: 65, family: 'warm', sold: false,
     backdrop: '#e8452e', accentInk: '#ffffff', splash: ['#f2674a', '#e4dd3b', '#c8321f'],
     desc: 'Tiny gold rings wrapped in seed beads, glowing from yellow through orange to red.',
     details: { Length: '16 in', Glass: 'Yellow, orange, red', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -74,7 +74,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'butterfly-garden', angles: [3, 5], collection: 'mushroom-club', beadType: 'Charms', metal: 'Silver', splashShape: 'round', name: 'Butterfly Garden', price: 75, family: 'greens', sold: false,
+    slug: 'butterfly-garden', angles: [3, 5], collection: 'garden-gnome', beadType: 'Charms', metal: 'Silver', splashShape: 'round', name: 'Butterfly Garden', price: 75, family: 'greens', sold: false,
     backdrop: '#3f8f3a', accentInk: '#ffffff', splash: ['#5aa83c', '#f2a03a', '#1fb5c9'],
     desc: 'Orange glass butterflies and green bell flowers among teal leaves, on silver links.',
     details: { Length: '18 in', Glass: 'Leaf green, orange, peach, teal', Links: 'Silver-tone wire-wrapped', Clasp: 'Lobster' },
@@ -92,7 +92,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'morning-dew', angles: [3, 5], collection: 'starstruck', beadType: 'Crystal', metal: 'Silver', splashShape: 'daisy', name: 'Morning Dew', price: 75, family: 'pastels', sold: true, soldOn: 'October',
+    slug: 'morning-dew', angles: [3, 5], collection: 'photosynthesis', beadType: 'Crystal', metal: 'Silver', splashShape: 'daisy', name: 'Morning Dew', price: 75, family: 'pastels', sold: true, soldOn: 'October',
     backdrop: '#6fae86', accentInk: '#1b1a22', splash: ['#9fd4a3', '#f5a7b8', '#9fd0ee'],
     desc: 'Clear crystal flowers and butterflies with sage glass and soft pink, like dew on the garden.',
     details: { Length: '18 in', Glass: 'Sage, clear crystal, blush', Links: 'Silver-tone wire-wrapped', Clasp: 'Lobster' },
@@ -121,7 +121,7 @@ window.FAMILIES = [
 // "Shop by collection": one tall panel each, with the photo in a window of its own shape ('blob', 'star', 'cloud').
 // Names are placeholders for Brittany's own (Chaotic Good is hers).
 window.COLLECTIONS = [
-  { key: 'mushroom-club', name: 'Mushroom Club', color: '#e8262d', shape: 'blob', blurb: 'Earthy glass, little mushrooms and flowers.' },
-  { key: 'starstruck', name: 'Starstruck', color: '#7a1f73', shape: 'star', blurb: 'Deep colors with a little sparkle.' },
-  { key: 'chaotic-good', name: 'Chaotic Good', color: '#1ea7dc', shape: 'cloud', blurb: 'Happy faces and mismatched beads.' },
+  { key: 'garden-gnome', name: 'Giving Garden Gnome', color: '#e8262d', shape: 'blob' },
+  { key: 'photosynthesis', name: 'Photosynthesis Coded', color: '#3aa655', shape: 'sun' },
+  { key: 'chaotic-good', name: 'Chaotic Good', color: '#1ea7dc', shape: 'cloud' },
 ];
