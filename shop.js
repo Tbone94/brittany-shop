@@ -386,20 +386,14 @@
   }).join('');
   $('bands').addEventListener('click', e => { const b = e.target.closest('button[data-family]'); if (b) shopAt('family', b.dataset.family); });
 
-  // The squiggle under the last color band: thick pastel stripes in the same order and tints as the first big ribbon
-  // in the shop (turquoise, yellow, coral), and the band's own color fills down into the top wave so no white shows.
+  // Under the last color band: its color ends in a lazy wave with the same ink line as every other band edge.
   const groove = document.querySelector('.groove'), lastBand = bandFams[bandFams.length - 1];
   if (groove && lastBand) {
-    const root = getComputedStyle(document.documentElement);
-    const pastel = v => tintHex(root.getPropertyValue(v).trim(), 0.5);
-    const W = 96, A = 5, T = 11, c0 = A + T / 2;  // wavelength, wave height, stripe thickness, first stripe's center
-    const wave = y => `M${-W} ${y}Q${-W * 3 / 4} ${y - 2 * A} ${-W / 2} ${y}T0 ${y}T${W / 2} ${y}T${W} ${y}T${W * 3 / 2} ${y}T${2 * W} ${y}`;
-    const H = Math.ceil(c0 + 2 * T + T / 2 + A + 1);
-    groove.style.height = `${H}px`;
-    groove.innerHTML = `<svg width="100%" height="${H}" aria-hidden="true" focusable="false"><defs><pattern id="grooveTile" width="${W}" height="${H}" patternUnits="userSpaceOnUse">
-        <path d="${wave(c0)}V0H${-W}Z" fill="${lastBand.band}"/>
-        ${['--turquoise', '--uranium', '--coral'].map((c, k) => `<path d="${wave(c0 + k * T)}" fill="none" stroke="${pastel(c)}" stroke-width="${T + 0.6}"/>`).join('')}
-      </pattern></defs><rect width="100%" height="${H}" fill="url(#grooveTile)"/></svg>`;
+    const edge = 'M0 26C180 54 330 54 500 26S820 2 1000 30';
+    groove.innerHTML = `<svg viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="${edge}L1000 0L0 0Z" fill="${lastBand.band}"/>
+        <path class="band-edge" d="${edge}"/>
+      </svg>`;
   }
 
   /* ---------- Quick view ---------- */

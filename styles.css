@@ -61,9 +61,9 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
   padding: 5px 11px; border-radius: 999px; background: var(--tint); color: var(--deep);
 }
 
-/* Groovy divider: three wavy stripes in glass colors. */
-.groove { position: relative; height: 32px; margin-top: -1px; }  /* drawn by shop.js: thick pastel stripes, the last band's color flowing into the top wave */
-.groove svg { display: block; }
+/* The wavy bottom edge of the last color band. */
+.groove { position: relative; height: clamp(40px, 5vw, 64px); margin-top: -1px; }  /* drawn by shop.js: the last band's color ending in a wave */
+.groove svg { display: block; width: 100%; height: 100%; overflow: visible; }
 
 /* Photo tiles: a pale tint of the necklace's color with a crisp glass-color splash behind the cutout photo.
    The body covers most of the splash, so it shows around the neck and over the shoulders. */
@@ -547,6 +547,9 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 
 /* Hero moment: two daisies on the first screen that a bead bounces down; play.js places them and sets the height. */
 .moment-hero { position: absolute; left: 0; top: 0; width: 100%; z-index: 2; pointer-events: none; }
+/* Plain page-color dots over the wallpaper next to the sprinkles and splash dots (play.js places them). */
+.wall-gaps { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: -1; pointer-events: none; }
+.wall-gaps i { position: absolute; aspect-ratio: 1; border-radius: 50%; background: var(--paper); }
 .moment-hero .gbead { pointer-events: auto; cursor: pointer; }
 .moment-flower { position: absolute; padding: 0; border: 0; background: none; pointer-events: auto; cursor: pointer; transform-origin: 50% 85%; }
 .moment-flower svg { display: block; width: 100%; height: auto; }

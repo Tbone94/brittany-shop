@@ -47,6 +47,46 @@
     s.animate([{ rotate: '0deg' }, { rotate: '360deg' }], { duration: 700, easing: 'cubic-bezier(.2,.7,.2,1)' });
   });
 
+  /* ---------- Room around the things you can poke ---------- */
+  // The pastel wallpaper (body background in styles.css) repeats one tile with these shapes on it, [x, y, radius] on
+  // its 494px grid. Next to a sprinkle, a hero daisy or the hero splash's dots, a wallpaper copy is easy to mistake for
+  // the real thing, so the copies near them are covered with a dot of plain page color, tucked behind everything.
+  const WALL = [[87, 99, 34], [317, 84, 36], [422, 228, 16], [239, 285, 28], [56, 403, 33], [175, 205, 8], [372, 391, 9],
+    [68, 258, 11], [441, 433, 22], [327, 198, 6], [285, 448, 12]];
+  const gaps = document.createElement('div');
+  gaps.className = 'wall-gaps';
+  gaps.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(gaps);
+  function clearWallpaper() {
+    const tile = parseFloat(getComputedStyle(document.body).backgroundSize) || 494, s = tile / 494, room = 36;
+    const keep = [...document.querySelectorAll('.sprinkle, .moment-flower, .accent-shape')]
+      .concat([...document.querySelectorAll('#heroSplash circle, #heroSplash ellipse')].filter(e => e.getBoundingClientRect().width < 80))
+      .map(e => e.getBoundingClientRect()).filter(r => r.width > 0)
+      .map(r => ({ l: r.left + scrollX - room, r: r.right + scrollX + room, t: r.top + scrollY - room, b: r.bottom + scrollY + room }));
+    const dots = [];
+    keep.forEach(k => {
+      for (let ty = Math.floor((k.t - tile) / tile); ty <= Math.floor((k.b + tile) / tile); ty++) {
+        for (let tx = Math.floor((k.l - tile) / tile); tx <= Math.floor((k.r + tile) / tile); tx++) {
+          WALL.forEach(([x, y, r]) => {
+            const cx = tx * tile + x * s, cy = ty * tile + y * s, rr = r * s;
+            const dx = Math.max(k.l - cx, 0, cx - k.r), dy = Math.max(k.t - cy, 0, cy - k.b);
+            if (dx * dx + dy * dy < rr * rr) dots.push(`<i style="left:${(cx - rr - 2).toFixed(1)}px;top:${(cy - rr - 2).toFixed(1)}px;width:${(rr * 2 + 4).toFixed(1)}px"></i>`);
+          });
+        }
+      }
+    });
+    gaps.innerHTML = [...new Set(dots)].join('');
+  }
+  let gapTimer = 0;
+  const clearSoon = () => { clearTimeout(gapTimer); gapTimer = setTimeout(clearWallpaper, 120); };
+  addEventListener('load', clearSoon);
+  addEventListener('resize', clearSoon);
+  document.fonts.ready.then(clearSoon);
+  // The splash changes with each necklace as the hero turns.
+  const splashEl = document.getElementById('heroSplash');
+  if (splashEl) new MutationObserver(clearSoon).observe(splashEl, { childList: true });
+  clearSoon();
+
   /* ---------- Wavy ribbons in the page background ---------- */
   // 70s-style bands of stacked wavy stripes that flow edge to edge behind the content. They use soft
   // pastel tints of the glass colors so they set the mood without competing with the photos.
