@@ -548,6 +548,7 @@
     ['Amber', '#e89a2c'], ['Coral', '#f2674a'], ['Red', '#c8321f'], ['Berry', '#a8265e'], ['Pink', '#f58aa8'], ['Orchid', '#8a4fbf'], ['Clear', '#dfe8ec']];
   const LENGTH = [['15', 'Choker · 15 in'], ['18', 'Classic · 18 in'], ['22', 'Long · 22 in'], ['any', 'Not sure']];
   const FOR = [['me', 'Me'], ['gift', 'A gift']];
+  const METAL = [['Gold', 'Gold'], ['Silver', 'Silver'], ['either', 'Either']];
   $('vibePick').innerHTML = VIBES.map(([v, label, charm]) => `<label class="vibe"><input type="checkbox" name="vibe" value="${v}">
       <span class="vibe-card"><img src="photos/charms/${charm}.webp" alt="" loading="lazy"><span>${label}</span></span></label>`).join('');
   $('colorPick').innerHTML = GLASS.map(([n, c]) => `<label class="glass" title="${n}"><input type="checkbox" name="glass" value="${n}" data-color="${c}"><span class="gb" style="--c:${c}"></span><span class="gn">${n}</span></label>`).join('')
@@ -555,6 +556,24 @@
   const chips = (list, name) => list.map(([v, label]) => `<label class="pick"><input type="radio" name="${name}" value="${v}"><span>${label}</span></label>`).join('');
   $('lengthPick').innerHTML = chips(LENGTH, 'length');
   $('forPick').innerHTML = chips(FOR, 'for');
+  $('metalPick').innerHTML = chips(METAL, 'metal');
+  // Like a sold piece: only metal and length can change. Both start on "Same", which names what the original was.
+  const likeChips = (name, opts) => `<label class="pick"><input type="radio" name="${name}" value="same" checked><span data-same>Same</span></label>` + chips(opts, name);
+  $('likeMetal').innerHTML = likeChips('likeMetal', [['Gold', 'Gold'], ['Silver', 'Silver']]);
+  $('likeLength').innerHTML = likeChips('likeLength', LENGTH.filter(([v]) => v !== 'any'));
+  function sameLabels() {
+    const p = sold.find(x => x.slug === askForm.querySelector('[name=soldPiece]:checked')?.value);
+    $('likeMetal').querySelector('[data-same]').textContent = p ? `Same (${p.metal.toLowerCase()})` : 'Same as the original';
+    $('likeLength').querySelector('[data-same]').textContent = p ? `Same (${p.details.Length})` : 'Same as the original';
+    // Hide the option that's the same as the original, so it isn't offered twice.
+    const hideSame = (box, v) => box.querySelectorAll('input:not([value=same])').forEach(i => {
+      const dup = i.value === v; i.closest('.pick').hidden = dup;
+      if (dup && i.checked) box.querySelector('[value=same]').checked = true;
+    });
+    hideSame($('likeMetal'), p?.metal);
+    hideSame($('likeLength'), p && String(parseInt(p.details.Length)));
+  }
+  $('soldPick').addEventListener('change', sameLabels);
 
   // Up to three colors; "Brittany's pick" clears them, and picking a color clears it.
   $('colorPick').addEventListener('change', e => {
@@ -612,13 +631,14 @@
   function drawBoard() {
     const vals = name => [...askForm.querySelectorAll(`[name=${name}]:checked`)].map(i => i.value);
     const vibes = vals('vibe').map(v => labelFor(VIBES, v)), colors = vals('glass');
-    const len = labelFor(LENGTH, vals('length')[0]), who = labelFor(FOR, vals('for')[0]);
-    const by = $('askBy').value, idea = $('askIdea').value.trim();
+    const len = labelFor(LENGTH, vals('length')[0]), who = labelFor(FOR, vals('for')[0]), metal = vals('metal')[0];
+    const by = $('askBy').value, idea = $('askIdea').value.trim(), avoid = $('askAvoid').value.trim();
     const chip = (t, c) => `<span class="board-chip"${c ? ` style="--c:${c}"` : ''}>${c ? '<i></i>' : ''}${t.replace(/</g, '&lt;')}</span>`;
     const rows = [
       vibes.length && ['Vibe', vibes.map(v => chip(v)).join('')],
       (colors.length || vals('glassAny').length) && ['Colors', colors.length ? colors.map(n => chip(n, GLASS.find(g => g[0] === n)[1])).join('') : chip("Brittany's pick")],
-      (len || who || by) && ['Details', [len, who && `For ${who.toLowerCase()}`, by && `By ${new Date(by + 'T12:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`].filter(Boolean).map(t => chip(t)).join('')],
+      (len || metal || who || by) && ['Details', [len, metal && (metal === 'either' ? 'Any metal' : metal), who && `For ${who.toLowerCase()}`, by && `By ${new Date(by + 'T12:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`].filter(Boolean).map(t => chip(t)).join('')],
+      avoid && ['Hard no', `<span class="board-note">${avoid.replace(/</g, '&lt;')}</span>`],
       idea && ['Notes', `<span class="board-note">${idea.replace(/</g, '&lt;')}</span>`],
     ].filter(Boolean);
     $('askBoard').innerHTML = rows.length ? rows.map(([k, v]) => `<div class="board-row"><span class="board-k">${k}</span><div>${v}</div></div>`).join('')
@@ -674,6 +694,7 @@
     askForm.hidden = false; $('askDone').hidden = true;
     setMode(m);
     if (slug) { const r = askForm.querySelector(`[name=soldPiece][value="${slug}"]`); if (r) r.checked = true; }
+    sameLabels();
     if (!ask.open) ask.showModal();
     ask.scrollTop = 0;
   }

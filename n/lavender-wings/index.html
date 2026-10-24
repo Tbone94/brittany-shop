@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=132">
+<link rel="stylesheet" href="styles.css?v=134">
 </head>
 <body data-product="lavender-wings">
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -229,12 +229,14 @@
     <div class="ask-panel" id="panelLike" role="tabpanel" aria-labelledby="tabLike">
       <div class="ask-q" role="group" aria-labelledby="qSold">
         <h3 class="qh" id="qSold">Which one did you love?</h3>
+        <p class="ask-hint">Each one is made by hand, so yours won't be an exact copy, but it'll be in the same spirit.</p>
         <div class="sold-pick" id="soldPick"></div>
         <p class="ask-err" id="soldErr" hidden>Pick the piece you loved.</p>
       </div>
-      <div class="ask-q">
-        <label class="qh" for="askChange">Anything you'd change?</label>
-        <textarea id="askChange" rows="2" placeholder="Longer, more purple, a gold clasp… or leave it blank"></textarea>
+      <div class="ask-q" role="group" aria-labelledby="qChange">
+        <h3 class="qh" id="qChange">Want it a little different?</h3>
+        <div class="ask-q" role="group" aria-labelledby="qLikeMetal"><h4 class="qs" id="qLikeMetal">Metal</h4><div class="pick-chips" id="likeMetal"></div></div>
+        <div class="ask-q" role="group" aria-labelledby="qLikeLength"><h4 class="qs" id="qLikeLength">Length</h4><div class="pick-chips" id="likeLength"></div></div>
       </div>
     </div>
 
@@ -263,10 +265,13 @@
         <h3 class="qh" id="qDetails">A few details</h3>
         <p class="ask-hint">All optional.</p>
         <div class="ask-q" role="group" aria-labelledby="qLength"><h4 class="qs" id="qLength">Length</h4><div class="pick-chips" id="lengthPick"></div></div>
+        <div class="ask-q" role="group" aria-labelledby="qMetal"><h4 class="qs" id="qMetal">Metal</h4><div class="pick-chips" id="metalPick"></div></div>
         <div class="ask-q" role="group" aria-labelledby="qFor"><h4 class="qs" id="qFor">It's for</h4><div class="pick-chips" id="forPick"></div></div>
         <div class="ask-q"><label class="qs" for="askBy">Need it by</label><input id="askBy" type="date"></div>
+        <div class="ask-q"><label class="qs" for="askAvoid">Hard no's</label>
+          <input id="askAvoid" placeholder="No pink, no bugs, nothing too heavy…"></div>
         <div class="ask-q"><label class="qs" for="askIdea">Anything else?</label>
-          <textarea id="askIdea" rows="3" placeholder="It goes with a green dress, she loves frogs, nothing too heavy…"></textarea></div>
+          <textarea id="askIdea" rows="3" placeholder="It goes with a green dress, she loves frogs, it's for her birthday…"></textarea></div>
       </section>
 
       <section class="ask-step" data-step="4" aria-labelledby="qYou" hidden>
@@ -320,12 +325,12 @@
   </div>
 </dialog>
 
-<script src="products.js?v=132"></script>
-<script src="standin.js?v=132"></script>
-<script src="splash.js?v=132"></script>
-<script src="shop.js?v=132"></script>
-<script src="play.js?v=132"></script>
-<script src="stack.js?v=132" defer></script>
+<script src="products.js?v=134"></script>
+<script src="standin.js?v=134"></script>
+<script src="splash.js?v=134"></script>
+<script src="shop.js?v=134"></script>
+<script src="play.js?v=134"></script>
+<script src="stack.js?v=134" defer></script>
 <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>
 </body>
 </html>
