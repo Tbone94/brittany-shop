@@ -187,7 +187,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .win-edge > * { fill: var(--ink); stroke: var(--ink); stroke-width: 9; }
 .panel button:hover .window { transform: rotate(-3deg) scale(1.03); }
 .charm { transform-origin: 100px 104px; transition: transform .5s var(--ease); }
-.panel button:hover .charm { transform: rotate(5deg) scale(1.04); }
+.panel button:hover .charm { transform: scale(1.06); }
 /* The name sits right on the panel's color (no box), with a small Shop pill under it. */
 .panel-label { display: grid; justify-items: center; align-content: start; gap: 14px; }
 .panel-name { font: 400 clamp(28px, 3vw, 44px)/.92 var(--serif); color: #fff; paint-order: stroke fill; -webkit-text-stroke: .13em var(--ink); text-shadow: .08em .09em 0 var(--ink); text-transform: uppercase; text-wrap: balance; }

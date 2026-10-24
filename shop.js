@@ -310,14 +310,15 @@
     cloud: [[100, 58, 46], [56, 86, 40], [146, 84, 42], [44, 134, 38], [100, 128, 52], [156, 136, 38], [90, 168, 30], [130, 166, 28]]
       .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join(''),
   };
-  // Brittany's real charms in each window, cut from her necklace photos and cleaned up (photos/charms/, made from
-  // photos/review/charms/). [charm, x, y, size, tilt] on the same 200×200 board: one big charm in the middle and
-  // three around it; the window's edge clips whatever reaches past it.
+  // Each window shows a styled photo shoot of Brittany's real charms (photos/scenes/<collection>.webp, made by Codex
+  // from her charms in photos/review/charms/). A collection without a scene shows its loose charms instead:
+  // [charm, x, y, size, tilt] on the same 200×200 board, one big charm in the middle and three around it.
   const CHARMS = {
     'garden-gnome': [['greenbell', 54, 66, 66, -14], ['orangebell', 148, 64, 62, 12], ['mushroom', 152, 148, 50, 18], ['mushroom', 96, 116, 100, -5]],
     photosynthesis: [['butterfly', 58, 64, 64, -16], ['leaf', 148, 70, 62, 18], ['tealleaf', 60, 146, 58, -24], ['rose', 112, 120, 96, 6]],
     'chaotic-good': [['apple', 56, 72, 64, -12], ['dotted', 148, 66, 58, 10], ['painted', 150, 148, 56, 16], ['berry', 94, 118, 94, -6]],
   };
+  const SCENES = ['garden-gnome', 'photosynthesis', 'chaotic-good'];
   const charmImgs = key => (CHARMS[key] || []).map(([n, x, y, size, tilt]) =>
     `<image href="photos/charms/${n}.webp" x="${x - size / 2}" y="${y - size / 2}" width="${size}" height="${size}" transform="rotate(${tilt} ${x} ${y})"/>`).join('');
   $('panels').innerHTML = COLLECTIONS.map((c, k) => {
@@ -330,7 +331,7 @@
           <g class="win-edge">${WINDOWS[c.shape]}</g>
           <g clip-path="url(#win${k})">
             <rect x="-6" y="-6" width="212" height="212" fill="${tintHex(c.color, 0.86)}"/>
-            <g class="charm">${charmImgs(c.key)}</g>
+            <g class="charm">${SCENES.includes(c.key) ? `<image href="photos/scenes/${c.key}.webp" x="-6" y="-6" width="212" height="212" preserveAspectRatio="xMidYMid slice"/>` : charmImgs(c.key)}</g>
           </g>
         </svg>
         <span class="panel-label"><span class="panel-name">${c.name}</span><span class="panel-go">Shop ${left}<span aria-hidden="true">→</span></span></span>
