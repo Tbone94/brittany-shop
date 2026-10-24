@@ -2,10 +2,10 @@
 // Pages: try the network first so updates show right away, fall back to the saved copy offline.
 // Everything else (css, js, photos, fonts): use the saved copy, and refresh it in the background.
 // Bump VERSION to drop old saved files.
-const VERSION = 'chaotic-goods-v28';
+const VERSION = 'chaotic-goods-v29';
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(['./', 'manifest.webmanifest', 'icons/icon-192.png?v=2'])));
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(['./', 'manifest.webmanifest', 'icons/icon-192.png?v=3'])));
   self.skipWaiting();
 });
 self.addEventListener('activate', e => {

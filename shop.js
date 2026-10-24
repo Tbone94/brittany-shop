@@ -212,7 +212,7 @@
           <canvas class="shot" width="720" height="720" aria-hidden="true"></canvas>
         </div>
         <div class="card-meta"><span class="card-name">${p.name}</span><span class="card-price">${p.sold ? 'Sold' : money(p.price)}</span></div>
-        <div class="card-sub"><span>${p.details.Length} · ${p.details.Glass.split(',')[0]}</span><span class="dots">${dots(p.palette)}</span></div>
+        <div class="card-sub">${p.details.Length} · ${p.details.Glass.split(',')[0]}</div>
       </button>`;
     const btn = li.querySelector('button'), canvas = li.querySelector('canvas');
     let angle = 3;

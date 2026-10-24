@@ -4,15 +4,15 @@ five-lobed window shape with its thick ink outline (the same shape shop.js draws
     python3 tools/make_icons.py
 
 Writes icons/favicon-32.png, favicon-64.png, icon-192.png, icon-512.png (transparent around the shape),
-icon-maskable-512.png (on the panel's red, with room for Android's crop) and apple-touch-icon.png (on red, since
-iPhones fill transparency with black).
+icon-maskable-512.png (on white, with room for Android's crop) and apple-touch-icon.png (on white, since
+iPhones fill transparency with black). White, not the panel's red: the app's launch screen is white too.
 """
 import math, pathlib
 from PIL import Image, ImageDraw
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / 'photos/scenes/garden-gnome.webp'
-INK, RED = (29, 29, 31, 255), (232, 38, 45, 255)
+INK, WHITE = (29, 29, 31, 255), (255, 255, 255, 255)
 SS = 4  # draw big, then shrink, for smooth edges
 
 def window_points():
@@ -63,6 +63,6 @@ icon(32, .98, stroke=16).save(out / 'favicon-32.png')
 icon(64, .98, stroke=13).save(out / 'favicon-64.png')
 icon(192, .96).save(out / 'icon-192.png')
 icon(512, .96).save(out / 'icon-512.png')
-icon(512, .70, bg=RED).save(out / 'icon-maskable-512.png')
-icon(180, .84, bg=RED).save(out / 'apple-touch-icon.png')
+icon(512, .70, bg=WHITE).save(out / 'icon-maskable-512.png')
+icon(180, .84, bg=WHITE).save(out / 'apple-touch-icon.png')
 print('wrote icons/')

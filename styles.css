@@ -275,7 +275,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .card-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 16px; }
 .card-name { font-weight: 600; font-size: 19px; }
 .card-price { font-size: 16px; }
-.card-sub { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; color: var(--ink-2); font-size: 14px; }
+.card-sub { margin-top: 6px; color: var(--ink-2); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card.sold .shot { filter: saturate(.25); opacity: .85; }
 .card.sold .tile { background: var(--alt); }
 .card.sold .splash { filter: grayscale(1); opacity: .35; }
@@ -551,6 +551,9 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 /* Hero moment: two daisies on the first screen that a bead bounces down; play.js places them and sets the height. */
 .moment-hero { position: absolute; left: 0; top: 0; width: 100%; z-index: 2; pointer-events: none; }
 /* Plain page-color dots over the wallpaper next to the sprinkles and splash dots (play.js places them). */
+/* The body is the gaps layer's frame (body { position: relative }), so dots near the screen edge are clipped with the
+   rest of the page instead of widening it: a wider page lets phones zoom out and get stuck. */
+body { position: relative; }
 .wall-gaps { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: -1; pointer-events: none; }
 .wall-gaps i { position: absolute; aspect-ratio: 1; border-radius: 50%; background: var(--paper); }
 .moment-hero .gbead { pointer-events: auto; cursor: pointer; }
@@ -627,3 +630,11 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .info-page a { color: var(--cobalt); text-underline-offset: 3px; }
 .info-updated { color: var(--ink-2); font-size: 15px; margin-top: 8px; }
 
+
+/* Launch screen (app from the home screen only, see index.html): the gnome window, centered on white. */
+.launch { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; align-items: center; justify-content: center; transition: opacity .45s var(--ease); }
+.launch-icon { width: min(56vw, 240px); height: auto; animation: launch-in .6s var(--ease) both; }
+.launch.done { opacity: 0; pointer-events: none; }
+.launching body { overflow: hidden; }
+@keyframes launch-in { from { opacity: 0; transform: translateY(10px) scale(.96); } }
+@media (prefers-reduced-motion: reduce) { .launch-icon { animation: none; } }
