@@ -421,7 +421,7 @@
     btn.textContent = inBag(p) ? 'In your bag · view bag' : `Add to bag · ${money(p.price)}`;
     $('qvNotes').innerHTML = (p.sold
       ? []
-      : ['Ships in 2–3 days, gift-boxed', 'Free returns within 14 days']
+      : ['Ships in 2–3 days, gift-boxed', 'Returns within 14 days']
     ).map(t => `<li>${t}</li>`).join('');
   }
 
@@ -764,12 +764,21 @@
   /* ---------- Get in touch (while online payments are being set up) ---------- */
   // Checkout, and "Ask Brittany about this piece" in the quick view, open this: the pieces, an email, an optional
   // question. It goes to the shop inbox so Brittany can reach out personally.
+  // With no pieces it's the general Contact form (the footer's Contact link, and #contact from the info pages).
   const inq = $('inquire'), inqForm = $('inqForm');
+  const inqText = { sub: $('inqSub').textContent, q: $('inqQ').innerHTML, ph: $('inqNote').placeholder };
   let inqPieces = [];
   function openInquire(pieces) {
     inqPieces = pieces.filter(Boolean);
+    const general = !inqPieces.length;
     inqForm.reset(); inqForm.hidden = false; $('inqDone').hidden = true; $('inqErr').hidden = true;
-    $('inqTitle').textContent = inqPieces.length > 1 ? 'Get in touch about these pieces' : 'Get in touch about this piece';
+    $('inqTitle').textContent = general ? 'Say hi' : inqPieces.length > 1 ? 'Get in touch about these pieces' : 'Get in touch about this piece';
+    $('inqSub').textContent = general ? 'Questions, orders, custom ideas, anything. Brittany will email you back.' : inqText.sub;
+    $('inqQ').innerHTML = general ? 'Your message' : inqText.q;
+    $('inqNote').placeholder = general ? 'Ask about an order, a custom piece, anything…' : inqText.ph;
+    $('inqNote').rows = general ? 4 : 2;
+    $('inqSend').textContent = general ? 'Send' : 'Get in touch';
+    inqForm.querySelector('.inq-fine').hidden = general;
     $('inqItems').innerHTML = inqPieces.map(p => `<li class="inq-item" style="--tile-bg:${tileBg(p)}">
       <img src="photos/${p.slug}-4.webp" alt=""><span class="inq-name">${p.name}</span><span class="inq-price">${money(p.price)}</span></li>`).join('');
     if (qv.open) qv.close();
@@ -777,6 +786,10 @@
     inq.showModal();
   }
   $('qvInquire').addEventListener('click', () => openInquire([qvP]));
+  const contactFromHash = () => { if (location.hash === '#contact') openInquire([]); };
+  addEventListener('hashchange', contactFromHash);
+  contactFromHash();
+  inq.addEventListener('close', () => { if (location.hash === '#contact') history.replaceState(null, '', location.pathname + location.search); });
   inqForm.addEventListener('input', () => { $('inqErr').hidden = true; });
   inqForm.addEventListener('submit', async e => {
     e.preventDefault();
@@ -784,10 +797,15 @@
     if (!email || !$('inqEmail').checkValidity()) {
       $('inqErr').textContent = 'Add your email so Brittany can reach you.'; $('inqErr').hidden = false; $('inqEmail').focus(); return;
     }
-    const pieces = inqPieces.map(p => `${p.name} (${money(p.price)})`).join(', ');
+    const pieces = inqPieces.map(p => `${p.name} (${money(p.price)})`).join(', '), note = $('inqNote').value.trim();
+    if (!inqPieces.length && !note) {
+      $('inqErr').textContent = 'Add a message first.'; $('inqErr').hidden = false; $('inqNote').focus(); return;
+    }
     sending($('inqSend'), true);
-    const ok = await sendForm(`${name || 'Someone'} wants ${inqPieces.map(p => p.name).join(' + ')}!`,
-      { Name: name || '—', Email: email, _replyto: email, Pieces: pieces, Total: money(inqPieces.reduce((t, p) => t + p.price, 0)), Questions: $('inqNote').value.trim() || '—' }, inqForm);
+    const ok = await sendForm(inqPieces.length ? `${name || 'Someone'} wants ${inqPieces.map(p => p.name).join(' + ')}!` : `${name || 'Someone'} sent a message`,
+      inqPieces.length
+        ? { Name: name || '—', Email: email, _replyto: email, Pieces: pieces, Total: money(inqPieces.reduce((t, p) => t + p.price, 0)), Questions: note || '—' }
+        : { Name: name || '—', Email: email, _replyto: email, Message: note }, inqForm);
     sending($('inqSend'), false);
     if (!ok) { $('inqErr').textContent = SEND_FAIL; $('inqErr').hidden = false; return; }
     inqForm.hidden = true;

@@ -8,7 +8,7 @@
 <title>Jewel Box · Handmade Purple Glass Bead Necklace · Chaotic Goods</title>
 <meta name="description" content="Purple, amber and teal glass with three dotted white lampwork beads swinging along the front. 18 in long. $75, one of a kind, strung by hand.">
 <link rel="canonical" href="https://shopchaoticgoods.com/n/jewel-box/">
-<meta name="robots" content="noindex">  <!-- preview: flip INDEXABLE in tools/seo.py at launch -->
+<meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Chaotic Goods">
 <meta property="og:title" content="Jewel Box · Handmade Purple Glass Bead Necklace · Chaotic Goods">
@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=147">
+<link rel="stylesheet" href="styles.css?v=148">
 </head>
 <body data-product="jewel-box">
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -178,8 +178,9 @@
     <nav aria-label="Footer">
       <a href="#">Instagram</a>
       <a href="#">Etsy</a>
-      <a href="#">Shipping &amp; returns</a>
-      <a href="#">Contact</a>
+      <a href="shipping/">Shipping &amp; returns</a>
+      <a href="privacy/">Privacy</a>
+      <a href="#contact">Contact</a>
     </nav>
   </div>
   <p class="fine">© 2026 Chaotic Goods</p>
@@ -220,14 +221,14 @@
   <form class="ask-form" id="inqForm" novalidate>
     <div class="ask-head">
       <h2 id="inqTitle">Get in touch about this piece</h2>
-      <p class="ask-sub">Online payments are still being set up. Leave your email and Brittany will reach out personally to make it yours.</p>
+      <p class="ask-sub" id="inqSub">Online payments are still being set up. Leave your email and Brittany will reach out personally to make it yours.</p>
     </div>
     <ul class="inq-items" id="inqItems"></ul>
     <div class="ask-you">
       <label><span class="ask-label">Your name</span><input id="inqName" autocomplete="name"></label>
       <label><span class="ask-label">Email</span><input id="inqEmail" type="email" autocomplete="email" placeholder="you@email.com"></label>
     </div>
-    <label class="ask-q"><span class="qs">Any questions? <span class="opt">(optional)</span></span>
+    <label class="ask-q"><span class="qs" id="inqQ">Any questions? <span class="opt">(optional)</span></span>
       <textarea id="inqNote" rows="2" placeholder="Is it a gift? Do you ship to Canada?…"></textarea></label>
     <input class="hp" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
     <p class="ask-err" id="inqErr" hidden></p>
@@ -358,12 +359,12 @@
   </div>
 </dialog>
 
-<script src="products.js?v=147"></script>
-<script src="standin.js?v=147"></script>
-<script src="splash.js?v=147"></script>
-<script src="shop.js?v=147"></script>
-<script src="play.js?v=147"></script>
-<script src="stack.js?v=147" defer></script>
+<script src="products.js?v=148"></script>
+<script src="standin.js?v=148"></script>
+<script src="splash.js?v=148"></script>
+<script src="shop.js?v=148"></script>
+<script src="play.js?v=148"></script>
+<script src="stack.js?v=148" defer></script>
 <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>
 </body>
 </html>

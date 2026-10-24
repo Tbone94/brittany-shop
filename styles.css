@@ -607,3 +607,20 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Info pages (shipping/, privacy/): the logo, then one outlined white card of plain text, then the footer. */
+.info-top { max-width: 860px; margin: 0 auto; padding: 18px var(--gutter) 6px; background: var(--paper); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.info-top .logo { font-size: clamp(32px, 6vw, 44px); }
+.info-back { font-weight: 500; color: var(--ink); text-decoration: none; }
+.info-back:hover { text-decoration: underline; text-underline-offset: 4px; }
+.info-page { max-width: 860px; margin: 0 auto 120px; padding: 18px var(--gutter) 28px; background: var(--paper); border-radius: 0 0 36px 36px; }  /* plain behind the text; the wallpaper shows around it */
+.info-page h1 { font-size: clamp(40px, 7vw, 64px); margin: 8px 0 10px; }
+.info-lede { font-size: 20px; max-width: 40ch; margin-bottom: 24px; }
+.info-page section { background: #fff; border: 2.5px solid var(--ink); border-radius: var(--radius); box-shadow: 5px 5px 0 var(--ink); padding: 24px clamp(20px, 4vw, 32px) 26px; margin-bottom: 22px; }
+.info-page h2 { font-size: clamp(24px, 3.4vw, 30px); margin-bottom: 10px; }
+.info-page ul { margin: 0; padding-left: 1.15em; }
+.info-page li { margin: 8px 0; }
+.info-page li::marker { color: var(--coral); }
+.info-page a { color: var(--cobalt); text-underline-offset: 3px; }
+.info-updated { color: var(--ink-2); font-size: 15px; margin-top: 8px; }
+

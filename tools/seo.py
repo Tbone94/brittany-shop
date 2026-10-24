@@ -8,18 +8,20 @@ What it writes:
   inside the grid for search engines that don't run JavaScript (shop.js swaps it for the real cards).
 - n/<slug>/index.html: one page per necklace, so each one can show up in search on its own. It's the same page
   with that necklace's popup open, its own title, description, preview image and product data.
+- shipping/ and privacy/ (hand-written info pages): their title, description and preview tags, and the same
+  stylesheet version as index.html.
 - og/*.jpg: 1200×630 preview images (the necklace on its color splash) for links shared in texts and social posts.
 - sitemap.xml and robots.txt.
 
-SITE is where the site lives. While it's a preview, INDEXABLE stays False: every page says "noindex", so search
-engines don't list placeholder necklaces or the comparison copies. At launch, set SITE to the real domain and
-INDEXABLE to True, run this again, then submit SITE + 'sitemap.xml' in Google Search Console.
+SITE is where the site lives. INDEXABLE says whether search engines may list it: with False every page says
+"noindex" (for previews and comparison copies). It's True for shopchaoticgoods.com, and SITE + 'sitemap.xml' is
+submitted in Google Search Console.
 """
 import html, json, math, pathlib, random, re, subprocess
 from PIL import Image, ImageDraw
 
 SITE = 'https://shopchaoticgoods.com/'
-INDEXABLE = False
+INDEXABLE = True  # turned on 2026-10-24: the site is listed in Google
 BRAND = 'Chaotic Goods'
 TAGLINE = 'Glass bead necklaces, strung by hand'
 DESCRIPTION = ('One-of-a-kind lampwork glass bead necklaces, designed and strung by hand by Brittany. '
@@ -172,16 +174,28 @@ def main():
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(page)
 
+    # Info pages: hand-written, so only their head tags and stylesheet version are filled in.
+    info = [('shipping', f'Shipping & Returns · {BRAND}',
+             'Ships in 2–3 business days with tracked USPS shipping, gift-boxed. Returns within 14 days. How to care for glass bead jewelry.'),
+            ('privacy', f'Privacy · {BRAND}',
+             'What Chaotic Goods collects (only what it needs to answer you and send your necklace), who handles it, and how to get it deleted.')]
+    css = re.search(r'styles\.css\?v=\d+', home).group(0)
+    for slug, title, desc in info:
+        f = ROOT / slug / 'index.html'
+        page = between(f.read_text(), '<!-- seo', '<!-- /seo -->', head(
+            title, desc, f'{SITE}{slug}/', 'og/home.jpg', f'{BRAND}, handmade glass bead necklaces', [store]))
+        f.write_text(re.sub(r'styles\.css\?v=\d+', css, page))
+
     # Sitemap (with each page's photo, for image search) and robots.txt.
     def entry(loc, image=None):
         img = f'<image:image><image:loc>{esc(SITE + image)}</image:loc></image:image>' if image else ''
         return f'<url><loc>{esc(loc)}</loc>{img}</url>'
-    urls = [entry(SITE, hero_photo)] + [entry(page_url(p), photo(p)) for p in P]
+    urls = [entry(SITE, hero_photo)] + [entry(page_url(p), photo(p)) for p in P] + [entry(f'{SITE}{slug}/') for slug, _, _ in info]
     (ROOT / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'
         + '\n'.join(urls) + '\n</urlset>\n')
     (ROOT / 'robots.txt').write_text(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}sitemap.xml\n')
-    print(f'wrote index.html, {len(P)} necklace pages, {len(P) + 1} preview images, sitemap.xml, robots.txt'
+    print(f'wrote index.html, {len(P)} necklace pages, {len(info)} info pages, {len(P) + 1} preview images, sitemap.xml, robots.txt'
           f' ({"indexable" if INDEXABLE else "noindex preview"})')
 
 
