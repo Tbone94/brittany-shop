@@ -177,12 +177,10 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
   .hero-splash { width: 150%; top: 64%; }
 }
 
-/* Section heads from the drawings: three wavy pen lines and a hand-lettered caps title. */
+/* Section heads: a hand-lettered caps title (the wavy pen lines above them were taken out). */
 .collections, .colors { padding-top: clamp(64px, 8vw, 112px); }
 .lines-head { position: relative; max-width: 1240px; margin: 0 auto 28px; padding: 0 var(--gutter); }
-.lines { display: block; width: 100%; height: 40px; }
-.lines path { fill: none; stroke: var(--ink); stroke-width: 2.2; vector-effect: non-scaling-stroke; }
-.lines-head h2 { margin-top: 14px; font: 500 clamp(22px, 2.6vw, 34px)/1.1 var(--label); letter-spacing: .14em; text-transform: uppercase; }
+.lines-head h2 { font: 500 clamp(22px, 2.6vw, 34px)/1.1 var(--label); letter-spacing: .14em; text-transform: uppercase; }
 
 /* Shop by collection: three tall color panels, each with the photo in a window of its own shape. */
 .panels-wrap { position: relative; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
@@ -320,7 +318,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 /* Footer: an olive green band, everything in white */
 footer { --band: #66752c; margin-top: -40px; padding: 88px var(--gutter) 32px; font-size: 13px; color: rgba(255,255,255,.78); }
 .foot { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 24px; }
-footer .logo { font-size: clamp(56px, 7vw, 84px); color: #fff; }
+footer .logo { font-size: clamp(56px, 7vw, 84px); color: #fff; -webkit-text-stroke: .09em var(--ink); paint-order: stroke fill; }  /* inked like the band titles */
 footer nav { display: flex; flex-wrap: wrap; gap: 0 24px; }
 footer nav a { display: inline-block; padding: 12px 0; text-decoration: none; }
 footer nav a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
