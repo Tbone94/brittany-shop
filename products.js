@@ -20,7 +20,7 @@ window.PRODUCTS = [
     bead(i) { return i % 2 ? { r: 0.034, kind: 'spacer', metal: 'gold' } : { r: 0.07 + (i % 3) * 0.008, kind: i % 6 === 0 ? 'dots' : 'glass', color: this.palette[(i / 2 | 0) % 4], dot: '#ffffff' }; },
   },
   {
-    slug: 'mushroom-hunt', angles: [3], collection: 'mushroom-club', beadType: 'Charms', metal: 'Gold', splashShape: 'round', name: 'Mushroom Hunt', price: 64, family: 'blues', sold: false,
+    slug: 'mushroom-hunt', angles: [0, 3, 5], collection: 'mushroom-club', beadType: 'Charms', metal: 'Gold', splashShape: 'round', name: 'Mushroom Hunt', price: 64, family: 'blues', sold: false,
     backdrop: '#2f6fd1', accentInk: '#ffffff', splash: ['#4c8fe6', '#f2a03a', '#5aa83c'],
     desc: 'Little amber mushrooms and blue glass, with a big glossy spotted mushroom hanging at the center.',
     details: { Length: '18 in', Glass: 'Cobalt, sky blue, amber, leaf green', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -29,7 +29,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'jewel-box', angles: [3], collection: 'chaotic-good', beadType: 'Lampwork', metal: 'Gold', splashShape: 'daisy', name: 'Jewel Box', price: 58, family: 'purples', sold: false,
+    slug: 'jewel-box', angles: [1, 3], collection: 'chaotic-good', beadType: 'Lampwork', metal: 'Gold', splashShape: 'daisy', name: 'Jewel Box', price: 58, family: 'purples', sold: false,
     backdrop: '#7a3fb0', accentInk: '#ffffff', splash: ['#8a4fbf', '#f2a03a', '#1f8fa8'],
     desc: 'Purple, amber and teal glass with three dotted white lampwork beads swinging along the front.',
     details: { Length: '18 in', Glass: 'Purple, amber, teal, lime', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -38,7 +38,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'honeysuckle', angles: [3], collection: 'mushroom-club', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', name: 'Honeysuckle', price: 56, family: 'warm', sold: false,
+    slug: 'honeysuckle', angles: [2, 3], collection: 'mushroom-club', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', name: 'Honeysuckle', price: 56, family: 'warm', sold: false,
     backdrop: '#e8692e', accentInk: '#1b1a22', splash: ['#f2803a', '#7ccf4a', '#f2b23a'],
     desc: 'A garden of green glass leaves and peach and orange bell flowers on gold links.',
     details: { Length: '18 in', Glass: 'Leaf green, peach, orange, amber', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -47,7 +47,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'lavender-wings', angles: [3], collection: 'starstruck', beadType: 'Flowers', metal: 'Gold', splashShape: 'daisy', name: 'Lavender Wings', price: 62, family: 'purples', sold: false,
+    slug: 'lavender-wings', angles: [3, 4], collection: 'starstruck', beadType: 'Flowers', metal: 'Gold', splashShape: 'daisy', name: 'Lavender Wings', price: 62, family: 'purples', sold: false,
     backdrop: '#8a4fbf', accentInk: '#ffffff', splash: ['#9b6fd6', '#f2803a', '#1fb5c9'],
     desc: 'Shimmering purple glass roses and orange butterflies with pearls and blue crystals.',
     details: { Length: '18 in', Glass: 'Lilac, violet, orange, teal', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -56,7 +56,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'fruit-salad', angles: [3], collection: 'chaotic-good', beadType: 'Charms', metal: 'Gold', splashShape: 'bloom', name: 'Fruit Salad', price: 66, family: 'greens', sold: false,
+    slug: 'fruit-salad', angles: [3, 5], collection: 'chaotic-good', beadType: 'Charms', metal: 'Gold', splashShape: 'bloom', name: 'Fruit Salad', price: 66, family: 'greens', sold: false,
     backdrop: '#4f9a3a', accentInk: '#ffffff', splash: ['#5aa83c', '#f28a2e', '#6b2f7a'],
     desc: 'Glass fruit all the way around: an orange, a lemon, an apple, a plum and a blackberry at the center.',
     details: { Length: '18 in', Glass: 'Apple green, orange, lemon, plum', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -65,7 +65,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'ember', angles: [3], collection: 'starstruck', beadType: 'Seed beads', metal: 'Gold', splashShape: 'round', name: 'Ember', price: 44, family: 'warm', sold: false,
+    slug: 'ember', angles: [3, 6], collection: 'starstruck', beadType: 'Seed beads', metal: 'Gold', splashShape: 'round', name: 'Ember', price: 44, family: 'warm', sold: false,
     backdrop: '#e8452e', accentInk: '#ffffff', splash: ['#f2674a', '#e4dd3b', '#c8321f'],
     desc: 'Tiny gold rings wrapped in seed beads, glowing from yellow through orange to red.',
     details: { Length: '16 in', Glass: 'Yellow, orange, red', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -74,7 +74,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'butterfly-garden', angles: [3], collection: 'mushroom-club', beadType: 'Charms', metal: 'Silver', splashShape: 'round', name: 'Butterfly Garden', price: 60, family: 'greens', sold: false,
+    slug: 'butterfly-garden', angles: [3, 5], collection: 'mushroom-club', beadType: 'Charms', metal: 'Silver', splashShape: 'round', name: 'Butterfly Garden', price: 60, family: 'greens', sold: false,
     backdrop: '#3f8f3a', accentInk: '#ffffff', splash: ['#5aa83c', '#f2a03a', '#1fb5c9'],
     desc: 'Orange glass butterflies and green bell flowers among teal leaves, on silver links.',
     details: { Length: '18 in', Glass: 'Leaf green, orange, peach, teal', Links: 'Silver-tone wire-wrapped', Clasp: 'Lobster' },
@@ -83,7 +83,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'petal-soft', angles: [3], collection: 'chaotic-good', beadType: 'Lampwork', metal: 'Silver', splashShape: 'bloom', name: 'Petal Soft', price: 54, family: 'pinks', sold: false,
+    slug: 'petal-soft', angles: [3, 5], collection: 'chaotic-good', beadType: 'Lampwork', metal: 'Silver', splashShape: 'bloom', name: 'Petal Soft', price: 54, family: 'pinks', sold: false,
     backdrop: '#e86f93', accentInk: '#1b1a22', splash: ['#f5a7b8', '#9fd4a3', '#f6dfa0'],
     desc: 'Rose quartz, mint butterflies and white lampwork beads painted with tiny pink roses.',
     details: { Length: '18 in', Glass: 'Rose pink, mint, peach', Links: 'Silver-tone wire-wrapped', Clasp: 'Lobster' },
@@ -92,7 +92,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'morning-dew', angles: [3], collection: 'starstruck', beadType: 'Crystal', metal: 'Silver', splashShape: 'daisy', name: 'Morning Dew', price: 52, family: 'pastels', sold: true, soldOn: 'October',
+    slug: 'morning-dew', angles: [3, 5], collection: 'starstruck', beadType: 'Crystal', metal: 'Silver', splashShape: 'daisy', name: 'Morning Dew', price: 52, family: 'pastels', sold: true, soldOn: 'October',
     backdrop: '#6fae86', accentInk: '#1b1a22', splash: ['#9fd4a3', '#f5a7b8', '#9fd0ee'],
     desc: 'Clear crystal flowers and butterflies with sage glass and soft pink, like dew on the garden.',
     details: { Length: '18 in', Glass: 'Sage, clear crystal, blush', Links: 'Silver-tone wire-wrapped', Clasp: 'Lobster' },
@@ -102,7 +102,7 @@ window.PRODUCTS = [
   },
 ];
 
-// The first screen flips through these as you move across it (each shows its front photo).
+// The first screen turns through these, in order: necklace n is shown at angle n, left profile to right profile.
 window.HERO = ['mushroom-hunt', 'jewel-box', 'honeysuckle', 'garden-party', 'lavender-wings', 'fruit-salad', 'ember'];
 
 // Color filter chips, in display order. `color` is the bead shown on the chip.

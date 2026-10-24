@@ -13,6 +13,8 @@
   // (a tint of the splash's second color, so no white shows behind the chest shots).
   const tintHex = (hex, amt) => { const n = parseInt(hex.slice(1), 16); return `rgb(${[n >> 16, (n >> 8) & 255, n & 255].map(v => Math.round(v + (255 - v) * amt))})`; };
   const tileBg = p => tintHex(p.splash[1] || p.splash[0], 0.5);
+  // The angle a card turns to on hover: turned right (5) if there's a real photo of it, else any other real photo.
+  const sideOf = p => (!p.angles ? 5 : p.angles.includes(5) ? 5 : p.angles.find(a => a !== 3));
   const accent = (el, p) => { el.style.setProperty('--accent', p.backdrop); el.style.setProperty('--accent-ink', p.accentInk); el.style.setProperty('--tile-bg', tileBg(p)); };
 
   // Chest shots: photos/<slug>-1.png … <slug>-7.png (or .jpg), one necklace at seven angles,
@@ -61,7 +63,7 @@
   // Phones can't hover, so they skip the hover photos, and fetch the hero's other photos only once someone touches it.
   const loadHero = () => (window.HERO || []).forEach((slug, k) => { const p = P.find(x => x.slug === slug); if (p) load(`${slug}-${heroAngle(p, k) + 1}`); });
   addEventListener('load', () => setTimeout(() => {
-    P.forEach(p => { load(`${p.slug}-4`); if (!touchOnly && (!p.angles || p.angles.includes(5))) load(`${p.slug}-6`); });
+    P.forEach(p => { load(`${p.slug}-4`); const side = sideOf(p); if (!touchOnly && side !== undefined) load(`${p.slug}-${side + 1}`); });
     if (touchOnly) $('stage').addEventListener('pointerdown', loadHero, { once: true }); else loadHero();
   }, 400));
   // The glass-color splash behind a necklace's photos, and the single small accent shape used elsewhere.
@@ -123,8 +125,8 @@
   // Moving across it flips through the necklaces like stop motion, each shown at its own angle,
   // from left profile (necklace 1) to right profile (necklace 7).
   const heroItems = (window.HERO || P.map(p => p.slug)).map(slug => P.find(p => p.slug === slug)).filter(Boolean).slice(0, N);
-  // Necklaces with real photos (p.angles) show their front; drawn stand-ins turn, necklace n at angle n.
-  const heroAngle = (p, k) => (p.angles ? (p.angles.includes(3) ? 3 : p.angles[0]) : k);
+  // Necklace n is shown at angle n, so moving across turns the model from left profile to right profile.
+  const heroAngle = (p, k) => k;
   const heroEl = $('hero'), stage = $('stage'), heroCanvas = $('heroCanvas');
   let cur = -1, intro = null, touched = false, press = null;
 
@@ -200,8 +202,9 @@
     painters.add(repaint);
     repaint();
     // Hovering turns the piece a little, so people see it isn't flat.
-    const turns = !p.angles || p.angles.includes(5);  // only when it has a real turned photo
-    btn.addEventListener('mouseenter', () => { if (turns) { angle = 5; repaint(); } });
+    // Hovering turns it to its side view: the turned-right photo if it has one, else its other real photo.
+    const side = sideOf(p);
+    btn.addEventListener('mouseenter', () => { if (side !== undefined) { angle = side; repaint(); } });
     btn.addEventListener('mouseleave', () => { angle = 3; repaint(); });
     btn.addEventListener('click', () => openQV(p, 3));
     (p.sold ? soldGrid : grid).appendChild(li);

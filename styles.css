@@ -131,9 +131,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
   clip-path: inset(-100vh -100vw 0 -100vw); }  /* cut the splash off flat at the photo's bottom edge, nowhere else */
 .hero-splash { position: absolute; left: 50%; top: 66%; width: 112%; aspect-ratio: 75 / 56; translate: -50% -50%; pointer-events: none; }
 .hero-splash svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.stage .shot { position: absolute; left: 50%; bottom: 0; width: 56.25%; aspect-ratio: 3 / 2; translate: -50% 0;;
-  /* Some photos run off the frame at the arms; a narrow fade at the sides keeps that from ending in a hard line. */
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent); }
+.stage .shot { position: absolute; left: 50%; bottom: 0; width: 56.25%; aspect-ratio: 3 / 2; translate: -50% 0; }
 .tagline { position: relative; z-index: 2; margin: 18px auto 0; padding: 0 var(--gutter); text-align: center; font-size: var(--tag-size); line-height: .95; color: var(--ink); }
 /* The drawn "!": the real character stays for search and screen readers but is invisible; a stem and a bead dot
    are drawn in its place. play.js hides the dot (.bang.waiting) while the bead bounces in to become it. */
