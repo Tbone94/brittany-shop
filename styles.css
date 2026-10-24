@@ -290,9 +290,8 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
    (story, signup, footer) and outlined color cards (perks), with the necklace grid above kept white. */
 .band-heading { color: #fff; paint-order: stroke fill; -webkit-text-stroke: .1em var(--ink); text-shadow: .05em .06em 0 var(--ink); }
 
-/* Story: a yellow band, the bead strand across its top */
-.story { --band: #f7d94a; padding: 36px var(--gutter) clamp(96px, 10vw, 140px); }
-.strand { width: 100%; height: 210px; }
+/* Story: a yellow band (the drawn bead strand across its top was taken out; play.js skips it when it's missing) */
+.story { --band: #f7d94a; padding: clamp(96px, 10vw, 140px) var(--gutter); }
 .story-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(24px, 5vw, 88px); align-items: end; }
 .story h2 { font-size: clamp(44px, 6vw, 84px); }
 .story p { font-size: 19px; max-width: 34ch; color: var(--ink); }
