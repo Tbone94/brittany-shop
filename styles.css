@@ -12,6 +12,7 @@
   --sangre: #c8321f;
   --rubino: #a8265e;
   --coral: #f2674a;
+  --tangerine: #f58220;
   --uranium: #e4dd3b;
   --emerald: #0f6b45;
   --turquoise: #1fb5c9;
@@ -92,8 +93,10 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 /* The O's are glass rings: a glass color with an ink outline (brand/logo/a-glass-os.svg). The stroke is painted
    under the fill, so only its outer half shows and the letters keep their shape. */
 .logo .o { color: var(--g); -webkit-text-stroke: .09em var(--ink); paint-order: stroke fill; }
-/* The logo uses a dotless ı; this bead is its dot. shop.js measures where the font draws the real dot. */
-.logo .dot { position: absolute; left: var(--dot-left, .06em); top: var(--dot-top, .02em); width: var(--dot-size, .26em); height: var(--dot-size, .26em); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--coral) 34%, color-mix(in srgb, var(--coral) 60%, #000) 100%); }
+/* The logo uses a dotless ı; this bead is its dot. shop.js measures where the font draws the real dot.
+   The dot is a little 8-ball (so is the "!"'s dot in the tagline, and the bead that flies in to become each). */
+:root { --eightball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3CradialGradient id='b' cx='.5' cy='.42' r='.8'%3E%3Cstop offset='.3' stop-color='%233a3a40'/%3E%3Cstop offset='1' stop-color='%230b0b0d'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='20' cy='20' r='20' fill='url(%23b)'/%3E%3Ccircle cx='20' cy='17.5' r='9' fill='%23fff'/%3E%3Ctext x='20' y='22.4' text-anchor='middle' font-family='Arial, sans-serif' font-weight='700' font-size='14' fill='%231d1d1f'%3E8%3C/text%3E%3Cellipse cx='11.5' cy='8' rx='5' ry='2.8' fill='%23fff' opacity='.6' transform='rotate(-32 11.5 8)'/%3E%3C/svg%3E"); }
+.logo .dot { position: absolute; left: var(--dot-left, .06em); top: var(--dot-top, .02em); width: var(--dot-size, .26em); height: var(--dot-size, .26em); border-radius: 50%; background: var(--eightball) center / 100% 100% no-repeat; }
 .nav { display: flex; align-items: center; gap: 28px; margin-left: auto; font-size: 17px; font-weight: 500; }
 .nav a { text-decoration: none; color: var(--ink); }
 .nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
@@ -167,7 +170,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .rot-word .ch { display: inline-block; white-space: pre; transform-origin: 50% 80%; }  /* one per letter, typed in by play.js */
 .bang { position: relative; display: inline-block; color: transparent; }
 .bang::before { content: ''; position: absolute; left: 50%; top: .08em; width: .19em; height: .5em; translate: -50% 0; border-radius: .1em; background: var(--ink); rotate: 6deg; }
-.bang::after { content: ''; position: absolute; left: 50%; top: .64em; width: var(--bead, .22em); height: var(--bead, .22em); translate: -50% 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--coral) 34%, color-mix(in srgb, var(--coral) 60%, #000) 100%); }
+.bang::after { content: ''; position: absolute; left: 50%; top: .64em; width: var(--bead, .22em); height: var(--bead, .22em); translate: -50% 0; border-radius: 50%; background: var(--eightball) center / 100% 100% no-repeat; }
 .bang.waiting::after { visibility: hidden; }
 @media (max-width: 760px) {
   /* Phones: a square board (the splash's sides are trimmed), photo bigger. */
@@ -223,6 +226,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .band-fill { fill: var(--band); }
 .band-edge { fill: none; stroke: var(--ink); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
 .band-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 72px); align-items: center; }
+.band.flip .band-inner { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }  /* photo keeps the narrow column on both sides, so every square is the same size */
 .band.flip .band-photo { order: 2; rotate: 2deg; }
 .band-photo { display: block; padding: 0; overflow: hidden; cursor: pointer; aspect-ratio: 1; background: var(--tile-bg); border: 4px solid var(--ink); border-radius: 36px; rotate: -2deg; transition: transform .35s var(--ease); }
 .band-photo:hover { transform: scale(1.03); }

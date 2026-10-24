@@ -351,6 +351,7 @@
         <g class="gb-dots" fill="#fff">${[[20, 7], [32, 16], [28, 31], [12, 31], [8, 16], [20, 20]].map(([cx, cy], k) => `<circle cx="${cx}" cy="${cy}" r="${k === 5 ? 2.4 : 3}"/>`).join('')}</g>
         <g class="gb-stripes" fill="none" stroke="#fff8ee" stroke-width="3.2" stroke-linecap="round">${[11, 20, 29].map(y => `<path d="M2 ${y}Q11 ${y - 6} 20 ${y}T38 ${y}"/>`).join('')}</g>
         <g class="gb-flower">${[[20, 20, 7], [9, 10, 4.5], [31, 11, 4.2], [22, 34, 4.2]].map(([x, y, f]) => [0, 1, 2, 3, 4].map(k => `<circle cx="${(x + Math.cos(k * 1.2566 - 1.5708) * f * .55).toFixed(1)}" cy="${(y + Math.sin(k * 1.2566 - 1.5708) * f * .55).toFixed(1)}" r="${(f * .4).toFixed(1)}" fill="#fbfaf2"/>`).join('') + `<circle cx="${x}" cy="${y}" r="${(f * .27).toFixed(1)}" fill="${f > 6 ? '#c42a1e' : '#e9c13a'}"/>`).join('')}</g>
+        <g class="gb-eight"><circle cx="20" cy="17.5" r="9" fill="#fff"/><text x="20" y="22.4" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="14" fill="#1d1d1f">8</text></g>
       </svg></span></span>`;
     setLook(el, look);
     return el;
@@ -361,6 +362,7 @@
     el.querySelector('.gb-dots').style.display = look.kind === 'dots' ? '' : 'none';
     el.querySelector('.gb-stripes').style.display = look.kind === 'stripe' ? '' : 'none';
     el.querySelector('.gb-flower').style.display = look.kind === 'flower' ? '' : 'none';
+    el.querySelector('.gb-eight').style.display = look.kind === 'eight' ? '' : 'none';
   }
   const parts = el => ({ y: el.querySelector('.gbead-y'), ball: el.querySelector('.gbead-ball'), svg: el.querySelector('svg') });
   const IN = 'cubic-bezier(.5, 0, .9, .5)', OUT = 'cubic-bezier(.1, .5, .5, 1)';
@@ -448,7 +450,7 @@
       const L = layout();
       bang.classList.add('waiting');
       if (bead) bead.remove();
-      bead = makeBead(L.R * 2, { color: css('--coral'), kind: 'glass' });
+      bead = makeBead(L.R * 2, { color: '#17171a', kind: 'eight' });
       layer.appendChild(bead);
       bead.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
 
@@ -624,7 +626,7 @@
     once(footLogo, async () => {
       const d = footDot.getBoundingClientRect(), f = foot.getBoundingClientRect();
       const cx = d.left - f.left + d.width / 2, cy = d.top - f.top + d.height / 2;
-      const el = makeBead(d.width, { color: css('--coral'), kind: 'glass' });
+      const el = makeBead(d.width, { color: '#17171a', kind: 'eight' });
       foot.appendChild(el);
       el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
       await fly(el, { duration: 520, xs: [[0, cx], [1, cx]], ys: [[0, cy - 150, IN], [1, cy]] });
