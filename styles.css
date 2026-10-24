@@ -417,7 +417,6 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .bag-foot { position: relative; padding: 20px 24px 24px; border-top: 1px solid var(--line); display: grid; gap: 8px; background: color-mix(in srgb, var(--turquoise) 7%, #fff); }
 .bag-row { display: flex; justify-content: space-between; font-weight: 600; font-size: 18px; }
 .bag-note { font-size: 13px; color: var(--ink-2); }
-.bag-note.free { color: var(--emerald); font-weight: 600; }
 .bag-foot .btn { margin-top: 8px; }
 
 /* ---------- Wavy ribbons in the page background (play.js) ---------- */
