@@ -18,7 +18,7 @@ INDEXABLE to True, run this again, then submit SITE + 'sitemap.xml' in Google Se
 import html, json, math, pathlib, random, re, subprocess
 from PIL import Image, ImageDraw
 
-SITE = 'https://tbone94.github.io/brittany-shop/'
+SITE = 'https://shopchaoticgoods.com/'
 INDEXABLE = False
 BRAND = 'Brittany'
 TAGLINE = 'Glass bead necklaces, strung by hand'

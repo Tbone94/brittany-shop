@@ -1,7 +1,7 @@
 # Brittany — handmade glass-bead jewelry
 
 **Live previews, to compare:**
-- v3 (branch `design/v3`, built from Brittany's drawings): https://tbone94.github.io/brittany-shop/ (push to `main` here)
+- v3 (branch `design/v3`, built from Brittany's drawings): https://shopchaoticgoods.com/ (push to `main` here; the `CNAME` file keeps the domain, so don't delete it)
 - v2 (branch `design/centered-hero-colorful`): https://tbone94.github.io/brittany-shop-v2/ (`git push v2 design/centered-hero-colorful:main`)
 - v1 is kept as the tag `v1-first-preview`.
 
@@ -47,12 +47,12 @@ broken glass). Their layers overlap with multiply blending, the way stacked tran
 
 Launch target: mid-November 2026, before Black Friday (Nov 27). None of these can be skipped:
 
-- [ ] **Shop name.** "Brittany" is a placeholder, and nobody can find a shop by searching a first name.
-- [ ] **Own domain** instead of tbone94.github.io, set up on GitHub Pages.
+- [ ] **Shop name.** "Brittany" is a placeholder, and nobody can find a shop by searching a first name. Chosen: Chaotic Goods; still to swap in across the site.
+- [x] **Own domain:** shopchaoticgoods.com (bought at Porkbun, `CNAME` file in the repo; DNS points at GitHub Pages).
 - [ ] **Real photos** of every necklace, then run `python3 tools/webp.py`.
 - [ ] **Real names, prices, descriptions and details** for every necklace in `products.js`.
 - [ ] **Real collection names.** "Mushroom Club" and "Starstruck" are made up; "Chaotic Good" is Brittany's.
-- [ ] **Turn on search:** in `tools/seo.py` set `SITE` to the new domain and `INDEXABLE = True`, then run
+- [ ] **Turn on search:** in `tools/seo.py` (`SITE` is already the new domain) set `INDEXABLE = True`, then run
       `python3 tools/seo.py`. Until this is done, every page tells Google not to list it.
 - [ ] **Google Search Console:** add the domain and submit `sitemap.xml`.
 
