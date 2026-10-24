@@ -20,7 +20,7 @@ from PIL import Image, ImageDraw
 
 SITE = 'https://shopchaoticgoods.com/'
 INDEXABLE = False
-BRAND = 'Brittany'
+BRAND = 'Chaotic Goods'
 TAGLINE = 'Glass bead necklaces, strung by hand'
 DESCRIPTION = ('One-of-a-kind lampwork glass bead necklaces, designed and strung by hand by Brittany. '
                'Small batches, gift-boxed, shop by color or collection.')

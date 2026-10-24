@@ -47,7 +47,7 @@ broken glass). Their layers overlap with multiply blending, the way stacked tran
 
 Launch target: mid-November 2026, before Black Friday (Nov 27). None of these can be skipped:
 
-- [ ] **Shop name.** "Brittany" is a placeholder, and nobody can find a shop by searching a first name. Chosen: Chaotic Goods; still to swap in across the site.
+- [x] **Shop name:** Chaotic Goods (logo, page titles, app name and search info). Brittany's own name still appears in the story signature and the "ask for one like it" form.
 - [x] **Own domain:** shopchaoticgoods.com (bought at Porkbun, `CNAME` file in the repo; DNS points at GitHub Pages).
 - [ ] **Real photos** of every necklace, then run `python3 tools/webp.py`.
 - [ ] **Real names, prices, descriptions and details** for every necklace in `products.js`.
@@ -58,7 +58,6 @@ Launch target: mid-November 2026, before Black Friday (Nov 27). None of these ca
 
 ## Placeholders to replace
 
-- **Shop name.** "Brittany" for now.
 - **Necklaces** in `products.js`: names, prices, descriptions, lengths, materials.
 - **Policies:** 2–3 day shipping, free US shipping over $50, 14-day returns, gift box with a note. These need Brittany's real choices.
 - **Story:** rewrite it in her own words (how she started, where the glass comes from) and add a photo of her working.
