@@ -177,7 +177,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 /* Shop by collection: three tall color panels, each with the photo in a window of its own shape. */
 /* The wrap holds the panels and the flowers, squiggles and stars scattered around them (play.js). */
 .panels-wrap { position: relative; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
-.panels { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.panels { container-type: inline-size; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .panel { background: var(--panel); border: 2.5px solid var(--ink); }
 .panel + .panel { border-left: 0; }
 .panel:first-child { border-radius: 28px 0 0 28px; }
@@ -189,8 +189,11 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .charm { transform-origin: 100px 104px; transition: transform .5s var(--ease); }
 .panel button:hover .charm { transform: scale(1.06); }
 /* The name sits right on the panel's color (no box), with a small Shop pill under it. */
-.panel-label { display: grid; justify-items: center; align-content: start; gap: 14px; }
-.panel-name { font: 400 clamp(28px, 3vw, 44px)/.92 var(--serif); color: #fff; paint-order: stroke fill; -webkit-text-stroke: .13em var(--ink); text-shadow: .08em .09em 0 var(--ink); text-transform: uppercase; text-wrap: balance; }
+/* The name is sized by the row of panels (container units), the same in all three, so the longest word,
+   PHOTOSYNTHESIS, always fits; every name gets the same two-line space so the three Shop pills line up. */
+.panel-label { display: grid; grid-template-rows: auto 1fr; justify-items: center; gap: 14px; width: 100%; }
+.panel-go { align-self: end; }  /* pinned to the panel's bottom, so the three pills line up exactly */
+.panel-name { display: flex; align-items: center; justify-content: center; min-height: 1.84em; padding: 0 .14em; font: 400 clamp(18px, 2.85cqi, 44px)/.92 var(--serif); color: #fff; paint-order: stroke fill; -webkit-text-stroke: .13em var(--ink); text-shadow: .08em .09em 0 var(--ink); text-transform: uppercase; text-wrap: balance; overflow-wrap: normal; }
 .panel-go { display: inline-flex; align-items: center; gap: 8px; font: 600 14px var(--label); letter-spacing: .06em; text-transform: uppercase; color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 6px 14px; box-shadow: 3px 3px 0 var(--ink); transition: translate .2s var(--ease), box-shadow .2s var(--ease); }
 .panel button:hover .panel-go { translate: -1px -1px; box-shadow: 4px 4px 0 var(--ink); }
 .panel-go span { transition: translate .2s var(--ease); }
@@ -202,6 +205,7 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
   .panel:last-child { border-radius: 0 0 28px 28px; }
   .panel button { gap: 20px; }
   .window { width: min(100%, 280px); justify-self: center; }
+  .panel-name { min-height: 0; font-size: clamp(24px, 8.4cqi, 40px); }  /* stacked: no need to line up */
 }
 
 /* Shop by color: full-width wavy bands, one color each, with its name in big stacked letters (stack.js). */
