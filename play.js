@@ -302,6 +302,7 @@
       bead.remove(); bead = null;
       tagline.animate([{ translate: '0 0' }, { translate: '0 5px' }, { translate: '0 -2px' }, { translate: '0 0' }], { duration: 420, easing: 'ease-out' });
       delete tagline.dataset.busy;
+      tagline.dispatchEvent(new Event('landed'));
       playing = false;
     }
     flowers.forEach(f => f.addEventListener('click', play));
@@ -313,17 +314,24 @@
   }
 
   /* ---------- The tagline's words take turns (Brittany's idea) ---------- */
-  // "strung by hand!", then "shiny!", "ooh!", "aah!", one every few seconds: the old word drifts up and fades as the
-  // new one rises in, and the line's width eases so the "!" glides along. Calm on purpose: a long hold, a slow
-  // swap. It waits while the bead is hopping on the words, and while the first screen is out of view.
+  // "strung by hand!", then "shiny!", "ooh!", "aah!", one every few seconds: the old word wipes away left to right,
+  // the line's width eases so the "!" glides along, and the new word is written in left to right. Calm on purpose:
+  // a long hold, and the clock starts over when the bead lands, so the first word gets a full turn after it.
+  // It waits while the bead is hopping on the words, and while the first screen is out of view.
   const rot = tagline?.querySelector('.rot');
   if (rot) {
     const WORDS = ['strung by hand', 'shiny', 'ooh', 'aah'];
-    const HOLD = 3600, SWAP = 700, ease = 'cubic-bezier(.4, 0, .2, 1)';
-    let k = 0, inView = true;
+    const HOLD = 5200, AFTER_LAND = 4800, OUT_MS = 420, IN_MS = 640, ease = 'cubic-bezier(.4, 0, .2, 1)';
+    // Inset a touch past the letters top and bottom so the wipe never trims a "y" or the bead sitting on a letter.
+    const wipe = (from, to) => [{ clipPath: `inset(-.3em ${from} -.3em 0)` }, { clipPath: `inset(-.3em ${to} -.3em 0)` }];
+    const wipeOut = [{ clipPath: 'inset(-.3em 0 -.3em 0)' }, { clipPath: 'inset(-.3em 0 -.3em 100%)' }];
+    let k = 0, inView = true, timer = 0;
+    const later = ms => { clearTimeout(timer); timer = setTimeout(swap, ms); };
     new IntersectionObserver(([e]) => { inView = e.isIntersecting; }).observe(tagline);
-    setInterval(() => {
-      if (tagline.dataset.busy || document.hidden || !inView) return;
+    tagline.addEventListener('landed', () => later(AFTER_LAND));
+    function swap() {
+      if (tagline.dataset.busy) return;  // the bead's landing starts the clock again
+      if (document.hidden || !inView) return later(1000);
       // Clear any word left over from a swap that was cut short (say, the tab was hidden mid-swap).
       rot.querySelectorAll('.rot-word:not(.on)').forEach(w => w.remove());
       const cur = rot.querySelector('.rot-word.on');
@@ -331,16 +339,21 @@
       const next = document.createElement('span');
       next.className = 'rot-word';
       next.textContent = WORDS[k];
+      next.style.clipPath = 'inset(0 100% 0 0)';  // waits, hidden, for its turn
       rot.appendChild(next);
       rot.style.width = `${rot.offsetWidth}px`;
       const to = next.offsetWidth;
-      cur.classList.remove('on'); next.classList.add('on');
-      void rot.offsetWidth;  // lock in the old width, so the change to the new one eases
-      rot.style.width = `${to}px`;
-      cur.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-.35em)', opacity: 0 }], { duration: SWAP, easing: ease, fill: 'forwards' })
-        .finished.then(() => cur.remove(), () => cur.remove());
-      next.animate([{ transform: 'translateY(.35em)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { duration: SWAP, easing: ease, fill: 'backwards' });
-    }, HOLD);
+      const done = () => {
+        cur.remove();
+        next.classList.add('on');
+        void rot.offsetWidth;  // lock in the old width, so the change to the new one eases
+        rot.style.width = `${to}px`;
+        const show = () => { next.style.clipPath = ''; later(HOLD); };
+        next.animate(wipe('100%', '0%'), { duration: IN_MS, easing: ease, fill: 'backwards' }).finished.then(show, show);
+      };
+      cur.animate(wipeOut, { duration: OUT_MS, easing: ease, fill: 'forwards' }).finished.then(done, done);
+    }
+    later(HOLD);
     // A new width on resize: let the word set it again.
     addEventListener('resize', () => { rot.style.width = ''; });
   }
@@ -443,23 +456,45 @@
     }, 0.8);
   }
 
-  /* ---------- Add to bag: a bead arcs into the Bag button ---------- */
+  /* ---------- Add to bag: the bag flower eats the bead, Pac-Man style (Brittany's idea) ---------- */
+  // A bead in the necklace's color arcs up to the flower. Its yellow middle turns to face the bead, opens wide
+  // (an eye pops up), snaps shut on it, chews twice, and the petals give a happy wiggle.
+  const flower = document.querySelector('.bag-flower');
+  const mouth = flower?.querySelector('.mouth'), jaws = flower ? [...flower.querySelectorAll('.jaw')] : [], eye = flower?.querySelector('.eye');
+  const bite = (deg, duration, easing = 'ease-out') => Promise.all(jaws.map((j, i) =>
+    j.animate([{ rotate: getComputedStyle(j).rotate === 'none' ? '0deg' : getComputedStyle(j).rotate }, { rotate: `${i ? deg : -deg}deg` }],
+      { duration, easing, fill: 'forwards' }).finished.catch(() => {})));
   window.PlayFX.toBag = async (from, color) => {
-    const target = document.getElementById('bagCount')?.getBoundingClientRect();
-    if (!target) return;
-    const el = makeBead(18, { color, kind: 'dots' });
+    if (!flower) return;
+    const target = flower.getBoundingClientRect();
+    const x0 = from.left + from.width / 2, y0 = from.top + from.height / 2;
+    const x1 = target.left + target.width / 2, y1 = target.top + target.height / 2;
+    // Face the bead. Pac-Man faces left by flipping, not turning upside down, so the eye stays on top;
+    // then tilt toward where the bead comes from (kept to a sensible lean).
+    const a = Math.atan2(y0 - y1, x0 - x1) * 180 / Math.PI;
+    const left = Math.abs(a) > 90, tilt = Math.max(-60, Math.min(60, left ? (a > 0 ? a - 180 : a + 180) : a));
+    mouth.setAttribute('transform', `rotate(${tilt.toFixed(1)} 50 50)${left ? ' translate(100 0) scale(-1 1)' : ''}`);
+
+    const el = makeBead(16, { color, kind: 'dots' });
     el.style.position = 'fixed';
     el.style.zIndex = '60';
     document.body.appendChild(el);
-    const x0 = from.left + from.width / 2, y0 = from.top + from.height / 2;
-    const x1 = target.left + target.width / 2, y1 = target.top + target.height / 2;
+    const D = 700;
+    setTimeout(() => {
+      bite(42, 220);
+      eye.animate([{ opacity: 0, scale: .2 }, { opacity: 1, scale: 1 }], { duration: 200, fill: 'forwards', easing: 'cubic-bezier(.3,1.6,.6,1)' });
+    }, D - 300);
     await fly(el, {
-      duration: 650, spin: 1,
+      duration: D, spin: 1,
       xs: [[0, x0], [1, x1, 'cubic-bezier(.4, 0, .6, 1)']],
       ys: [[0, y0, OUT], [0.4, Math.max(14, Math.min(y0, y1) - 70), IN], [1, y1]],
     });
-    await el.animate([{ opacity: 1, scale: 1 }, { opacity: 0, scale: 0.4 }], { duration: 140, fill: 'forwards' }).finished.catch(() => {});
-    el.remove();
+    // Gulp: the bead shrinks into the mouth as it snaps shut, then two chews and a wiggle.
+    el.animate([{ scale: 1 }, { scale: 0 }], { duration: 110, fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
+    await bite(0, 110, 'ease-in');
+    flower.querySelector('.petals').animate([{ scale: 1 }, { scale: 1.12 }, { scale: .96 }, { scale: 1 }], { duration: 420, easing: 'ease-out' });
+    for (let i = 0; i < 2; i++) { await bite(22, 120); await bite(0, 110, 'ease-in'); }
+    eye.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, delay: 200, fill: 'forwards' });
   };
 
   /* ---------- Email signup: a few beads pop up like confetti ---------- */

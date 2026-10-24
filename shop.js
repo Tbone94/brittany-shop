@@ -485,6 +485,7 @@
     $('bagSubtotal').textContent = money(total);
     $('bagFoot').hidden = !items.length;
     $('bagNote').textContent = total >= 50 ? 'Free US shipping' : `${money(50 - total)} away from free shipping`;
+    $('bagNote').classList.toggle('free', total >= 50);
   }
   function openBag() { if (qv.open) qv.close(); if (!bagDlg.open) bagDlg.showModal(); }
   function bumpBag() { bagBtn.classList.remove('bump'); void bagBtn.offsetWidth; bagBtn.classList.add('bump'); }
@@ -494,7 +495,7 @@
     if (e.target.closest('[data-browse]')) { bagDlg.close(); $('shop').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); }
   });
   $('checkout').addEventListener('click', () => {
-    $('bagNote').textContent = 'Prototype: checkout connects to Shopify or Stripe on the real site.';
+    $('bagNote').classList.remove('free'); $('bagNote').textContent = 'Prototype: checkout connects to Shopify or Stripe on the real site.';
   });
   renderBag();
   fromHash();
