@@ -152,9 +152,9 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 /* The drawn "!": the real character stays for search and screen readers but is invisible; a stem and a bead dot
    are drawn in its place. play.js hides the dot (.bang.waiting) while the bead bounces in to become it. */
 /* The rotating words: one in place, the outgoing one fading up and away on top of it; the width eases so the "!" glides. */
-.rot { position: relative; display: inline-block; white-space: nowrap; transition: width .7s cubic-bezier(.4, 0, .2, 1); }
+.rot { position: relative; display: inline-block; white-space: nowrap; }
 .rot-word { display: inline-block; }
-.rot-word:not(.on) { position: absolute; left: 0; top: 0; }
+.rot-word .ch { display: inline-block; white-space: pre; transform-origin: 50% 80%; }  /* one per letter, typed in by play.js */
 .bang { position: relative; display: inline-block; color: transparent; }
 .bang::before { content: ''; position: absolute; left: 50%; top: .08em; width: .19em; height: .5em; translate: -50% 0; border-radius: .1em; background: var(--ink); rotate: 6deg; }
 .bang::after { content: ''; position: absolute; left: 50%; top: .64em; width: var(--bead, .22em); height: var(--bead, .22em); translate: -50% 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--coral) 34%, color-mix(in srgb, var(--coral) 60%, #000) 100%); }

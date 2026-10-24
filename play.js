@@ -314,48 +314,57 @@
   }
 
   /* ---------- The tagline's words take turns (Brittany's idea) ---------- */
-  // "strung by hand!", then "shiny!", "ooh!", "aah!", one every few seconds: the old word wipes away left to right,
-  // the line's width eases so the "!" glides along, and the new word is written in left to right. Calm on purpose:
-  // a long hold, and the clock starts over when the bead lands, so the first word gets a full turn after it.
-  // It waits while the bead is hopping on the words, and while the first screen is out of view.
+  // "strung by hand!", then "shiny!", "ooh!", "aah!", one every few seconds, typed: the old word backspaces away
+  // letter by letter, then the new one types in, each letter bouncing up into place with a little tilt, and the
+  // "!" rides along at the end. A long hold between words, and the clock starts over when the bead lands, so the
+  // first word gets a full turn after it. It waits while the bead hops on the words and while the screen is away.
   const rot = tagline?.querySelector('.rot');
   if (rot) {
     const WORDS = ['strung by hand', 'shiny', 'ooh', 'aah'];
-    const HOLD = 5200, AFTER_LAND = 4800, OUT_MS = 420, IN_MS = 640, ease = 'cubic-bezier(.4, 0, .2, 1)';
-    // Inset a touch past the letters top and bottom so the wipe never trims a "y" or the bead sitting on a letter.
-    const wipe = (from, to) => [{ clipPath: `inset(-.3em ${from} -.3em 0)` }, { clipPath: `inset(-.3em ${to} -.3em 0)` }];
-    const wipeOut = [{ clipPath: 'inset(-.3em 0 -.3em 0)' }, { clipPath: 'inset(-.3em 0 -.3em 100%)' }];
-    let k = 0, inView = true, timer = 0;
+    const HOLD = 5200, AFTER_LAND = 4800, DEL_MS = 45, PAUSE_MS = 260, TYPE_MS = 95;
+    const word = rot.querySelector('.rot-word.on');
+    const letter = ch => {
+      const c = document.createElement('span');
+      c.className = 'ch';
+      c.textContent = ch;
+      return c;
+    };
+    const fill = text => word.replaceChildren(...[...text].map(letter));
+    fill(word.textContent);
+    let k = 0, inView = true, timer = 0, typing = false;
     const later = ms => { clearTimeout(timer); timer = setTimeout(swap, ms); };
+    const wait = ms => new Promise(r => setTimeout(r, ms));
     new IntersectionObserver(([e]) => { inView = e.isIntersecting; }).observe(tagline);
     tagline.addEventListener('landed', () => later(AFTER_LAND));
-    function swap() {
-      if (tagline.dataset.busy) return;  // the bead's landing starts the clock again
+    async function swap() {
+      if (tagline.dataset.busy || typing) return;  // the bead's landing starts the clock again
       if (document.hidden || !inView) return later(1000);
-      // Clear any word left over from a swap that was cut short (say, the tab was hidden mid-swap).
-      rot.querySelectorAll('.rot-word:not(.on)').forEach(w => w.remove());
-      const cur = rot.querySelector('.rot-word.on');
+      typing = true;
       k = (k + 1) % WORDS.length;
-      const next = document.createElement('span');
-      next.className = 'rot-word';
-      next.textContent = WORDS[k];
-      next.style.clipPath = 'inset(0 100% 0 0)';  // waits, hidden, for its turn
-      rot.appendChild(next);
-      rot.style.width = `${rot.offsetWidth}px`;
-      const to = next.offsetWidth;
-      const done = () => {
-        cur.remove();
-        next.classList.add('on');
-        void rot.offsetWidth;  // lock in the old width, so the change to the new one eases
-        rot.style.width = `${to}px`;
-        const show = () => { next.style.clipPath = ''; later(HOLD); };
-        next.animate(wipe('100%', '0%'), { duration: IN_MS, easing: ease, fill: 'backwards' }).finished.then(show, show);
-      };
-      cur.animate(wipeOut, { duration: OUT_MS, easing: ease, fill: 'forwards' }).finished.then(done, done);
+      const next = WORDS[k];
+      // If the bead starts hopping mid-word, finish the word at once so it lands on the right letters.
+      const cut = () => tagline.dataset.busy && (fill(next), true);
+      while (word.lastChild) {
+        word.lastChild.remove();
+        await wait(DEL_MS);
+        if (cut()) break;
+      }
+      if (!tagline.dataset.busy) await wait(PAUSE_MS);
+      for (const ch of next) {
+        if (cut()) break;
+        const c = word.appendChild(letter(ch));
+        const tilt = (Math.random() * 2 - 1) * 9;
+        c.animate([
+          { transform: `translateY(.22em) scale(.3) rotate(${tilt}deg)`, opacity: 0 },
+          { transform: `translateY(-.08em) scale(1.12) rotate(${-tilt / 2}deg)`, opacity: 1, offset: .55 },
+          { transform: 'none', opacity: 1 },
+        ], { duration: 320, easing: 'ease-out' });
+        await wait(TYPE_MS + Math.random() * 40);  // a slightly uneven hand, like real typing
+      }
+      typing = false;
+      later(HOLD);
     }
     later(HOLD);
-    // A new width on resize: let the word set it again.
-    addEventListener('resize', () => { rot.style.width = ''; });
   }
 
   /* ---------- Moment 2: a bead drops into the strand and knocks one loose ---------- */
