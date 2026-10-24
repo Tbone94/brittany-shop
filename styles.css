@@ -89,6 +89,9 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .top .logo { align-self: flex-start; margin-top: 12px; white-space: nowrap; font-size: clamp(42px, 8vw, 112px); transform-origin: 0 0; transition: transform .35s var(--ease); }
 .top.small .logo { transform: translateY(-3px) scale(var(--logo-small, .3)); }
 .logo .i { position: relative; display: inline-block; }
+/* The O's are glass rings: a glass color with an ink outline (brand/logo/a-glass-os.svg). The stroke is painted
+   under the fill, so only its outer half shows and the letters keep their shape. */
+.logo .o { color: var(--g); -webkit-text-stroke: .09em var(--ink); paint-order: stroke fill; }
 /* The logo uses a dotless ı; this bead is its dot. shop.js measures where the font draws the real dot. */
 .logo .dot { position: absolute; left: var(--dot-left, .06em); top: var(--dot-top, .02em); width: var(--dot-size, .26em); height: var(--dot-size, .26em); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--coral) 34%, color-mix(in srgb, var(--coral) 60%, #000) 100%); }
 .nav { display: flex; align-items: center; gap: 28px; margin-left: auto; font-size: 17px; font-weight: 500; }
