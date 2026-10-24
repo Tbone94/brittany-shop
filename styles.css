@@ -462,6 +462,18 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .ask-nav .btn { min-width: 160px; }
 .ask-back { margin-right: auto; font-size: 15px; }
 .ask-fine { margin: -6px 0 0; text-align: right; font-size: 13px; color: var(--ink-2); }
+/* Get in touch: a smaller popup with the pieces in a row. */
+.inquire { width: min(520px, calc(100vw - 32px)); }
+.inq-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.inq-item { display: grid; grid-template-columns: 56px 1fr auto; align-items: center; gap: 12px; padding: 8px 14px 8px 8px; border-radius: 18px; border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--coral); background: #fff; }
+.inq-item img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; background: var(--tile-bg); }
+.inq-name { font-weight: 600; }
+.inq-price { font-weight: 600; }
+.ask .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.inq-fine { text-align: center; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }  /* spam trap: people never see it */
+.qv-inquire { display: block; margin: 12px auto 0; font-size: 15px; }
+.signup-err { margin: 12px 0 0; font-weight: 500; color: var(--sangre); text-align: center; }
 .ask-done { position: relative; text-align: center; justify-items: center; padding-block: 56px 48px; }
 .ask-done h2 { padding: 0; }
 .ask-done p { color: var(--ink-2); }

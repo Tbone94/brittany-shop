@@ -15,6 +15,24 @@
   const tileBg = p => tintHex(p.splash[1] || p.splash[0], 0.5);
   // The angle a card turns to on hover: turned right (5) if there's a real photo of it, else any other real photo.
   const sideOf = p => (!p.angles ? 5 : p.angles.includes(5) ? 5 : p.angles.find(a => a !== 3));
+  // Every form on the site goes to the shop inbox for now (the owner's email), through FormSubmit's free email
+  // forwarding (formsubmit.co, no account). The address is activated, and this is FormSubmit's random alias for it,
+  // so the address itself never appears in the site's code.
+  const INBOX = 'https://formsubmit.co/ajax/c69ee4e88a1c1f1d3571c97322f8c451';
+  async function sendForm(subject, fields, form) {
+    if (form?.querySelector('.hp')?.value) return true;  // a bot filled the hidden field: pretend it went
+    try {
+      const r = await fetch(INBOX, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ _subject: `Chaotic Goods · ${subject}`, _template: 'table', _captcha: 'false', ...fields }),
+      });
+      const j = await r.json().catch(() => ({}));
+      return r.ok && String(j.success) === 'true';
+    } catch { return false; }
+  }
+  // A send button while it's sending.
+  const sending = (btn, on) => { btn.disabled = on; if (on) { btn.dataset.label = btn.textContent; btn.textContent = 'Sending…'; } else if (btn.dataset.label) btn.textContent = btn.dataset.label; };
+  const SEND_FAIL = "That didn't go through. Try again in a minute?";
   const accent = (el, p) => { el.style.setProperty('--accent', p.backdrop); el.style.setProperty('--accent-ink', p.accentInk); el.style.setProperty('--tile-bg', tileBg(p)); };
 
   // Chest shots: photos/<slug>-1.png … <slug>-7.png (or .jpg), one necklace at seven angles,
@@ -491,9 +509,7 @@
   $('bagItems').addEventListener('click', e => {
     if (e.target.closest('[data-browse]')) { bagDlg.close(); $('shop').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); }
   });
-  $('checkout').addEventListener('click', () => {
-    $('bagNote').textContent = 'Prototype: checkout connects to Shopify or Stripe on the real site.';
-  });
+  $('checkout').addEventListener('click', () => openInquire(bag.map(s => P.find(p => p.slug === s))));
   renderBag();
   fromHash();
   // A necklace's own page (n/<slug>/, made by tools/seo.py) opens with that necklace showing.
@@ -707,7 +723,7 @@
     if (e.target.name === 'soldPiece') $('soldErr').hidden = true;
     if (e.target.id === 'askName' || e.target.id === 'askEmail') $('youErr').hidden = true;
   });
-  askForm.addEventListener('submit', e => {
+  askForm.addEventListener('submit', async e => {
     e.preventDefault();
     const needSold = mode === 'like' && sold.length && !askForm.querySelector('[name=soldPiece]:checked');
     const needYou = !$('askName').value.trim() || !$('askEmail').checkValidity() || !$('askEmail').value.trim();
@@ -715,16 +731,70 @@
     $('youErr').hidden = !needYou;
     if (needSold) { $('soldErr').scrollIntoView({ block: 'center' }); return; }
     if (needYou) { (!$('askName').value.trim() ? $('askName') : $('askEmail')).focus(); return; }
+    // Everything picked, in plain words, for the email.
+    const picked = name => [...askForm.querySelectorAll(`[name=${name}]:checked`)].map(i => i.closest('label').textContent.trim()).join(', ');
+    const name = $('askName').value.trim(), email = $('askEmail').value.trim();
+    const fields = mode === 'like'
+      ? { Request: 'One like a sold piece', Piece: picked('soldPiece').replace(/Sold in.*/, '').trim(), Metal: picked('likeMetal'), Length: picked('likeLength') }
+      : { Request: 'Something new', Vibe: picked('vibe') || 'Up to Brittany', Colors: picked('glass') || (picked('glassAny') ? "Brittany's pick" : 'Up to Brittany'),
+          Length: picked('length') || '—', Metal: picked('metal') || '—', For: picked('for') || '—', 'Need it by': $('askBy').value || '—',
+          "Hard no's": $('askAvoid').value.trim() || '—', Notes: $('askIdea').value.trim() || '—' };
+    const btn = $('askSend');
+    $('askSendErr').hidden = true;
+    sending(btn, true);
+    const ok = await sendForm(`${name} asked for ${mode === 'like' ? `one like ${fields.Piece}` : 'something new'}`, { Name: name, Email: email, _replyto: email, ...fields }, askForm);
+    sending(btn, false);
+    if (!ok) { $('askSendErr').textContent = SEND_FAIL; $('askSendErr').hidden = false; return; }
     askForm.hidden = true;
     $('askDone').hidden = false;
     // Measure after the popup has resized around the thank-you.
     window.PlayFX?.confetti($('askDone').querySelector('h2').getBoundingClientRect(), ask);
   });
 
-  /* ---------- Email signup (not wired to a list yet) ---------- */
-  $('signup').addEventListener('submit', e => {
+  /* ---------- Get in touch (while online payments are being set up) ---------- */
+  // Checkout, and "Ask Brittany about this piece" in the quick view, open this: the pieces, an email, an optional
+  // question. It goes to the shop inbox so Brittany can reach out personally.
+  const inq = $('inquire'), inqForm = $('inqForm');
+  let inqPieces = [];
+  function openInquire(pieces) {
+    inqPieces = pieces.filter(Boolean);
+    inqForm.reset(); inqForm.hidden = false; $('inqDone').hidden = true; $('inqErr').hidden = true;
+    $('inqTitle').textContent = inqPieces.length > 1 ? 'Get in touch about these pieces' : 'Get in touch about this piece';
+    $('inqItems').innerHTML = inqPieces.map(p => `<li class="inq-item" style="--tile-bg:${tileBg(p)}">
+      <img src="photos/${p.slug}-4.webp" alt=""><span class="inq-name">${p.name}</span><span class="inq-price">${money(p.price)}</span></li>`).join('');
+    if (qv.open) qv.close();
+    if (bagDlg.open) bagDlg.close();
+    inq.showModal();
+  }
+  $('qvInquire').addEventListener('click', () => openInquire([qvP]));
+  inqForm.addEventListener('input', () => { $('inqErr').hidden = true; });
+  inqForm.addEventListener('submit', async e => {
     e.preventDefault();
-    const from = e.target.querySelector('.btn').getBoundingClientRect();
+    const name = $('inqName').value.trim(), email = $('inqEmail').value.trim();
+    if (!email || !$('inqEmail').checkValidity()) {
+      $('inqErr').textContent = 'Add your email so Brittany can reach you.'; $('inqErr').hidden = false; $('inqEmail').focus(); return;
+    }
+    const pieces = inqPieces.map(p => `${p.name} (${money(p.price)})`).join(', ');
+    sending($('inqSend'), true);
+    const ok = await sendForm(`${name || 'Someone'} wants ${inqPieces.map(p => p.name).join(' + ')}!`,
+      { Name: name || '—', Email: email, _replyto: email, Pieces: pieces, Total: money(inqPieces.reduce((t, p) => t + p.price, 0)), Questions: $('inqNote').value.trim() || '—' }, inqForm);
+    sending($('inqSend'), false);
+    if (!ok) { $('inqErr').textContent = SEND_FAIL; $('inqErr').hidden = false; return; }
+    inqForm.hidden = true;
+    $('inqDone').hidden = false;
+    window.PlayFX?.confetti($('inqDone').querySelector('h2').getBoundingClientRect(), inq);
+  });
+
+  /* ---------- Email signup: goes to the shop inbox for now ---------- */
+  $('signup').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.target.querySelector('.btn'), email = $('email').value.trim();
+    $('signupErr').hidden = true;
+    sending(btn, true);
+    const ok = await sendForm('New first-dibs signup', { Email: email, _replyto: email, List: 'First dibs on new batches' }, e.target);
+    sending(btn, false);
+    if (!ok) { $('signupErr').hidden = false; return; }
+    const from = btn.getBoundingClientRect();
     e.target.hidden = true;
     $('thanks').hidden = false;
     window.PlayFX?.confetti(from);
