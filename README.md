@@ -33,7 +33,7 @@ What's on the page, top to bottom:
 - **Shop grid.** One card per necklace with color filters. Cards turn slightly on hover. Sold pieces move to a "Found a home" section with an "ask for one like it" form.
 - **Popup (quick view).** All 7 angles of one necklace (move across it or tap the thumbnails), details, add to bag. Every necklace gets its own link (`#n/tide-pool`), and the browser's Back button closes the popup.
 - **Bag** slides out from the right. Shipping is charged separately at checkout (no free-shipping threshold).
-- Story, shipping and gift notes, email signup, footer.
+- Story, perk cards (shipping, one of a kind, markets), email signup, footer.
 
 Files: `products.js` (the necklaces and their colors), `shop.js` (page behavior), `styles.css` (palette at the top),
 `splash.js` (draws the splashes), `standin.js` (draws stand-in photos).
@@ -59,7 +59,7 @@ Launch target: mid-November 2026, before Black Friday (Nov 27). None of these ca
 ## Placeholders to replace
 
 - **Necklaces** in `products.js`: names, prices, descriptions, lengths, materials.
-- **Policies:** 2–3 day shipping, shipping charged separately (decided 2026-10-23; amount not set yet, about $6 suggested), 14-day returns, gift box with a note. These need Brittany's real choices.
+- **Policies:** 2–3 day shipping, shipping charged separately (decided 2026-10-23; amount not set yet, about $6 suggested), 14-day returns, kraft jewelry box (no handwritten notes). These need Brittany's real choices.
 - **Story:** rewrite it in her own words (how she started, where the glass comes from) and add a photo of her working.
 - **Not wired up yet:** checkout (Shopify or Stripe), the email signup, and the "ask for one like it" form. The real checkout must stop a piece from selling twice.
 
