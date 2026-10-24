@@ -52,9 +52,11 @@ Launch target: mid-November 2026, before Black Friday (Nov 27). None of these ca
 - [ ] **Real photos** of every necklace, then run `python3 tools/webp.py`.
 - [ ] **Real names, prices, descriptions and details** for every necklace in `products.js`.
 - [x] **Real collection names:** Giving Garden Gnome, Photosynthesis Coded, Chaotic Good (2026-10-23). Which necklace is in which is still a guess.
-- [ ] **Turn on search:** in `tools/seo.py` (`SITE` is already the new domain) set `INDEXABLE = True`, then run
-      `python3 tools/seo.py`. Until this is done, every page tells Google not to list it.
-- [ ] **Google Search Console:** add the domain and submit `sitemap.xml`.
+- [x] **Turn on search:** `INDEXABLE = True` in `tools/seo.py` (2026-10-24).
+- [x] **Google Search Console:** https://shopchaoticgoods.com/ verified on 2026-10-24 (in tgiamberini95@gmail.com, HTML file
+      `google457ae66e8481644c.html`; don't delete it or verification is lost), `sitemap.xml` submitted, home page indexing requested.
+- [x] **Shipping & returns and Privacy pages:** `shipping/` and `privacy/` (2026-10-24). The return policy (14 days, buyer pays
+      return shipping, made-for-you pieces final sale) is a sensible default for Brittany to confirm.
 
 ## Placeholders to replace
 
