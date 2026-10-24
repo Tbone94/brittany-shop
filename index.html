@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=130">
+<link rel="stylesheet" href="styles.css?v=132">
 </head>
 <body>
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -213,9 +213,13 @@
 <!-- Ask for one like it: pick a sold piece, or describe something new -->
 <dialog class="ask" id="ask" aria-labelledby="askTitle">
   <button class="close" type="button" data-close aria-label="Close">×</button>
-  <form class="ask-form" id="askForm">
-    <h2 id="askTitle">Ask for one like it</h2>
-    <p class="ask-sub">Every piece is made by hand. Tell Brittany what you love.</p>
+  <!-- A mood board, not an order form: every piece is one of a kind, so the picks are a direction for Brittany.
+       "Something new" goes one friendly question at a time (shop.js). -->
+  <form class="ask-form" id="askForm" novalidate>
+    <div class="ask-head">
+      <h2 id="askTitle">Ask for one like it</h2>
+      <p class="ask-sub">Every piece is one of a kind, so think of this as a mood board, not a recipe. Share what you love and Brittany will make something in that spirit.</p>
+    </div>
 
     <div class="seg" role="tablist" aria-label="What are you asking for?">
       <button type="button" role="tab" id="tabLike" aria-controls="panelLike" aria-selected="true" data-mode="like">Like a sold piece</button>
@@ -223,37 +227,66 @@
     </div>
 
     <div class="ask-panel" id="panelLike" role="tabpanel" aria-labelledby="tabLike">
-      <fieldset>
-        <legend class="ask-label">Which one did you love?</legend>
+      <div class="ask-q" role="group" aria-labelledby="qSold">
+        <h3 class="qh" id="qSold">Which one did you love?</h3>
         <div class="sold-pick" id="soldPick"></div>
-      </fieldset>
-      <label class="ask-label" for="askChange">Anything to change?</label>
-      <textarea id="askChange" rows="2" placeholder="Longer, different colors, a gold clasp…"></textarea>
+        <p class="ask-err" id="soldErr" hidden>Pick the piece you loved.</p>
+      </div>
+      <div class="ask-q">
+        <label class="qh" for="askChange">Anything you'd change?</label>
+        <textarea id="askChange" rows="2" placeholder="Longer, more purple, a gold clasp… or leave it blank"></textarea>
+      </div>
     </div>
 
     <div class="ask-panel" id="panelNew" role="tabpanel" aria-labelledby="tabNew" hidden>
-      <canvas class="ask-preview" id="askPreview" aria-hidden="true"></canvas>
-      <fieldset>
-        <legend class="ask-label">Glass colors <span>pick up to 3</span></legend>
-        <div class="swatch-pick" id="colorPick"></div>
-      </fieldset>
-      <fieldset>
-        <legend class="ask-label">Center bead</legend>
-        <div class="pick-chips" id="focalPick"></div>
-      </fieldset>
-      <fieldset>
-        <legend class="ask-label">Length</legend>
-        <div class="pick-chips" id="lengthPick"></div>
-      </fieldset>
-      <label class="ask-label" for="askIdea">Anything else?</label>
-      <textarea id="askIdea" rows="2" placeholder="It's a gift, it goes with a dress, her favorite color is…"></textarea>
+      <ol class="ask-steps" id="askSteps" aria-label="Steps">
+        <li data-to="1"><span class="sb"></span><span class="sl">Vibe</span></li>
+        <li data-to="2"><span class="sb"></span><span class="sl">Colors</span></li>
+        <li data-to="3"><span class="sb"></span><span class="sl">Details</span></li>
+        <li data-to="4"><span class="sb"></span><span class="sl">You</span></li>
+      </ol>
+
+      <section class="ask-step" data-step="1" aria-labelledby="qVibe">
+        <h3 class="qh" id="qVibe">What's the vibe?</h3>
+        <p class="ask-hint">Pick any that feel right.</p>
+        <div class="vibe-pick" id="vibePick"></div>
+      </section>
+
+      <section class="ask-step" data-step="2" aria-labelledby="qColors" hidden>
+        <h3 class="qh" id="qColors">Colors you love</h3>
+        <p class="ask-hint">Up to three, or let Brittany choose.</p>
+        <canvas class="ask-preview" id="askPreview" aria-hidden="true"></canvas>
+        <div class="glass-pick" id="colorPick"></div>
+      </section>
+
+      <section class="ask-step" data-step="3" aria-labelledby="qDetails" hidden>
+        <h3 class="qh" id="qDetails">A few details</h3>
+        <p class="ask-hint">All optional.</p>
+        <div class="ask-q" role="group" aria-labelledby="qLength"><h4 class="qs" id="qLength">Length</h4><div class="pick-chips" id="lengthPick"></div></div>
+        <div class="ask-q" role="group" aria-labelledby="qFor"><h4 class="qs" id="qFor">It's for</h4><div class="pick-chips" id="forPick"></div></div>
+        <div class="ask-q"><label class="qs" for="askBy">Need it by</label><input id="askBy" type="date"></div>
+        <div class="ask-q"><label class="qs" for="askIdea">Anything else?</label>
+          <textarea id="askIdea" rows="3" placeholder="It goes with a green dress, she loves frogs, nothing too heavy…"></textarea></div>
+      </section>
+
+      <section class="ask-step" data-step="4" aria-labelledby="qYou" hidden>
+        <h3 class="qh" id="qYou">Your mood board</h3>
+        <div class="ask-board" id="askBoard"></div>
+      </section>
     </div>
 
-    <div class="ask-you">
-      <label><span class="ask-label">Your name</span><input id="askName" required autocomplete="name"></label>
-      <label><span class="ask-label">Email</span><input id="askEmail" type="email" required autocomplete="email" placeholder="you@email.com"></label>
+    <div class="ask-you" id="askYou">
+      <label><span class="ask-label">Your name</span><input id="askName" autocomplete="name"></label>
+      <label><span class="ask-label">Email</span><input id="askEmail" type="email" autocomplete="email" placeholder="you@email.com"></label>
+      <p class="ask-err" id="youErr" hidden>Add your name and email so Brittany can write back.</p>
     </div>
-    <button class="btn btn-block" id="askSend" type="submit">Send to Brittany</button>
+
+    <div class="ask-nav">
+      <button class="link-btn ask-back" id="askBack" type="button">← Back</button>
+      <button class="btn" id="askNext" type="button">Next</button>
+      <button class="btn" id="askSend" type="submit">Send to Brittany</button>
+    </div>
+    <p class="ask-fine" id="askFine">Brittany will email you to talk it through before she starts.</p>
   </form>
   <div class="ask-done" id="askDone" hidden>
     <h2>Sent!</h2>
@@ -287,12 +320,12 @@
   </div>
 </dialog>
 
-<script src="products.js?v=130"></script>
-<script src="standin.js?v=130"></script>
-<script src="splash.js?v=130"></script>
-<script src="shop.js?v=130"></script>
-<script src="play.js?v=130"></script>
-<script src="stack.js?v=130" defer></script>
+<script src="products.js?v=132"></script>
+<script src="standin.js?v=132"></script>
+<script src="splash.js?v=132"></script>
+<script src="shop.js?v=132"></script>
+<script src="play.js?v=132"></script>
+<script src="stack.js?v=132" defer></script>
 <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>
 </body>
 </html>

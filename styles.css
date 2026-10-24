@@ -361,49 +361,107 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 /* Ask popup */
 .ask { width: min(640px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; background: #fff; border-radius: 32px; overflow: auto; }
 .ask[open] { animation: rise .3s var(--ease); }
-.ask-form, .ask-done { padding: 40px 40px 34px; display: grid; gap: 14px; }
-.ask h2 { font-size: clamp(32px, 4vw, 44px); padding-right: 40px; }
-.ask-sub { color: var(--ink-2); margin-top: -6px; }
-.ask fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
-.ask-label { display: block; font: 600 12px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); margin: 6px 0 8px; }
-.ask-label span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+/* The same touches as the bag and filter sheet: the glass-color strip, a daisy by the heading, a soft orchid wash. */
+.ask::before { content: ''; position: sticky; top: 0; z-index: 2; display: block; height: 6px; background: linear-gradient(90deg, var(--coral) 0 20%, var(--uranium) 0 40%, var(--turquoise) 0 60%, var(--orchid) 0 80%, var(--emerald) 0); }
+.ask .close { z-index: 3; }
+.ask-form, .ask-done { padding: 30px 40px 30px; display: grid; gap: 16px; }
+.ask-head { position: relative; isolation: isolate; display: grid; gap: 8px; }
+.ask-head::before { content: ''; position: absolute; left: -70px; top: -60px; width: 300px; height: 170px; border-radius: 47% 53% 62% 38% / 55% 44% 56% 45%; background: color-mix(in srgb, var(--orchid) 16%, #fff); rotate: -8deg; z-index: -1; }
+.ask h2 { display: flex; align-items: center; gap: 10px; font-size: clamp(30px, 4vw, 42px); padding-right: 40px; }
+.ask-head h2::after { content: ''; flex: none; width: 28px; height: 28px; rotate: -12deg;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='%23f2674a'%3E%3Cellipse cx='20' cy='9.5' rx='6.2' ry='9'/%3E%3Cellipse cx='20' cy='9.5' rx='6.2' ry='9' transform='rotate(72 20 20)'/%3E%3Cellipse cx='20' cy='9.5' rx='6.2' ry='9' transform='rotate(144 20 20)'/%3E%3Cellipse cx='20' cy='9.5' rx='6.2' ry='9' transform='rotate(216 20 20)'/%3E%3Cellipse cx='20' cy='9.5' rx='6.2' ry='9' transform='rotate(288 20 20)'/%3E%3C/g%3E%3Ccircle cx='20' cy='20' r='5.2' fill='%23e4dd3b'/%3E%3C/svg%3E") center / contain no-repeat; }
+.ask-sub { color: var(--ink-2); font-size: 15px; line-height: 1.45; max-width: 46ch; }
+.ask-label { display: block; font: 600 12px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 8px; }
 .ask textarea { width: 100%; resize: vertical; border-radius: 18px; font: 16px/1.4 var(--sans); }
-.ask-panel { display: grid; gap: 6px; }
+.ask input[type="date"] { width: auto; flex: none; padding: 10px 16px; font-size: 15px; }
+.ask-panel { display: grid; gap: 22px; }
 .ask .seg { grid-template-columns: 1fr 1fr; }
-.seg { display: grid; gap: 4px; padding: 4px; background: var(--alt); border-radius: 999px; margin: 6px 0 4px; }
+.seg { display: grid; gap: 4px; padding: 4px; background: var(--alt); border-radius: 999px; margin: 2px 0 0; }
 .seg button { border: 0; background: none; border-radius: 999px; padding: 10px 12px; font: 500 15px var(--sans); cursor: pointer; color: var(--ink-2); transition: background .2s var(--ease), color .2s; }
 .seg button[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.ask .seg button[aria-selected="true"] { box-shadow: 0 0 0 2px var(--ink), 3px 3px 0 2px var(--ink); }
 
-.sold-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+/* Questions: a big friendly heading, a small hint, then the picks. */
+.ask-q { display: grid; gap: 10px; }
+.qh { margin: 0; font: 400 24px/1.1 var(--serif); color: var(--ink); }
+.qs { margin: 0; font: 600 12px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); }
+.ask-hint { margin: -10px 0 0; font-size: 14px; color: var(--ink-2); }
+.ask-step { display: grid; gap: 16px; }
+.ask-err { margin: 0; font-size: 14px; font-weight: 500; color: var(--sangre); }
+
+/* Steps as beads on a string: done ones fill with glass color, the current one is bigger. */
+.ask-steps { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); list-style: none; margin: 0; padding: 0; }
+.ask-steps::before { content: ''; position: absolute; left: 12.5%; right: 12.5%; top: 11px; height: 2px; background: #c9a24a; border-radius: 2px; }
+.ask-steps li { position: relative; display: grid; justify-items: center; gap: 6px; font: 600 11px var(--label); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.ask-steps .sb { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink); background: #fff; transition: scale .25s var(--ease), background .25s; }
+.ask-steps li:nth-child(1) { --c: var(--coral); }
+.ask-steps li:nth-child(2) { --c: var(--uranium); }
+.ask-steps li:nth-child(3) { --c: var(--turquoise); }
+.ask-steps li:nth-child(4) { --c: var(--orchid); }
+.ask-steps li.done { cursor: pointer; }
+.ask-steps li.done .sb, .ask-steps li.now .sb { background: radial-gradient(circle at 35% 30%, #fff 0 14%, var(--c) 40%, color-mix(in srgb, var(--c) 72%, #000) 100%); }
+.ask-steps li.now .sb { scale: 1.25; }
+.ask-steps li.now { color: var(--ink); }
+
+/* Vibe cards: Brittany's real charms. Picked ones get an outline, a coral offset shadow and a little tilt. */
+.vibe-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.vibe { position: relative; cursor: pointer; }
+.vibe input, .glass input, .pick input { position: absolute; opacity: 0; pointer-events: none; }
+.vibe-card { display: grid; justify-items: center; gap: 6px; height: 100%; padding: 12px 8px 12px; border-radius: 20px; background: var(--alt); border: 2px solid transparent; text-align: center; font-size: 14px; font-weight: 500; line-height: 1.2; transition: background .2s, border-color .2s, box-shadow .2s, rotate .25s var(--ease); }
+.vibe-card img { width: 64px; height: 64px; object-fit: contain; transition: scale .25s var(--ease); }
+.vibe:hover .vibe-card img { scale: 1.1; }
+.vibe input:checked + .vibe-card { background: color-mix(in srgb, var(--uranium) 26%, #fff); border-color: var(--ink); box-shadow: 4px 4px 0 var(--coral); rotate: -1.5deg; }
+.vibe:nth-child(even) input:checked + .vibe-card { rotate: 1.5deg; }
+.vibe input:focus-visible + .vibe-card { outline: 2px solid var(--cobalt); outline-offset: 2px; }
+
+/* Sold pieces to ask about: small photo cards; the picked one gets an outline and a coral offset shadow. */
+.sold-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 170px)); gap: 14px; }
 .sold-card { position: relative; display: grid; gap: 2px; cursor: pointer; }
-.sold-card input { position: absolute; opacity: 0; }
-.sold-card .tile { border-radius: 20px; outline: 2px solid transparent; outline-offset: 3px; transition: outline-color .2s; }
+.sold-card input { position: absolute; opacity: 0; pointer-events: none; }
+.sold-card .tile { border-radius: 20px; border: 2px solid transparent; transition: border-color .2s, box-shadow .2s, rotate .25s var(--ease); }
 .sold-card .shot { filter: saturate(.6); transition: filter .2s; }
 .sold-card:hover .shot, .sold-card input:checked ~ .tile .shot { filter: none; }
-.sold-card input:checked ~ .tile { outline-color: var(--accent); }
-.sold-card input:focus-visible ~ .tile { outline-color: var(--cobalt); }
-.sc-name { font-weight: 600; margin-top: 6px; }
+.sold-card input:checked ~ .tile { border-color: var(--ink); box-shadow: 4px 4px 0 var(--coral); rotate: -1.5deg; }
+.sold-card input:focus-visible ~ .tile { outline: 2px solid var(--cobalt); outline-offset: 3px; }
+.sc-name { font-weight: 600; margin-top: 8px; }
 .sc-sub { font-size: 13px; color: var(--ink-2); }
 .ask-empty { color: var(--ink-2); }
 
-.ask-preview { width: 100%; height: 130px; display: block; background: var(--alt); border-radius: 20px; }
-.swatch-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
-.swatch { display: grid; justify-items: center; gap: 4px; cursor: pointer; font-size: 12px; color: var(--ink-2); }
-.swatch input { position: absolute; opacity: 0; }
-.sw-dot { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.9) 0 10%, rgba(255,255,255,0) 26%), var(--c); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); outline: 2px solid transparent; outline-offset: 3px; transition: transform .2s var(--ease), outline-color .2s; }
-.swatch:hover .sw-dot { transform: scale(1.08); }
-.swatch input:checked + .sw-dot { outline-color: var(--ink); transform: scale(1.08); }
-.swatch input:checked ~ .sw-name { color: var(--ink); font-weight: 600; }
-.swatch input:disabled ~ * { opacity: .35; cursor: not-allowed; }
-.swatch input:focus-visible + .sw-dot { outline-color: var(--cobalt); }
+/* Colors: glass beads with their names. */
+.ask-preview { width: 100%; height: 120px; display: block; background: color-mix(in srgb, var(--uranium) 14%, #fff); border-radius: 20px; }
+.glass-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 10px 6px; }
+.glass { display: grid; justify-items: center; gap: 5px; cursor: pointer; font-size: 12px; color: var(--ink-2); text-align: center; line-height: 1.15; }
+.gb { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--ink); background: radial-gradient(circle at 35% 30%, #fff 0 13%, var(--c) 40%, color-mix(in srgb, var(--c) 72%, #000) 100%); transition: scale .2s var(--ease), box-shadow .2s; }
+.gb-any { display: grid; place-items: center; font: 400 18px var(--serif); color: var(--ink); background: conic-gradient(var(--coral), var(--uranium), var(--turquoise), var(--orchid), var(--coral)); }
+.glass:hover .gb { scale: 1.08; }
+.glass input:checked + .gb { scale: 1.12; box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--ink); }
+.glass input:checked ~ .gn { color: var(--ink); font-weight: 600; }
+.glass input:disabled ~ * { opacity: .35; cursor: not-allowed; }
+.glass input:focus-visible + .gb { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--cobalt); }
+
 .pick-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .pick { cursor: pointer; }
-.pick input { position: absolute; opacity: 0; }
-.pick span { display: inline-block; padding: 8px 14px; border-radius: 999px; background: var(--alt); font-size: 14px; font-weight: 500; transition: background .2s var(--ease), color .2s; }
-.pick input:checked + span { background: var(--ink); color: #fff; }
+.pick span { display: inline-block; padding: 8px 15px; border-radius: 999px; background: var(--alt); border: 2px solid transparent; font-size: 14px; font-weight: 500; transition: background .2s var(--ease), border-color .2s, box-shadow .2s; }
+.pick input:checked + span { background: color-mix(in srgb, var(--turquoise) 22%, #fff); border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
 .pick input:focus-visible + span { outline: 2px solid var(--cobalt); outline-offset: 2px; }
-.ask-you { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+
+/* The mood board: what was picked, as little chips. */
+.ask-board { display: grid; gap: 12px; padding: 16px 18px; border-radius: 20px; background: color-mix(in srgb, var(--orchid) 9%, #fff); border: 2px dashed color-mix(in srgb, var(--orchid) 45%, #fff); }
+.board-row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: baseline; }
+.board-k { font: 600 11px var(--label); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.board-row > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.board-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; background: #fff; border: 1.5px solid var(--ink); font-size: 13px; font-weight: 500; }
+.board-chip i { width: 11px; height: 11px; border-radius: 50%; background: var(--c); }
+.board-note { font-size: 14px; color: var(--ink); }
+.board-empty { margin: 0; font-size: 15px; color: var(--ink-2); }
+
+.ask-you { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .ask-you input { width: 100%; }
+.ask-you .ask-err { grid-column: 1 / -1; }
+.ask-nav { display: flex; align-items: center; justify-content: flex-end; gap: 18px; }
+.ask-nav .btn { min-width: 160px; }
+.ask-back { margin-right: auto; font-size: 15px; }
+.ask-fine { margin: -6px 0 0; text-align: right; font-size: 13px; color: var(--ink-2); }
 .ask-done { position: relative; text-align: center; justify-items: center; padding-block: 56px 48px; }
 .ask-done h2 { padding: 0; }
 .ask-done p { color: var(--ink-2); }
@@ -511,8 +569,11 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
   .filter-btn { padding: 7px 14px 7px 10px; font-size: 15px; }
   .swatches { gap: 8px; }
   .swatch { width: 26px; height: 26px; }
-  .ask-form, .ask-done { padding: 28px 20px 24px; }
+  .ask-form, .ask-done { padding: 22px 20px 24px; }
   .ask-you { grid-template-columns: 1fr; }
+  .vibe-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ask-nav .btn { flex: 1; min-width: 0; }
+  .ask-fine { text-align: center; }
   .signup form { flex-direction: column; }
   .hide-small { display: none; }
   .ribbon { rotate: calc(var(--angle, 0deg) * 2); }

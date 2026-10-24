@@ -538,48 +538,60 @@
       </label>`).join('') : '<p class="ask-empty">Nothing has sold yet. Try "Something new".</p>';
   soldPick.querySelectorAll('canvas').forEach((c, i) => { const fn = () => paint(c, image(sold[i], 3)); painters.add(fn); fn(); });
 
-  // Commission choices.
-  const GLASS = [['Cobalt', '#1f3fa8'], ['Turquoise', '#1fb5c9'], ['Emerald', '#0f6b45'], ['Uranium', '#e4dd3b'], ['Coral', '#f2674a'], ['Red', '#c8321f'], ['Berry', '#a8265e'], ['Orchid', '#8a4fbf'], ['Clear', '#dfe8ec']];
-  const FOCAL = [['dots', 'Dots'], ['stripe', 'Swirls'], ['glass', 'Plain glass']];
-  const LENGTH = [['15', 'Choker · 15 in'], ['18', 'Classic · 18 in'], ['22', 'Long · 22 in']];
-  $('colorPick').innerHTML = GLASS.map(([n, c]) => `<label class="swatch"><input type="checkbox" name="glass" value="${n}" data-color="${c}"><span class="sw-dot" style="--c:${c}"></span><span class="sw-name">${n}</span></label>`).join('');
-  const chips = (list, name, pick) => list.map(([v, label]) => `<label class="pick"><input type="radio" name="${name}" value="${v}"${v === pick ? ' checked' : ''}><span>${label}</span></label>`).join('');
-  $('focalPick').innerHTML = chips(FOCAL, 'focal', 'dots');
-  $('lengthPick').innerHTML = chips(LENGTH, 'length', '18');
+  // Something new: a mood board, one friendly question at a time. Nothing here is a spec; every pick is optional
+  // and only points Brittany in a direction.
+  const VIBES = [
+    ['garden', 'Garden & mushrooms', 'mushroom'], ['leafy', 'Leaves & sunshine', 'tealleaf'], ['fruity', 'Fruit & treats', 'apple'],
+    ['flowers', 'Flowers & butterflies', 'butterfly'], ['bubbly', 'Dots & bubbles', 'dotted'], ['surprise', 'Surprise me', 'painted'],
+  ];
+  const GLASS = [['Cobalt', '#1f3fa8'], ['Turquoise', '#1fb5c9'], ['Emerald', '#0f6b45'], ['Lime', '#9bd23c'], ['Uranium', '#e4dd3b'],
+    ['Amber', '#e89a2c'], ['Coral', '#f2674a'], ['Red', '#c8321f'], ['Berry', '#a8265e'], ['Pink', '#f58aa8'], ['Orchid', '#8a4fbf'], ['Clear', '#dfe8ec']];
+  const LENGTH = [['15', 'Choker · 15 in'], ['18', 'Classic · 18 in'], ['22', 'Long · 22 in'], ['any', 'Not sure']];
+  const FOR = [['me', 'Me'], ['gift', 'A gift']];
+  $('vibePick').innerHTML = VIBES.map(([v, label, charm]) => `<label class="vibe"><input type="checkbox" name="vibe" value="${v}">
+      <span class="vibe-card"><img src="photos/charms/${charm}.webp" alt="" loading="lazy"><span>${label}</span></span></label>`).join('');
+  $('colorPick').innerHTML = GLASS.map(([n, c]) => `<label class="glass" title="${n}"><input type="checkbox" name="glass" value="${n}" data-color="${c}"><span class="gb" style="--c:${c}"></span><span class="gn">${n}</span></label>`).join('')
+    + `<label class="glass glass-any"><input type="checkbox" name="glassAny" value="yes"><span class="gb gb-any" aria-hidden="true">?</span><span class="gn">Brittany's pick</span></label>`;
+  const chips = (list, name) => list.map(([v, label]) => `<label class="pick"><input type="radio" name="${name}" value="${v}"><span>${label}</span></label>`).join('');
+  $('lengthPick').innerHTML = chips(LENGTH, 'length');
+  $('forPick').innerHTML = chips(FOR, 'for');
 
-  // Up to three colors: once three are picked, the rest wait.
-  $('colorPick').addEventListener('change', () => {
-    const boxes = [...askForm.querySelectorAll('[name=glass]')], n = boxes.filter(b => b.checked).length;
+  // Up to three colors; "Brittany's pick" clears them, and picking a color clears it.
+  $('colorPick').addEventListener('change', e => {
+    const boxes = [...askForm.querySelectorAll('[name=glass]')], any = askForm.querySelector('[name=glassAny]');
+    if (e.target === any && any.checked) boxes.forEach(b => { b.checked = false; });
+    if (e.target.name === 'glass' && e.target.checked) any.checked = false;
+    const n = boxes.filter(b => b.checked).length;
     boxes.forEach(b => { b.disabled = !b.checked && n >= 3; });
   });
 
-  // A little drawn necklace that updates as you choose, with a springy wobble on each change.
+  // A little drawn necklace that updates as you choose colors (and length), with a springy wobble on each change.
   const preview = $('askPreview');
   let previewRaf = 0;
   function drawPreview(wobble = 0) {
-    const dpr = Math.min(2, window.devicePixelRatio || 1), w = preview.clientWidth, h = 130;
+    const dpr = Math.min(2, window.devicePixelRatio || 1), w = preview.clientWidth, h = 120;
     if (!w) return;
     preview.width = w * dpr; preview.height = h * dpr;
     const ctx = preview.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const picked = [...askForm.querySelectorAll('[name=glass]:checked')].map(b => b.dataset.color);
-    const colors = picked.length ? picked : ['#c9c9cf', '#e2e2e7'];
-    const focal = askForm.querySelector('[name=focal]:checked')?.value || 'dots';
-    const len = Number(askForm.querySelector('[name=length]:checked')?.value || 18);
-    const depth = { 15: 42, 18: 66, 22: 92 }[len] * (1 + wobble);
+    const surprise = ['#1fb5c9', '#f2674a', '#9bd23c', '#8a4fbf', '#e4dd3b'];
+    const colors = picked.length ? picked : askForm.querySelector('[name=glassAny]:checked') ? surprise : ['#c9c9cf', '#e2e2e7'];
+    const len = Number(askForm.querySelector('[name=length]:checked')?.value) || 18;
+    const depth = { 15: 40, 18: 60, 22: 84 }[len] * (1 + wobble);
     const left = 24, right = w - 24, mid = w / 2;
-    const y = x => 14 + depth * (1 - ((x - mid) / ((right - left) / 2)) ** 2);
-    ctx.strokeStyle = '#a1a1a6'; ctx.lineWidth = 1.5;
+    const y = x => 12 + depth * (1 - ((x - mid) / ((right - left) / 2)) ** 2);
+    ctx.strokeStyle = '#b08d3c'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(left, y(left));
     for (let x = left; x <= right; x += 6) ctx.lineTo(x, y(x));
     ctx.stroke();
     const step = 26, n = Math.floor((right - left - 60) / 2 / step);
     for (let k = n; k >= 1; k--) for (const sgn of [-1, 1]) {
       const x = mid + sgn * (22 + k * step - 10);
-      S.drawBead(ctx, { r: 5, kind: 'spacer', metal: 'silver' }, x + sgn * 13, y(x + sgn * 13), 0);
+      S.drawBead(ctx, { r: 5, kind: 'spacer', metal: 'gold' }, x + sgn * 13, y(x + sgn * 13), 0);
       S.drawBead(ctx, { r: 9, kind: 'glass', color: colors[(k - 1) % colors.length], seed: k }, x, y(x), 0);
     }
-    S.drawBead(ctx, { r: 17, kind: focal, color: colors[0], dot: '#fff8ee', seed: 2 }, mid, y(mid) + 6, 0);
+    S.drawBead(ctx, { r: 16, kind: 'dots', color: colors[0], dot: '#fff8ee', seed: 2 }, mid, y(mid) + 6, 0);
   }
   function wobblePreview() {
     drawPreview();
@@ -593,23 +605,74 @@
     };
     previewRaf = requestAnimationFrame(anim);
   }
-  $('panelNew').addEventListener('change', wobblePreview);
+  $('panelNew').addEventListener('change', e => { if (e.target.name === 'glass' || e.target.name === 'glassAny' || e.target.name === 'length') wobblePreview(); });
 
-  function setMode(mode) {
-    ask.querySelectorAll('.seg [role=tab]').forEach(t => t.setAttribute('aria-selected', String(t.dataset.mode === mode)));
-    $('panelLike').hidden = mode !== 'like';
-    $('panelNew').hidden = mode !== 'new';
-    // A sold piece is required only when asking about one.
-    askForm.querySelectorAll('[name=soldPiece]').forEach(r => { r.required = mode === 'like'; });
-    if (mode === 'new') drawPreview();
+  // The mood board on the last step: everything picked so far, as little chips (or a friendly "all up to Brittany").
+  const labelFor = (list, v) => list.find(x => x[0] === v)?.[1];
+  function drawBoard() {
+    const vals = name => [...askForm.querySelectorAll(`[name=${name}]:checked`)].map(i => i.value);
+    const vibes = vals('vibe').map(v => labelFor(VIBES, v)), colors = vals('glass');
+    const len = labelFor(LENGTH, vals('length')[0]), who = labelFor(FOR, vals('for')[0]);
+    const by = $('askBy').value, idea = $('askIdea').value.trim();
+    const chip = (t, c) => `<span class="board-chip"${c ? ` style="--c:${c}"` : ''}>${c ? '<i></i>' : ''}${t.replace(/</g, '&lt;')}</span>`;
+    const rows = [
+      vibes.length && ['Vibe', vibes.map(v => chip(v)).join('')],
+      (colors.length || vals('glassAny').length) && ['Colors', colors.length ? colors.map(n => chip(n, GLASS.find(g => g[0] === n)[1])).join('') : chip("Brittany's pick")],
+      (len || who || by) && ['Details', [len, who && `For ${who.toLowerCase()}`, by && `By ${new Date(by + 'T12:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`].filter(Boolean).map(t => chip(t)).join('')],
+      idea && ['Notes', `<span class="board-note">${idea.replace(/</g, '&lt;')}</span>`],
+    ].filter(Boolean);
+    $('askBoard').innerHTML = rows.length ? rows.map(([k, v]) => `<div class="board-row"><span class="board-k">${k}</span><div>${v}</div></div>`).join('')
+      : `<p class="board-empty">Totally up to Brittany. Love that.</p>`;
+  }
+
+  // Steps: Back and Next, the bead string shows where you are (tap a done bead to go back to it).
+  let mode = 'like', step = 1;
+  const LAST = 4;
+  function showStep(n, dir = 1) {
+    step = n;
+    ask.querySelectorAll('.ask-step').forEach(sec => {
+      const on = Number(sec.dataset.step) === n;
+      sec.hidden = !on;
+      if (on && !reduceMotion) sec.animate([{ opacity: 0, transform: `translateX(${dir * 18}px)` }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.2,.7,.2,1)' });
+    });
+    $('askSteps').querySelectorAll('li').forEach(li => {
+      const k = Number(li.dataset.to);
+      li.classList.toggle('done', k < n); li.classList.toggle('now', k === n);
+      li.setAttribute('aria-current', k === n ? 'step' : 'false');
+    });
+    if (n === 2) drawPreview();
+    if (n === LAST) drawBoard();
+    syncNav();
+    ask.scrollTop = 0;
+  }
+  function syncNav() {
+    const stepping = mode === 'new' && step < LAST;
+    $('askYou').hidden = stepping;
+    $('askNext').hidden = !stepping;
+    $('askSend').hidden = stepping;
+    $('askFine').hidden = stepping;
+    $('askBack').hidden = !(mode === 'new' && step > 1);
+    $('askNext').textContent = step === 3 ? 'Almost done' : 'Next';
+  }
+  $('askNext').addEventListener('click', () => showStep(Math.min(LAST, step + 1)));
+  $('askBack').addEventListener('click', () => showStep(Math.max(1, step - 1), -1));
+  $('askSteps').addEventListener('click', e => { const li = e.target.closest('li.done'); if (li) showStep(Number(li.dataset.to), -1); });
+
+  function setMode(m) {
+    mode = m;
+    ask.querySelectorAll('.seg [role=tab]').forEach(t => t.setAttribute('aria-selected', String(t.dataset.mode === m)));
+    $('panelLike').hidden = m !== 'like';
+    $('panelNew').hidden = m !== 'new';
+    ['soldErr', 'youErr'].forEach(id => { $(id).hidden = true; });
+    if (m === 'new') showStep(1); else syncNav();
   }
   ask.querySelector('.seg').addEventListener('click', e => { const t = e.target.closest('[data-mode]'); if (t) setMode(t.dataset.mode); });
 
-  function openAsk(mode = sold.length ? 'like' : 'new', slug) {
+  function openAsk(m = sold.length ? 'like' : 'new', slug) {
     askForm.reset();
     askForm.querySelectorAll('[name=glass]').forEach(b => { b.disabled = false; });
     askForm.hidden = false; $('askDone').hidden = true;
-    setMode(mode);
+    setMode(m);
     if (slug) { const r = askForm.querySelector(`[name=soldPiece][value="${slug}"]`); if (r) r.checked = true; }
     if (!ask.open) ask.showModal();
     ask.scrollTop = 0;
@@ -617,9 +680,20 @@
   askLink.addEventListener('click', () => openAsk('like'));
   $('qvAsk').addEventListener('click', () => { const p = qvP; qv.close(); openAsk('like', p.slug); });
 
+  // Only the must-haves are checked: the sold piece (when asking about one), a name and an email.
   // Not wired to email yet: shows the thank-you with a little bead confetti.
+  askForm.addEventListener('input', e => {
+    if (e.target.name === 'soldPiece') $('soldErr').hidden = true;
+    if (e.target.id === 'askName' || e.target.id === 'askEmail') $('youErr').hidden = true;
+  });
   askForm.addEventListener('submit', e => {
     e.preventDefault();
+    const needSold = mode === 'like' && sold.length && !askForm.querySelector('[name=soldPiece]:checked');
+    const needYou = !$('askName').value.trim() || !$('askEmail').checkValidity() || !$('askEmail').value.trim();
+    $('soldErr').hidden = !needSold;
+    $('youErr').hidden = !needYou;
+    if (needSold) { $('soldErr').scrollIntoView({ block: 'center' }); return; }
+    if (needYou) { (!$('askName').value.trim() ? $('askName') : $('askEmail')).focus(); return; }
     askForm.hidden = true;
     $('askDone').hidden = false;
     // Measure after the popup has resized around the thank-you.
