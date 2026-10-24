@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=115">
+<link rel="stylesheet" href="styles.css?v=117">
 </head>
 <body data-product="ember">
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -57,12 +57,12 @@
     <a href="#story">About</a>
     <a href="#markets">Markets</a>
   </nav>
-  <!-- The bag is a groovy flower (Brittany's idea). Its yellow middle is a Pac-Man mouth: when you add a necklace,
-       it turns to face the bead, opens, and gobbles it (play.js). -->
+  <!-- The bag is a groovy flower (Brittany's idea). When you add a necklace, a bead bounces on it like the hero's
+       daisies and sinks into the middle, which flashes the bead's color (play.js). -->
   <button class="bag-btn" id="bagBtn" type="button" aria-label="Bag, 0 items">
     <svg class="bag-flower" viewBox="0 0 100 100" aria-hidden="true">
       <g class="petals"><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--coral)" transform="rotate(0 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--orchid)" transform="rotate(45 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--coral)" transform="rotate(90 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--orchid)" transform="rotate(135 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--coral)" transform="rotate(180 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--orchid)" transform="rotate(225 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--coral)" transform="rotate(270 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--orchid)" transform="rotate(315 50 50)"/></g>
-      <g class="mouth"><circle class="throat" cx="50" cy="50" r="25"/><g class="jaw jaw-top"><path d="M23 50A27 27 0 0 1 77 50Z"/><path class="rim" d="M23 50A27 27 0 0 1 77 50"/><circle class="eye" cx="53" cy="36" r="4.2"/></g><g class="jaw jaw-bot"><path d="M23 50A27 27 0 0 0 77 50Z"/><path class="rim" d="M23 50A27 27 0 0 0 77 50"/></g></g>
+      <circle class="middle" cx="50" cy="50" r="26"/>
     </svg>
     <span class="count" id="bagCount">0</span>
   </button>
@@ -272,12 +272,12 @@
   </div>
 </dialog>
 
-<script src="products.js?v=115"></script>
-<script src="standin.js?v=115"></script>
-<script src="splash.js?v=115"></script>
-<script src="shop.js?v=115"></script>
-<script src="play.js?v=115"></script>
-<script src="stack.js?v=115" defer></script>
+<script src="products.js?v=117"></script>
+<script src="standin.js?v=117"></script>
+<script src="splash.js?v=117"></script>
+<script src="shop.js?v=117"></script>
+<script src="play.js?v=117"></script>
+<script src="stack.js?v=117" defer></script>
 <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>
 </body>
 </html>

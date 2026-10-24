@@ -6,7 +6,7 @@
 //       2. Story: a bead drops into the middle of the bead strand, the strand bounces, and the bead
 //          it replaces falls off and rolls a little way. Tap that bead to put it back in.
 //       3. Footer: a bead drops into the dot of the "i" in the big logo, and the word gives a little bounce.
-//   - two that answer something you do: adding to the bag sends a bead arcing into the Bag button,
+//   - two that answer something you do: adding to the bag bounces a bead on the bag flower and into its middle,
 //     and joining the email list pops a few beads up like confetti.
 // Only transform and opacity are animated (Web Animations API), and nothing runs while scrolling.
 (() => {
@@ -456,45 +456,39 @@
     }, 0.8);
   }
 
-  /* ---------- Add to bag: the bag flower eats the bead, Pac-Man style (Brittany's idea) ---------- */
-  // A bead in the necklace's color arcs up to the flower. Its yellow middle turns to face the bead, opens wide
-  // (an eye pops up), snaps shut on it, chews twice, and the petals give a happy wiggle.
+  /* ---------- Add to bag: the bead boings on the bag flower and sinks in ---------- */
+  // Like the hero's bead on the daisies: a bead in the necklace's color arcs up and lands on the flower, which
+  // squishes; it bounces once, drops into the middle and is gone, and the middle flashes the bead's color.
   const flower = document.querySelector('.bag-flower');
-  const mouth = flower?.querySelector('.mouth'), jaws = flower ? [...flower.querySelectorAll('.jaw')] : [], eye = flower?.querySelector('.eye');
-  const bite = (deg, duration, easing = 'ease-out') => Promise.all(jaws.map((j, i) =>
-    j.animate([{ rotate: getComputedStyle(j).rotate === 'none' ? '0deg' : getComputedStyle(j).rotate }, { rotate: `${i ? deg : -deg}deg` }],
-      { duration, easing, fill: 'forwards' }).finished.catch(() => {})));
+  const petals = flower?.querySelector('.petals'), middle = flower?.querySelector('.middle');
+  const squishFlower = (x, y, duration) => petals.animate(
+    [{ scale: '1 1' }, { scale: `${x} ${y}` }, { scale: `${2 - x} ${2 - y}` }, { scale: '1 1' }], { duration, easing: 'ease-out' });
   window.PlayFX.toBag = async (from, color) => {
     if (!flower) return;
-    const target = flower.getBoundingClientRect();
+    const target = flower.getBoundingClientRect(), s = target.width / 100;
     const x0 = from.left + from.width / 2, y0 = from.top + from.height / 2;
-    const x1 = target.left + target.width / 2, y1 = target.top + target.height / 2;
-    // Face the bead. Pac-Man faces left by flipping, not turning upside down, so the eye stays on top;
-    // then tilt toward where the bead comes from (kept to a sensible lean).
-    const a = Math.atan2(y0 - y1, x0 - x1) * 180 / Math.PI;
-    const left = Math.abs(a) > 90, tilt = Math.max(-60, Math.min(60, left ? (a > 0 ? a - 180 : a + 180) : a));
-    mouth.setAttribute('transform', `rotate(${tilt.toFixed(1)} 50 50)${left ? ' translate(100 0) scale(-1 1)' : ''}`);
-
+    const cx = target.left + target.width / 2, cy = target.top + target.height / 2, land = cy - 30 * s;
     const el = makeBead(16, { color, kind: 'dots' });
     el.style.position = 'fixed';
     el.style.zIndex = '60';
     document.body.appendChild(el);
-    const D = 700;
-    setTimeout(() => {
-      bite(42, 220);
-      eye.animate([{ opacity: 0, scale: .2 }, { opacity: 1, scale: 1 }], { duration: 200, fill: 'forwards', easing: 'cubic-bezier(.3,1.6,.6,1)' });
-    }, D - 300);
+    // Arc up onto the flower (620ms), then one bounce and down into the middle (480ms).
+    const D = 1100, h = 620 / D;
+    setTimeout(() => squishFlower(1.1, .86, 420), D * h);
     await fly(el, {
-      duration: D, spin: 1,
-      xs: [[0, x0], [1, x1, 'cubic-bezier(.4, 0, .6, 1)']],
-      ys: [[0, y0, OUT], [0.4, Math.max(14, Math.min(y0, y1) - 70), IN], [1, y1]],
+      duration: D, spin: 1.2, squashAt: [h],
+      xs: [[0, x0, 'cubic-bezier(.4, 0, .6, 1)'], [h, cx], [h + (1 - h) * .45, cx + 5], [1, cx]],
+      // The flower sits at the top of the screen, so the arc may peek just past the top edge to drop onto it from above.
+      ys: [[0, y0, OUT], [h * .45, Math.max(-24, Math.min(y0, land) - 70), IN], [h, land, OUT],
+           [h + (1 - h) * .45, land - Math.max(24, 26 * s), IN], [1, cy]],
     });
-    // Gulp: the bead shrinks into the mouth as it snaps shut, then two chews and a wiggle.
-    el.animate([{ scale: 1 }, { scale: 0 }], { duration: 110, fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
-    await bite(0, 110, 'ease-in');
-    flower.querySelector('.petals').animate([{ scale: 1 }, { scale: 1.12 }, { scale: .96 }, { scale: 1 }], { duration: 420, easing: 'ease-out' });
-    for (let i = 0; i < 2; i++) { await bite(22, 120); await bite(0, 110, 'ease-in'); }
-    eye.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, delay: 200, fill: 'forwards' });
+    el.animate([{ scale: 1 }, { scale: 0 }], { duration: 120, fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
+    middle.style.transition = 'none';
+    middle.style.fill = color;
+    squishFlower(1.06, .94, 260);
+    await new Promise(r => setTimeout(r, 380));
+    middle.style.transition = '';
+    middle.style.fill = '';
   };
 
   /* ---------- Email signup: a few beads pop up like confetti ---------- */
