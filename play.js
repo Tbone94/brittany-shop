@@ -29,25 +29,12 @@
     { in: '.story', shape: 'daisy', color: '--coral', size: 30, style: 'bottom:14%;right:5%' },
     { in: '.signup', shape: 'sparkle', color: '--uranium', size: 26, style: 'top:30%;right:calc(50% - 320px)' },
     { in: 'footer', shape: 'daisy', color: '--uranium', size: 22, style: 'top:20px;right:calc(var(--gutter) + 4px)' },
-    // Shop by collection: flowers, squiggles and stars around the panels, some peeking over the outside edge like
-    // stickers, to fill the white space. The ones marked wide sit out in the margins of big screens only.
-    { in: '.collections .lines-head', shape: 'daisy', color: '--coral', size: 34, style: 'bottom:-2px;right:calc(var(--gutter) + 8%)', small: false },
-    { in: '.collections .lines-head', shape: 'sparkle', color: '--uranium', size: 26, style: 'bottom:30px;right:calc(var(--gutter) + 3%)', small: false },
-    { in: '.panels-wrap', shape: 'daisy', color: '--uranium', size: 46, style: 'top:-24px;left:calc(var(--gutter) - 22px)' },
-    { in: '.panels-wrap', shape: 'sparkle', color: '--orchid', size: 36, style: 'top:44%;right:calc(var(--gutter) - 18px)' },
-    { in: '.panels-wrap', shape: 'squiggle', color: '--turquoise', size: 60, style: 'bottom:-30px;left:24%', small: false },
-    { in: '.panels-wrap', shape: 'daisy', color: '--orchid', size: 32, style: 'bottom:-18px;right:calc(var(--gutter) + 40px)' },
-    { in: '.panels-wrap', shape: 'bead', color: '--coral', size: 22, style: 'top:58%;left:calc(var(--gutter) - 12px)', small: false },
-    { in: '.panels-wrap', shape: 'squiggle', color: '--coral', size: 54, style: 'top:16%;left:-74px', wide: true },
-    { in: '.panels-wrap', shape: 'daisy', color: '--turquoise', size: 40, style: 'top:62%;left:-62px', wide: true },
-    { in: '.panels-wrap', shape: 'sparkle', color: '--uranium', size: 34, style: 'top:12%;right:-58px', wide: true },
-    { in: '.panels-wrap', shape: 'squiggle', color: '--orchid', size: 54, style: 'bottom:12%;right:-76px', wide: true },
   ];
   PLACES.forEach(p => {
     const host = document.querySelector(p.in);
     if (!host) return;
     const el = document.createElement('span');
-    el.className = 'sprinkle' + (p.small === false ? ' hide-small' : '') + (p.wide ? ' only-wide' : '');
+    el.className = 'sprinkle' + (p.small === false ? ' hide-small' : '');
     el.setAttribute('aria-hidden', 'true');
     el.style.cssText = `${p.style};width:${p.size}px`;
     el.innerHTML = SHAPES[p.shape](css(p.color));

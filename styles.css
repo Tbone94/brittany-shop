@@ -175,8 +175,13 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .lines-head h2 { margin-top: 14px; font: 500 clamp(22px, 2.6vw, 34px)/1.1 var(--label); letter-spacing: .14em; text-transform: uppercase; }
 
 /* Shop by collection: three tall color panels, each with the photo in a window of its own shape. */
-/* The wrap holds the panels and the flowers, squiggles and stars scattered around them (play.js). */
 .panels-wrap { position: relative; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
+/* Wallpaper behind the collections: little daisies, squiggles, sparkles and beads in pale glass colors, repeating
+   like retro wallpaper, fading out at the top and bottom so it melts into the white around it. */
+.collections::before { content: ''; position: absolute; inset: 0 0 -40px; z-index: -1; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='%23f8c2b6'%3E%3Cellipse cx='46' cy='34.3' rx='10.2' ry='15.0' transform='rotate(8 46 52)'/%3E%3Cellipse cx='46' cy='34.3' rx='10.2' ry='15.0' transform='rotate(80 46 52)'/%3E%3Cellipse cx='46' cy='34.3' rx='10.2' ry='15.0' transform='rotate(152 46 52)'/%3E%3Cellipse cx='46' cy='34.3' rx='10.2' ry='15.0' transform='rotate(224 46 52)'/%3E%3Cellipse cx='46' cy='34.3' rx='10.2' ry='15.0' transform='rotate(296 46 52)'/%3E%3C/g%3E%3Ccircle cx='46' cy='52' r='8.8' fill='%23f2ee9e'/%3E%3Cpath d='M150 44q8.0 -16.0 16.0 0t16.0 0t16.0 0t16.0 0' fill='none' stroke='%23b9e6ee' stroke-width='6' stroke-linecap='round' transform='rotate(-12 182.0 44)'/%3E%3Cpath d='M222 105Q224.4 117.6 237 120Q224.4 122.4 222 135Q219.6 122.4 207 120Q219.6 117.6 222 105Z' fill='%23f2ee9e'/%3E%3Cg fill='%23d9c6ee'%3E%3Cellipse cx='126' cy='135.4' rx='8.4' ry='12.3' transform='rotate(30 126 150)'/%3E%3Cellipse cx='126' cy='135.4' rx='8.4' ry='12.3' transform='rotate(102 126 150)'/%3E%3Cellipse cx='126' cy='135.4' rx='8.4' ry='12.3' transform='rotate(174 126 150)'/%3E%3Cellipse cx='126' cy='135.4' rx='8.4' ry='12.3' transform='rotate(246 126 150)'/%3E%3Cellipse cx='126' cy='135.4' rx='8.4' ry='12.3' transform='rotate(318 126 150)'/%3E%3C/g%3E%3Ccircle cx='126' cy='150' r='7.3' fill='%23fff'/%3E%3Cpath d='M14 212q7.2 -14.5 14.5 0t14.5 0t14.5 0t14.5 0' fill='none' stroke='%23f8c2b6' stroke-width='6' stroke-linecap='round' transform='rotate(18 43.0 212)'/%3E%3Ccircle cx='92' cy='108' r='7' fill='%23c6e8b4'/%3E%3Ccircle cx='89.8' cy='105.8' r='2.0' fill='%23fff' fill-opacity='.7'/%3E%3Ccircle cx='196' cy='206' r='8' fill='%23f7c9d6'/%3E%3Ccircle cx='193.4' cy='203.4' r='2.2' fill='%23fff' fill-opacity='.7'/%3E%3Cpath d='M36 126Q37.6 134.4 46 136Q37.6 137.6 36 146Q34.4 137.6 26 136Q34.4 134.4 36 126Z' fill='%23b9e6ee'/%3E%3Cg fill='%23c6e8b4'%3E%3Cellipse cx='232' cy='216.6' rx='6.6' ry='9.7' transform='rotate(-10 232 228)'/%3E%3Cellipse cx='232' cy='216.6' rx='6.6' ry='9.7' transform='rotate(62 232 228)'/%3E%3Cellipse cx='232' cy='216.6' rx='6.6' ry='9.7' transform='rotate(134 232 228)'/%3E%3Cellipse cx='232' cy='216.6' rx='6.6' ry='9.7' transform='rotate(206 232 228)'/%3E%3Cellipse cx='232' cy='216.6' rx='6.6' ry='9.7' transform='rotate(278 232 228)'/%3E%3C/g%3E%3Ccircle cx='232' cy='228' r='5.7' fill='%23fff'/%3E%3Ccircle cx='172' cy='104' r='5' fill='%23d9c6ee'/%3E%3Ccircle cx='170.4' cy='102.4' r='1.4' fill='%23fff' fill-opacity='.7'/%3E%3Cpath d='M150 225Q151.76 234.24 161 236Q151.76 237.76 150 247Q148.24 237.76 139 236Q148.24 234.24 150 225Z' fill='%23f7c9d6'/%3E%3C/svg%3E") 0 0 / 260px 260px repeat;
+  -webkit-mask-image: linear-gradient(transparent, #000 90px, #000 calc(100% - 90px), transparent); mask-image: linear-gradient(transparent, #000 90px, #000 calc(100% - 90px), transparent); }
+.collections .lines-head h2 { display: inline-block; background: #fff; padding: 2px 10px 2px 0; box-shadow: -40px 0 0 #fff; }
 .panels { container-type: inline-size; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .panel { background: var(--panel); border: 2.5px solid var(--ink); }
 .panel + .panel { border-left: 0; }
@@ -530,8 +535,6 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .sprinkle { position: absolute; z-index: 1; display: block; cursor: pointer; transition: transform .3s var(--ease); }
 .sprinkle svg { display: block; width: 100%; height: auto; overflow: visible; }
 .sprinkle:hover { transform: rotate(-14deg) scale(1.15); }
-.only-wide { display: none; }
-@media (min-width: 1380px) { .only-wide { display: block; } }
 
 /* A glass bead: outer moves sideways, inner moves up and down, ball squashes; dots spin, highlight stays. */
 .gbead { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; }
