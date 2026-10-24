@@ -484,6 +484,7 @@
       bag.push(p.slug); save();
       // A little bead in the necklace's color arcs into the Bag button, then the count bumps.
       await window.PlayFX?.toBag(from, p.backdrop);
+      setWax(p.backdrop);
       renderBag(); bumpBag();
     }
     openBag();
@@ -491,7 +492,14 @@
 
   /* ---------- Bag drawer ---------- */
   const bagDlg = $('bag'), bagBtn = $('bagBtn');
+  // The lava lamp's wax: the color of the last necklace added, kept until the next one, an empty bag or checkout.
+  function setWax(color) {
+    if (color) bagBtn.style.setProperty('--wax', color); else bagBtn.style.removeProperty('--wax');
+    try { if (color) localStorage.setItem('wax', color); else localStorage.removeItem('wax'); } catch { /* private mode */ }
+  }
+  try { if (bag.length && localStorage.getItem('wax')) setWax(localStorage.getItem('wax')); } catch { /* private mode */ }
   function renderBag() {
+    if (!bag.length) setWax(null);
     $('bagCount').textContent = bag.length;
     bagBtn.setAttribute('aria-label', `Bag, ${bag.length} item${bag.length === 1 ? '' : 's'}`);
     const items = bag.map(s => P.find(p => p.slug === s)), list = $('bagItems');
@@ -519,7 +527,7 @@
   $('bagItems').addEventListener('click', e => {
     if (e.target.closest('[data-browse]')) { bagDlg.close(); $('shop').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); }
   });
-  $('checkout').addEventListener('click', () => openInquire(bag.map(s => P.find(p => p.slug === s))));
+  $('checkout').addEventListener('click', () => { openInquire(bag.map(s => P.find(p => p.slug === s))); inqFromBag = true; });
   renderBag();
   fromHash();
   // A necklace's own page (n/<slug>/, made by tools/seo.py) opens with that necklace showing.
@@ -767,8 +775,9 @@
   // With no pieces it's the general Contact form (the footer's Contact link, and #contact from the info pages).
   const inq = $('inquire'), inqForm = $('inqForm');
   const inqText = { sub: $('inqSub').textContent, q: $('inqQ').innerHTML, ph: $('inqNote').placeholder };
-  let inqPieces = [];
+  let inqPieces = [], inqFromBag = false;
   function openInquire(pieces) {
+    inqFromBag = false;
     inqPieces = pieces.filter(Boolean);
     const general = !inqPieces.length;
     inqForm.reset(); inqForm.hidden = false; $('inqDone').hidden = true; $('inqErr').hidden = true;
@@ -810,6 +819,7 @@
     if (!ok) { $('inqErr').textContent = SEND_FAIL; $('inqErr').hidden = false; return; }
     inqForm.hidden = true;
     $('inqDone').hidden = false;
+    if (inqFromBag) setWax(null);  // checked out: the lamp goes back to purple
     window.PlayFX?.confetti($('inqDone').querySelector('h2').getBoundingClientRect(), inq);
   });
 

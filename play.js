@@ -483,13 +483,13 @@
   }
 
   /* ---------- The tagline's words take turns (Brittany's idea) ---------- */
-  // "strung by hand!", then "shiny!", "ooh!", "aah!", one every few seconds, typed: the old word backspaces away
+  // "sparkle!", then "shiny!", "ooh!", "aah!", one every few seconds, typed: the old word backspaces away
   // letter by letter, then the new one types in, each letter bouncing up into place with a little tilt, and the
   // "!" rides along at the end. A long hold between words, and the clock starts over when the bead lands, so the
   // first word gets a full turn after it. It waits while the bead hops on the words and while the screen is away.
   const rot = tagline?.querySelector('.rot');
   if (rot) {
-    const WORDS = ['strung by hand', 'shiny', 'ooh', 'aah'];
+    const WORDS = ['sparkle', 'shiny', 'ooh', 'aah'];
     const HOLD = 5200, AFTER_LAND = 4800, DEL_MS = 45, PAUSE_MS = 260, TYPE_MS = 95;
     const word = rot.querySelector('.rot-word.on');
     const letter = ch => {
@@ -635,39 +635,35 @@
     }, 0.8);
   }
 
-  /* ---------- Add to bag: the bead boings on the bag flower and sinks in ---------- */
-  // Like the hero's bead on the daisies: a bead in the necklace's color arcs up and lands on the flower, which
-  // squishes; it bounces once, drops into the middle and is gone, and the middle flashes the bead's color.
-  const flower = document.querySelector('.bag-flower');
-  const petals = flower?.querySelector('.petals'), middle = flower?.querySelector('.middle');
-  const squishFlower = (x, y, duration) => petals.animate(
+  /* ---------- Add to bag: the bead hops onto the lava lamp and drops in ---------- */
+  // A bead in the necklace's color arcs up and lands on the lamp's cap, which squishes; it bounces once and drops
+  // into the lamp, and the wax turns the bead's color (shop.js keeps it that color until the next one or checkout).
+  const lamp = document.querySelector('.bag-lamp');
+  if (lamp && reduceMotion) lamp.pauseAnimations?.();
+  const squishLamp = (x, y, duration) => lamp.animate(
     [{ scale: '1 1' }, { scale: `${x} ${y}` }, { scale: `${2 - x} ${2 - y}` }, { scale: '1 1' }], { duration, easing: 'ease-out' });
   window.PlayFX.toBag = async (from, color) => {
-    if (!flower) return;
-    const target = flower.getBoundingClientRect(), s = target.width / 100;
+    if (!lamp) return;
+    const target = lamp.getBoundingClientRect(), s = target.height / 100;
     const x0 = from.left + from.width / 2, y0 = from.top + from.height / 2;
-    const cx = target.left + target.width / 2, cy = target.top + target.height / 2, land = cy - 30 * s;
-    const el = makeBead(16, { color, kind: 'dots' });
+    const cx = target.left + target.width / 2, land = target.top + 2 * s, inside = target.top + 45 * s;
+    const el = makeBead(14, { color, kind: 'dots' });
     el.style.position = 'fixed';
     el.style.zIndex = '60';
     document.body.appendChild(el);
-    // Arc up onto the flower (620ms), then one bounce and down into the middle (480ms).
+    // Arc up onto the cap (620ms), then one bounce and down into the glass (480ms).
     const D = 1100, h = 620 / D;
-    setTimeout(() => squishFlower(1.1, .86, 420), D * h);
+    setTimeout(() => squishLamp(1.1, .88, 420), D * h);
     await fly(el, {
       duration: D, spin: 1.2, squashAt: [h],
-      xs: [[0, x0, 'cubic-bezier(.4, 0, .6, 1)'], [h, cx], [h + (1 - h) * .45, cx + 5], [1, cx]],
-      // The flower sits at the top of the screen, so the arc may peek just past the top edge to drop onto it from above.
+      xs: [[0, x0, 'cubic-bezier(.4, 0, .6, 1)'], [h, cx], [h + (1 - h) * .45, cx + 4], [1, cx]],
+      // The lamp sits at the top of the screen, so the arc may peek just past the top edge to drop onto it from above.
       ys: [[0, y0, OUT], [h * .45, Math.max(-24, Math.min(y0, land) - 70), IN], [h, land, OUT],
-           [h + (1 - h) * .45, land - Math.max(24, 26 * s), IN], [1, cy]],
+           [h + (1 - h) * .45, land - Math.max(20, 22 * s), IN], [1, inside]],
     });
     el.animate([{ scale: 1 }, { scale: 0 }], { duration: 120, fill: 'forwards' }).finished.catch(() => {}).then(() => el.remove());
-    middle.style.transition = 'none';
-    middle.style.fill = color;
-    squishFlower(1.06, .94, 260);
-    await new Promise(r => setTimeout(r, 380));
-    middle.style.transition = '';
-    middle.style.fill = '';
+    lamp.closest('.bag-btn').style.setProperty('--wax', color);
+    squishLamp(1.05, .95, 260);
   };
 
   /* ---------- Email signup: a few beads pop up like confetti ---------- */

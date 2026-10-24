@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=152">
+<link rel="stylesheet" href="styles.css?v=155">
 </head>
 <body data-product="lavender-wings">
 <!-- Launch screen, only when the shop is opened as an app from the home screen (once per visit): the gnome window
@@ -76,12 +76,33 @@
     <a href="#story">About</a>
     <a href="#markets">Markets</a>
   </nav>
-  <!-- The bag is a groovy flower (Brittany's idea). When you add a necklace, a bead bounces on it like the hero's
-       daisies and sinks into the middle, which flashes the bead's color (play.js). -->
+  <!-- The bag is a little purple lava lamp. When you add a necklace, a bead hops onto the cap and drops in, and the
+       wax turns that necklace's color until the next one goes in, the bag empties or you check out (play.js, shop.js).
+       The wax is a few circles drifting up and down; the goo filter melts them together and inks their edges. -->
   <button class="bag-btn" id="bagBtn" type="button" aria-label="Bag, 0 items">
-    <svg class="bag-flower" viewBox="0 0 100 100" aria-hidden="true">
-      <g class="petals"><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--coral)" transform="rotate(0 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--orchid)" transform="rotate(45 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--coral)" transform="rotate(90 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--orchid)" transform="rotate(135 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--coral)" transform="rotate(180 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--orchid)" transform="rotate(225 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--coral)" transform="rotate(270 50 50)"/><ellipse cx="50" cy="20" rx="13" ry="18" style="fill:var(--orchid)" transform="rotate(315 50 50)"/></g>
-      <circle class="middle" cx="50" cy="50" r="26"/>
+    <svg class="bag-lamp" viewBox="0 0 60 100" aria-hidden="true">
+      <defs>
+        <clipPath id="bagGlass"><path d="M19 24 L41 24 C44 40 50 56 49 70 L11 70 C10 56 16 40 19 24 Z"/></clipPath>
+        <filter id="bagGoo" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="b"/>
+          <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="w"/>
+          <feMorphology in="w" operator="dilate" radius="1.2" result="f"/>
+          <feFlood flood-color="#1d1d1f"/><feComposite in2="f" operator="in" result="e"/>
+          <feMerge><feMergeNode in="e"/><feMergeNode in="w"/></feMerge>
+        </filter>
+      </defs>
+      <path class="liquid" d="M19 24 L41 24 C44 40 50 56 49 70 L11 70 C10 56 16 40 19 24 Z"/>
+      <g clip-path="url(#bagGlass)"><g class="wax" filter="url(#bagGoo)">
+        <ellipse cx="30" cy="68" rx="19" ry="5"/>
+        <circle cx="27" r="5.2"><animate attributeName="cy" values="66;33;66" dur="9s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></circle>
+        <circle cx="34" r="4"><animate attributeName="cy" values="64;46;31;64" dur="12s" begin="-4s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1;.4 0 .6 1"/></circle>
+        <circle cx="30" r="3.2"><animate attributeName="cy" values="31;62;31" dur="7s" begin="-2s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></circle>
+        <ellipse cx="30" cy="24" rx="8" ry="3.4"/>
+      </g></g>
+      <path class="shine" d="M19.5 32 C18 42 16 52 15.5 62"/>
+      <path class="glass" d="M19 24 L41 24 C44 40 50 56 49 70 L11 70 C10 56 16 40 19 24 Z"/>
+      <path class="metal" d="M23 5 L37 5 Q39 5 39.4 7 L43 24.5 L17 24.5 L20.6 7 Q21 5 23 5 Z"/>
+      <path class="metal" d="M11 69.5 L49 69.5 L44 82 L50.5 94 Q51 96 49 96 L11 96 Q9 96 9.5 94 L16 82 Z"/>
     </svg>
     <span class="count" id="bagCount">0</span>
   </button>
@@ -97,7 +118,7 @@
     </div>
     <!-- The words before the "!" take turns every few seconds (play.js). The "!" is drawn: a stem, and a glass bead
          for its dot that bounces in when the page opens. Search engines and screen readers get the plain sentence. -->
-    <h1 class="tagline"><span class="sr">Glass bead necklaces, strung by hand!</span><span class="rot" aria-hidden="true"><span class="rot-word on">strung by hand</span></span><span class="bang" aria-hidden="true">!</span></h1>
+    <h1 class="tagline"><span class="sr">Glass bead necklaces, strung by hand!</span><span class="rot" aria-hidden="true"><span class="rot-word on">sparkle</span></span><span class="bang" aria-hidden="true">!</span></h1>
   </section>
 
   <section class="collections" id="collections" aria-labelledby="collectionsTitle">
@@ -381,8 +402,8 @@
 <script src="products.js?v=148"></script>
 <script src="standin.js?v=148"></script>
 <script src="splash.js?v=148"></script>
-<script src="shop.js?v=151"></script>
-<script src="play.js?v=148"></script>
+<script src="shop.js?v=152"></script>
+<script src="play.js?v=150"></script>
 <script src="stack.js?v=148" defer></script>
 <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>
 </body>
