@@ -177,8 +177,8 @@
     el.innerHTML = shape(rootStyle.getPropertyValue(el.dataset.color).trim(), el.dataset.shape, Number(el.dataset.seed));
   });
 
-  /* ---------- Shop grid + color filters ---------- */
-  const grid = $('grid'), soldGrid = $('soldGrid'), filters = $('filters');
+  /* ---------- Shop grid ---------- */
+  const grid = $('grid'), soldGrid = $('soldGrid');
   grid.innerHTML = soldGrid.innerHTML = '';  // drop the plain list written in for search engines (tools/seo.py)
   $('shopCount').textContent = `${P.filter(p => !p.sold).length} available`;
 
@@ -211,50 +211,69 @@
     return li;
   });
 
-  // The chips change with what you shop by: color, collection, bead type or metal.
+  // Filters, the way most small shops do it: one line with a Filter button and the colors as glass beads to tap.
+  // The button opens a sheet with every option (collection, bead type, metal, color); picks in different groups
+  // combine, and tapping a pick again clears it. Whatever is picked shows as a small chip you can tap away.
   const COLLECTIONS = window.COLLECTIONS || [];
   const uniq = k => [...new Set(P.map(p => p[k]))].filter(Boolean);
   const metalDot = { Gold: '#d4a640', Silver: '#b9bec4', None: '#8a5a3a' };
-  const OPTIONS = {
-    family: FAMILIES.filter(f => f.key !== 'all').map(f => ({ key: f.key, label: f.label, color: f.color })),
-    collection: COLLECTIONS.map(c => ({ key: c.key, label: c.name, color: c.color })),
-    beadType: uniq('beadType').map(v => ({ key: v, label: v, color: '#1b1a22' })),
-    metal: uniq('metal').map(v => ({ key: v, label: v === 'None' ? 'No metal' : v, color: metalDot[v] || '#1b1a22' })),
-  };
-  let by = 'family', pick = 'all';
-  const filterBy = $('filterBy');
-  function drawChips() {
-    filterBy.querySelectorAll('[data-by]').forEach(t => t.setAttribute('aria-selected', String(t.dataset.by === by)));
-    const opts = [{ key: 'all', label: 'All', color: '#1b1a22' }, ...OPTIONS[by]];
-    filters.innerHTML = '';
-    opts.forEach(o => {
-      const count = o.key === 'all' ? P.length : P.filter(p => p[by] === o.key).length;
-      if (!count) return;
-      const b = document.createElement('button');
-      b.type = 'button'; b.className = 'chip'; b.dataset.pick = o.key;
-      b.setAttribute('aria-pressed', String(o.key === pick));
-      b.innerHTML = `<span class="dot-c" style="--c:${o.color}"></span>${o.label}<span class="n">${count}</span>`;
-      filters.appendChild(b);
-    });
-  }
-  // Show only the necklaces that match, e.g. setFilter('collection', 'chaotic-good'); setFilter(by) clears the pick.
-  function setFilter(kind = by, key = 'all') {
-    by = kind; pick = key;
-    drawChips();
+  const GROUPS = [
+    { by: 'collection', title: 'Collection', opts: COLLECTIONS.map(c => ({ key: c.key, label: c.name, color: c.color })) },
+    { by: 'beadType', title: 'Bead type', opts: uniq('beadType').map(v => ({ key: v, label: v })) },
+    { by: 'metal', title: 'Metal', opts: uniq('metal').map(v => ({ key: v, label: v === 'None' ? 'No metal' : v, color: metalDot[v] })) },
+    { by: 'family', title: 'Color', opts: FAMILIES.filter(f => f.key !== 'all').map(f => ({ key: f.key, label: f.label, color: f.color })) },
+  ].map(g => ({ ...g, opts: g.opts.filter(o => P.some(p => p[g.by] === o.key)) })).filter(g => g.opts.length);
+  const labelOf = (by, key) => GROUPS.find(g => g.by === by)?.opts.find(o => o.key === key)?.label || key;
+  const picks = {};  // e.g. { family: 'greens', metal: 'Gold' }
+  const matches = p => Object.entries(picks).every(([by, key]) => p[by] === key);
+  const sheet = $('filterSheet'), swatches = $('swatches'), active = $('activeFilters'), groupsEl = $('filterGroups');
+
+  // The color beads on the shop line.
+  swatches.innerHTML = GROUPS.find(g => g.by === 'family').opts.map(o =>
+    `<button class="swatch" type="button" data-by="family" data-pick="${o.key}" style="--c:${o.color}" aria-label="${o.label}" title="${o.label}"></button>`).join('');
+  // The sheet: one row of picks per group.
+  groupsEl.innerHTML = GROUPS.map(g => `<div class="fgroup" role="group" aria-labelledby="fg-${g.by}"><h3 class="flabel" id="fg-${g.by}">${g.title}</h3><div class="fpicks">${g.opts.map(o =>
+    `<button class="chip" type="button" data-by="${g.by}" data-pick="${o.key}">${o.color ? `<span class="dot-c" style="--c:${o.color}"></span>` : ''}${o.label}<span class="n">${P.filter(p => p[g.by] === o.key).length}</span></button>`).join('')}</div></div>`).join('');
+
+  function render() {
+    document.querySelectorAll('[data-pick]').forEach(b => b.setAttribute('aria-pressed', String(picks[b.dataset.by] === b.dataset.pick)));
     let shown = 0, shownSold = 0;
     cards.forEach((li, k) => {
-      const on = key === 'all' || P[k][by] === key;
+      const on = matches(P[k]);
       li.hidden = !on;
       if (on) li.classList.contains('sold') ? shownSold++ : shown++;
     });
+    const n = Object.keys(picks).length;
+    active.innerHTML = Object.entries(picks).map(([by, key]) =>
+      `<button class="active-chip" type="button" data-by="${by}" data-pick="${key}" aria-label="Remove ${labelOf(by, key)}">${labelOf(by, key)}<span aria-hidden="true">×</span></button>`).join('')
+      + (n > 1 ? '<button class="link-btn" type="button" data-clear>Clear all</button>' : '');
+    $('shopCount').textContent = n ? `${shown} of ${P.filter(p => !p.sold).length} available` : `${shown} available`;
+    $('filterDone').textContent = shown ? `Show ${shown} necklace${shown === 1 ? '' : 's'}` : 'Nothing matches yet';
     $('empty').hidden = shown > 0;
     $('found').hidden = shownSold === 0;
   }
-  filters.addEventListener('click', e => { const c = e.target.closest('.chip'); if (c) setFilter(by, c.dataset.pick); });
-  filterBy.addEventListener('click', e => { const t = e.target.closest('[data-by]'); if (t) setFilter(t.dataset.by); });
-  $('empty').addEventListener('click', e => { if (e.target.closest('[data-family]')) setFilter(by); });
-  setFilter('family');
-  const shopAt = (kind, key) => { setFilter(kind, key); $('shop').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); };
+  const toggle = (by, key) => { if (picks[by] === key) delete picks[by]; else picks[by] = key; render(); };
+  const clearAll = () => { Object.keys(picks).forEach(k => delete picks[k]); render(); };
+  // Set filters from elsewhere on the page (collection panels, color bands, the Shop menu): just this one pick.
+  function setFilter(by, key) { clearAll(); if (by && key && key !== 'all') { picks[by] = key; render(); } }
+  document.querySelector('.shop').addEventListener('click', e => {
+    const b = e.target.closest('[data-pick]');
+    if (b) {
+      toggle(b.dataset.by, b.dataset.pick);
+      if (b.classList.contains('swatch') && picks.family && !reduceMotion)
+        b.animate([{ scale: 1 }, { scale: 1.35 }, { scale: .9 }, { scale: 1.15 }], { duration: 380, easing: 'ease-out' });
+    }
+    if (e.target.closest('[data-clear]')) clearAll();
+  });
+  groupsEl.addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) toggle(b.dataset.by, b.dataset.pick); });
+  $('filterClear').addEventListener('click', clearAll);
+  const openSheet = section => {
+    if (!sheet.open) sheet.showModal();
+    groupsEl.querySelector(`[data-by="${section}"]`)?.closest('.fgroup').scrollIntoView({ block: 'nearest' });
+  };
+  $('filterBtn').addEventListener('click', () => openSheet());
+  render();
+  const shopAt = (by, key) => { setFilter(by, key); $('shop').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); };
 
   /* ---------- Shop menu: by collection, bead type, color or metal ---------- */
   const menuBtn = $('shopMenuBtn'), menu = $('shopMenu');
@@ -268,7 +287,10 @@
     const a = e.target.closest('a');
     if (!a) return;
     setMenu(false);
-    if (a.dataset.by) { e.preventDefault(); shopAt(a.dataset.by === 'all' ? 'family' : a.dataset.by); }
+    if (!a.dataset.by) return;
+    e.preventDefault();
+    shopAt();  // Everything: clear the filters
+    if (a.dataset.by !== 'all') openSheet(a.dataset.by);  // By bead type / By metal: open the filters there
   });
 
   // The front photo of a necklace as a plain <img>, for places that don't turn (and for search engines).

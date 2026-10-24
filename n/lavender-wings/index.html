@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=118">
+<link rel="stylesheet" href="styles.css?v=123">
 </head>
 <body data-product="lavender-wings">
 <a class="skip" href="#shop">Skip to the necklaces</a>
@@ -104,15 +104,18 @@
       <h2 id="shopTitle">Everything</h2>
       <p class="eyebrow" id="shopCount"></p>
     </div>
-    <div class="filter-by seg" id="filterBy" role="tablist" aria-label="Shop by">
-      <button type="button" role="tab" data-by="family" aria-selected="true">Color</button>
-      <button type="button" role="tab" data-by="collection" aria-selected="false">Collection</button>
-      <button type="button" role="tab" data-by="beadType" aria-selected="false">Bead type</button>
-      <button type="button" role="tab" data-by="metal" aria-selected="false">Metal</button>
+    <!-- One line of tools, like most small shops: a Filter button that opens a sheet with every option,
+         and the colors right there as glass beads to tap (shop.js fills them in). -->
+    <div class="shop-tools">
+      <button class="filter-btn" id="filterBtn" type="button" aria-haspopup="dialog" aria-controls="filterSheet">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.4"/><circle cx="10" cy="17" r="2.4"/></svg>
+        Filter
+      </button>
+      <div class="swatches" id="swatches" role="group" aria-label="Shop by color"></div>
     </div>
-    <div class="filters" id="filters" role="group" aria-label="Filter"></div>
+    <div class="active-filters" id="activeFilters"></div>
     <ul class="grid" id="grid"><!-- list --><li><a href="n/garden-party/">Garden Party</a>, Leaf, flower and honey glass on gold wire-wrapped links, with a little orange bell flower at the center. $75</li><li><a href="n/mushroom-hunt/">Mushroom Hunt</a>, Little amber mushrooms and blue glass, with a big glossy spotted mushroom hanging at the center. $75</li><li><a href="n/jewel-box/">Jewel Box</a>, Purple, amber and teal glass with three dotted white lampwork beads swinging along the front. $75</li><li><a href="n/honeysuckle/">Honeysuckle</a>, A garden of green glass leaves and peach and orange bell flowers on gold links. $75</li><li><a href="n/lavender-wings/">Lavender Wings</a>, Shimmering purple glass roses and orange butterflies with pearls and blue crystals. $75</li><li><a href="n/fruit-salad/">Fruit Salad</a>, Glass fruit all the way around: an orange, a lemon, an apple, a plum and a blackberry at the center. $75</li><li><a href="n/ember/">Ember</a>, Tiny gold rings wrapped in seed beads, glowing from yellow through orange to red. $65</li><li><a href="n/butterfly-garden/">Butterfly Garden</a>, Orange glass butterflies and green bell flowers among teal leaves, on silver links. $75</li><li><a href="n/petal-soft/">Petal Soft</a>, Rose quartz, mint butterflies and white lampwork beads painted with tiny pink roses. $75</li><li><a href="n/morning-dew/">Morning Dew</a>, Clear crystal flowers and butterflies with sage glass and soft pink, like dew on the garden. Sold</li><!-- /list --></ul>
-    <p class="empty" id="empty" hidden>Nothing in that color right now. <button class="link-btn" type="button" data-family="all">See everything</button></p>
+    <p class="empty" id="empty" hidden>Nothing like that right now. <button class="link-btn" type="button" data-clear>See everything</button></p>
 
     <div class="found" id="found">
       <div class="section-head">
@@ -259,6 +262,18 @@
   </div>
 </dialog>
 
+<dialog class="sheet" id="filterSheet" aria-labelledby="filterTitle">
+  <div class="bag-head sheet-head">
+    <h2 id="filterTitle">Filter</h2>
+    <button class="close" type="button" data-close aria-label="Close filters">×</button>
+  </div>
+  <div class="sheet-body" id="filterGroups"></div>
+  <div class="sheet-foot">
+    <button class="link-btn" id="filterClear" type="button">Clear all</button>
+    <button class="btn" id="filterDone" type="button" data-close>Show necklaces</button>
+  </div>
+</dialog>
+
 <dialog class="bag" id="bag" aria-labelledby="bagTitle">
   <div class="bag-head">
     <h2 id="bagTitle">Your bag</h2>
@@ -272,12 +287,12 @@
   </div>
 </dialog>
 
-<script src="products.js?v=118"></script>
-<script src="standin.js?v=118"></script>
-<script src="splash.js?v=118"></script>
-<script src="shop.js?v=118"></script>
-<script src="play.js?v=118"></script>
-<script src="stack.js?v=118" defer></script>
+<script src="products.js?v=123"></script>
+<script src="standin.js?v=123"></script>
+<script src="splash.js?v=123"></script>
+<script src="shop.js?v=123"></script>
+<script src="play.js?v=123"></script>
+<script src="stack.js?v=123" defer></script>
 <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>
 </body>
 </html>

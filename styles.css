@@ -230,8 +230,24 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 /* Shop */
 .shop { max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 104px) var(--gutter); }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; }
-.filter-by { display: inline-grid; grid-template-columns: repeat(4, auto); margin-top: 24px; }
-.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 40px; }
+/* The shop's one line of tools: a Filter button (opens the sheet) and the colors as glass beads to tap. */
+.shop-tools { display: flex; align-items: center; gap: 16px; margin-top: 24px; }
+.filter-btn { flex: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: 500 16px var(--sans); color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 8px 16px 8px 12px; box-shadow: 3px 3px 0 var(--coral); transition: translate .15s var(--ease), box-shadow .15s var(--ease); }
+.filter-btn:hover { translate: -1px -1px; box-shadow: 4px 4px 0 var(--coral); }
+.filter-btn:active { translate: 2px 2px; box-shadow: 1px 1px 0 var(--coral); }
+.filter-btn svg { width: 20px; height: 20px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+.filter-btn svg circle { fill: var(--uranium); }
+.swatches { display: flex; gap: 10px; min-width: 0; overflow-x: auto; padding: 8px; margin: -8px -8px -8px -4px; scrollbar-width: none; }  /* room for the picked ring */
+.swatches::-webkit-scrollbar { display: none; }
+.swatch { flex: none; width: 30px; height: 30px; padding: 0; cursor: pointer; border: 2px solid var(--ink); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 13%, var(--c) 40%, color-mix(in srgb, var(--c) 72%, #000) 100%); transition: translate .2s var(--ease), box-shadow .2s var(--ease); }
+.swatch:hover { translate: 0 -3px; }
+.swatch[aria-pressed="true"] { scale: 1.1; box-shadow: 0 0 0 2.5px #fff, 0 0 0 4.5px var(--ink); }
+/* What's picked, as little chips to tap away. */
+.active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 32px; }
+.active-filters:empty { margin-bottom: 26px; }
+.active-chip { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: 500 14px var(--sans); color: var(--ink); background: color-mix(in srgb, var(--uranium) 30%, #fff); border: 1.5px solid var(--ink); border-radius: 999px; padding: 5px 12px 5px 14px; }
+.active-chip span { font-size: 17px; line-height: 1; }
+.active-chip:hover { background: color-mix(in srgb, var(--coral) 20%, #fff); }
 .chip { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 500; padding: 8px 14px 8px 10px; background: var(--alt); border: 0; border-radius: 999px; transition: background .2s var(--ease); }
 .chip:hover { background: #ebebef; }
 .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
@@ -387,7 +403,19 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
 .bag { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(420px, 100vw); height: 100dvh; background: #fff; box-shadow: -1px 0 0 var(--line); }
 .bag[open] { display: flex; flex-direction: column; animation: slide .3s var(--ease); }
 @keyframes slide { from { transform: translateX(100%); } }
-.bag::before { content: ''; flex: none; height: 6px; background: linear-gradient(90deg, var(--coral) 0 20%, var(--uranium) 0 40%, var(--turquoise) 0 60%, var(--orchid) 0 80%, var(--emerald) 0); }
+@keyframes sheet-up { from { transform: translateY(100%); } }
+/* Filter sheet: slides in from the right like the bag (from the bottom on phones), with a turquoise wash. */
+.sheet { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(420px, 100vw); height: 100dvh; background: #fff; box-shadow: -1px 0 0 var(--line); }
+.sheet[open] { display: flex; flex-direction: column; animation: slide .3s var(--ease); }
+.sheet-head::before { background: color-mix(in srgb, var(--turquoise) 24%, #fff); }
+.sheet-body { flex: 1; min-height: 0; overflow: auto; padding: 4px 24px 24px; }
+.fgroup { padding: 22px 0 6px; }
+.fgroup + .fgroup { border-top: 1px dashed var(--line); margin-top: 16px; }
+.flabel { margin: 0 0 12px; font: 600 12px var(--label); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.fpicks { display: flex; flex-wrap: wrap; gap: 8px; }
+.sheet-foot { display: flex; align-items: center; gap: 20px; padding: 16px 24px 24px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--turquoise) 7%, #fff); }
+.sheet-foot .btn { flex: 1; }
+.bag::before, .sheet::before { content: ''; flex: none; height: 6px; background: linear-gradient(90deg, var(--coral) 0 20%, var(--uranium) 0 40%, var(--turquoise) 0 60%, var(--orchid) 0 80%, var(--emerald) 0); }
 .bag-head { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--line); overflow: hidden; }
 /* A soft wash of color tucked into the corner behind the heading. */
 .bag-head::before { content: ''; position: absolute; left: -40px; top: -70px; width: 220px; height: 150px; border-radius: 47% 53% 62% 38% / 55% 44% 56% 45%; background: color-mix(in srgb, var(--uranium) 28%, #fff); rotate: -8deg; z-index: -1; }
@@ -448,6 +476,7 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
   .qv-body { grid-template-columns: 1fr; }
   .qv-info { padding: 8px 24px 32px; }
   .accent-shape { display: none; }
+  .top { gap: 20px; }  /* room for the bag flower beside Shop, About and Markets */
 }
 @media (max-width: 640px) {
   .nav > a { display: none; }
@@ -465,11 +494,22 @@ dialog::backdrop { background: rgba(29, 29, 31, .42); backdrop-filter: blur(6px)
   .qv-thumbs { gap: 5px; }
   .qv-add-wrap { position: sticky; bottom: 0; background: #fff; padding: 10px 0; }
   .ask { width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; }
+  .sheet { inset: auto 0 0 0; width: 100vw; height: auto; max-height: 86dvh; border-radius: 24px 24px 0 0; overflow: hidden; }
+  .sheet[open] { animation: sheet-up .32s var(--ease); }
+  .shop-tools { gap: 12px; }
+  .filter-btn { padding: 7px 14px 7px 10px; font-size: 15px; }
+  .swatches { gap: 8px; }
+  .swatch { width: 26px; height: 26px; }
   .ask-form, .ask-done { padding: 28px 20px 24px; }
   .ask-you { grid-template-columns: 1fr; }
   .signup form { flex-direction: column; }
   .hide-small { display: none; }
   .ribbon { rotate: calc(var(--angle, 0deg) * 2); }
+}
+@media (max-width: 760px) {
+  /* About and Markets move into the Shop menu, so the bag flower always has room. */
+  .nav > a { display: none; }
+  .menu-small { display: block; }
 }
 @media (max-width: 460px) {
   .top .logo { --logo-small: .85; }  /* already small on narrow phones, so it barely shrinks on scroll */
