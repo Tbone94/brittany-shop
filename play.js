@@ -3,8 +3,9 @@
 //   - two short moments that play once when they come into view (tap to play again):
 //       1. Hero: when the page opens, a glass bead bounces down two daisies like steps, hops along the
 //          tagline and lands as the dot of its "!".
-//       2. Story: a bead drops into the middle of the bead strand, the strand bounces, and the bead
-//          it replaces falls off and rolls a little way. Tap that bead to put it back in.
+//       2. Story: on a drawing of Brittany's Garden Party necklace, its green flower bead drops into the middle, the
+//          strand bounces, the drops swing, and the plain bead it replaces falls off and rolls a little way.
+//          Tap that bead to put it back in.
 //       3. Footer: a bead drops into the dot of the "i" in the big logo, and the word gives a little bounce.
 //   - two that answer something you do: adding to the bag bounces a bead on the bag flower and into its middle,
 //     and joining the email list pops a few beads up like confetti.
@@ -105,30 +106,147 @@
   drawRibbons();
   window.addEventListener('resize', drawRibbons);
 
-  /* ---------- The bead strand in the story section ---------- */
+  /* ---------- The bead strand in the story section: Brittany's Garden Party, drawn ---------- */
+  // Her real Garden Party necklace, bead for bead, drawn in the page's style (glass colors, a soft ink outline, a
+  // glossy highlight): a green flower bead in the middle with the orange bell flower hanging under it, then outward on
+  // both sides the way she strung it (peach, red with a leaf drop, green flower, leaf, aqua, lime, amber), repeating
+  // up the sides off the edges. Gold wire links between the beads, and the drops swing when the cord bounces.
   const strandEl = document.getElementById('strand');
-  const strand = { beads: [], slot: -1, look: null, raf: 0 };
+  const strand = { beads: [], slot: -1, look: null, raf: 0, swing: 0, zoom: 1 };
   // The cord hangs in a curve; `amp` is how deep it sags (it springs when a bead lands).
   const sag = (x, w, amp = 92) => 28 + amp * (1 - ((x - w / 2) / (w / 2)) ** 2);
+  const slope = (x, w, amp = 92) => Math.atan(-2 * amp * (x - w / 2) / (w / 2) ** 2);
   let placeResting = null;
 
+  const GLASS = { amber: '#e8930c', aqua: '#5fd0e6', lime: '#9bc23c', leaf: '#1f5a3a', peach: '#f0a17a', red: '#d8432c', green: '#7fb04a', flower: '#7fb04a', orange: '#f5821f' };
+  // From the middle outward. `drop` hangs below that bead.
+  const NEAR = [
+    { kind: 'peach', r: 12 }, { kind: 'tube', r: 8, color: GLASS.red, drop: 'leaf' }, { kind: 'flower', r: 15 },
+    { kind: 'facet', r: 9, color: GLASS.lime, drop: 'tube' }, { kind: 'peach', r: 13 }, { kind: 'leaf', r: 14 },
+  ];
+  const SIDE = [{ kind: 'rect', r: 13 }, { kind: 'facet', r: 10, color: GLASS.lime }, { kind: 'oval', r: 15 },
+    { kind: 'facet', r: 9, color: GLASS.lime }, { kind: 'peach', r: 12 }, { kind: 'leaf', r: 13 }];
+
   function layoutStrand() {
-    const w = strandEl.clientWidth;
-    const rand = S.rng(5), colors = P.flatMap(p => [...p.palette, p.focal.color]);
-    strand.beads = [];
-    for (let x = -10; x < w + 24;) {
-      const big = rand() < 0.55, r = big ? 11 + rand() * 11 : 5, roll = rand();
-      x += r;
-      strand.beads.push(big
-        ? { x, r, kind: roll < 0.3 ? 'dots' : roll < 0.45 ? 'stripe' : 'glass', color: colors[Math.floor(rand() * colors.length)], dot: '#fff8ee', seed: rand() * 6 }
-        : { x, r, kind: 'spacer', metal: roll < 0.5 ? 'gold' : 'silver' });
-      x += r + 1;
+    const w = strandEl.clientWidth, mid = w / 2, beads = [];
+    // Bigger on wide screens so it still reads as a necklace, with room under it for the bell to hang.
+    const z = strand.zoom = Math.min(1.55, Math.max(1, w / 820));
+    strandEl.style.height = `${Math.round(Math.max(210, 140 + 70 * z))}px`;
+    // The middle: a big green flower bead (the one that gets swapped) with the bell flower under it.
+    beads.push({ x: mid, r: 19 * z, kind: 'flower', color: GLASS.green, drop: 'bell' });
+    for (const dir of [-1, 1]) {
+      let x = mid + dir * 19 * z, k = 0;
+      while (dir < 0 ? x > -30 : x < w + 30) {
+        const b = { ...(k < NEAR.length ? NEAR[k] : SIDE[(k - NEAR.length) % SIDE.length]) };
+        b.r *= z;
+        const half = b.kind === 'oval' || b.kind === 'rect' ? b.r * 1.3 : b.kind === 'leaf' ? b.r * 1.15 : b.kind === 'tube' ? b.r * 1.4 : b.r;
+        x += dir * (7 * z + half);  // a gold link, then the bead
+        b.x = x; b.dir = dir; b.half = half;
+        beads.push(b);
+        x += dir * half;
+        k++;
+      }
     }
-    // The big bead nearest the middle is the one that gets swapped.
-    let best = -1;
-    strand.beads.forEach((b, i) => { if (b.kind !== 'spacer' && b.r > 15 && (best < 0 || Math.abs(b.x - w / 2) < Math.abs(strand.beads[best].x - w / 2))) best = i; });
-    strand.slot = best;
+    beads.sort((a, b) => a.x - b.x);
+    strand.beads = beads;
+    strand.slot = beads.findIndex(b => b.drop === 'bell');
   }
+
+  /* drawing, all on a canvas context `c`, at x,y, turned to the cord's angle `a` */
+  const ink = 'rgba(29,29,31,.72)', LINE = 1.6;
+  const shade = (hex, amt) => { const n = parseInt(hex.slice(1), 16), f = v => Math.round(amt < 0 ? v * (1 + amt) : v + (255 - v) * amt); return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`; };
+  function glassFill(c, color, r) {
+    const g = c.createRadialGradient(-r * .35, -r * .4, r * .05, 0, 0, r * 1.15);
+    g.addColorStop(0, shade(color, .5)); g.addColorStop(.5, color); g.addColorStop(1, shade(color, -.35));
+    return g;
+  }
+  function shine(c, r, sx = 1, sy = 1) {
+    c.fillStyle = 'rgba(255,255,255,.85)';
+    c.beginPath(); c.ellipse(-r * .38 * sx, -r * .42 * sy, r * .26 * sx, r * .13 * sy, -.55, 0, Math.PI * 2); c.fill();
+  }
+  const outline = c => { c.strokeStyle = ink; c.lineWidth = LINE; c.stroke(); };
+  function leafPath(c, len, wid) {
+    c.beginPath(); c.moveTo(-len, 0);
+    c.quadraticCurveTo(-len * .2, -wid * 1.25, len, 0);
+    c.quadraticCurveTo(-len * .2, wid * 1.25, -len, 0);
+    c.closePath();
+  }
+  function veins(c, len, wid) {
+    c.strokeStyle = '#c98a4a'; c.lineWidth = 1.1; c.beginPath(); c.moveTo(-len * .85, 0); c.lineTo(len * .8, 0);
+    for (let t = -.5; t <= .5; t += .25) { c.moveTo(len * t, 0); c.lineTo(len * (t + .2), -wid * .55); c.moveTo(len * t, 0); c.lineTo(len * (t + .2), wid * .55); }
+    c.stroke();
+  }
+  function drawGlass(c, b, x, y, a) {
+    const r = b.r, color = b.color || GLASS[b.kind] || GLASS.amber;
+    c.save(); c.translate(x, y); c.rotate(a);
+    if (b.kind === 'spacer') {
+      c.fillStyle = glassFill(c, '#d2a548', r); c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2); c.fill();
+    } else if (b.kind === 'oval' || b.kind === 'rect' || b.kind === 'tube') {
+      const hw = b.half, hh = b.kind === 'oval' ? r : b.kind === 'rect' ? r * .82 : r * .78;
+      const col = b.kind === 'oval' ? GLASS.amber : b.kind === 'rect' ? GLASS.aqua : color;
+      c.fillStyle = glassFill(c, col, Math.max(hw, hh));
+      c.beginPath();
+      if (b.kind === 'oval') c.ellipse(0, 0, hw, hh, 0, 0, Math.PI * 2); else c.roundRect(-hw, -hh, hw * 2, hh * 2, b.kind === 'rect' ? 4 : hh * .6);
+      c.fill();
+      if (b.kind === 'rect') { c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1.2; c.strokeRect(-hw * .62, -hh * .55, hw * 1.24, hh * 1.1); }
+      if (b.kind === 'oval') { c.strokeStyle = 'rgba(120,60,0,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(-hw * .1, -hh * .9); c.quadraticCurveTo(hw * .15, 0, -hw * .1, hh * .9); c.stroke(); }
+      outline(c); shine(c, Math.min(hw, hh) * 1.1, hw / hh * .8, 1);
+    } else if (b.kind === 'leaf') {
+      leafPath(c, b.half, r * .62); c.fillStyle = glassFill(c, GLASS.leaf, r); c.fill();
+      c.save(); c.clip(); veins(c, b.half, r * .62); c.restore();
+      leafPath(c, b.half, r * .62); outline(c); shine(c, r * .7, 1.3, .8);
+    } else {
+      const col = b.kind === 'peach' ? GLASS.peach : color;
+      c.fillStyle = glassFill(c, col, r); c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2); c.fill();
+      c.save(); c.clip();
+      if (b.kind === 'peach') {  // speckled, like her peach glass
+        c.fillStyle = 'rgba(150,70,40,.55)';
+        for (let k = 0; k < 9; k++) { const t = k * 2.39, d = r * (.25 + (k % 3) * .22); c.beginPath(); c.arc(Math.cos(t) * d, Math.sin(t) * d, r * .07, 0, 7); c.fill(); }
+      } else if (b.kind === 'facet') {  // faceted: a few lighter planes
+        c.strokeStyle = 'rgba(255,255,255,.45)'; c.lineWidth = 1;
+        c.beginPath(); for (let k = 0; k < 6; k++) { const t = k * Math.PI / 3; c.moveTo(Math.cos(t) * r * .45, Math.sin(t) * r * .45); c.lineTo(Math.cos(t) * r, Math.sin(t) * r); }
+        c.moveTo(r * .45, 0); for (let k = 1; k <= 6; k++) { const t = k * Math.PI / 3; c.lineTo(Math.cos(t) * r * .45, Math.sin(t) * r * .45); }
+        c.stroke();
+      } else if (b.kind === 'flower') {  // her green lampwork beads: little white flowers with a red middle
+        c.rotate(-a);
+        for (const [fx, fy, fr] of [[0, 0, .5], [-.7, -.55, .32], [.72, -.5, .3], [.1, .78, .3]]) {
+          c.fillStyle = '#fbfaf2';
+          for (let k = 0; k < 5; k++) { const t = k * Math.PI * 2 / 5 - Math.PI / 2; c.beginPath(); c.arc(r * (fx + Math.cos(t) * fr * .55), r * (fy + Math.sin(t) * fr * .55), r * fr * .38, 0, 7); c.fill(); }
+          c.fillStyle = fr > .4 ? '#c42a1e' : '#e9c13a'; c.beginPath(); c.arc(r * fx, r * fy, r * fr * .26, 0, 7); c.fill();
+        }
+      }
+      c.restore();
+      c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2); outline(c); shine(c, r);
+    }
+    c.restore();
+  }
+  // Drops hang straight down from the cord (gravity, not the cord's angle), swinging by `sw` radians.
+  function drawDrop(c, kind, x, y, sw) {
+    c.save(); c.translate(x, y); c.rotate(sw); c.scale(strand.zoom, strand.zoom);
+    c.strokeStyle = '#c9a24a'; c.lineWidth = 1.6;
+    if (kind === 'bell') {
+      c.beginPath(); c.moveTo(0, 0); c.lineTo(0, 22); c.stroke();
+      // a ring of tiny aqua seed beads, then the orange bell
+      for (let k = 0; k < 7; k++) { const t = k * Math.PI * 2 / 7; c.fillStyle = '#7fd3c8'; c.beginPath(); c.arc(Math.cos(t) * 7, 24 + Math.sin(t) * 4, 2.6, 0, 7); c.fill(); c.strokeStyle = ink; c.lineWidth = .8; c.stroke(); }
+      c.beginPath(); c.moveTo(-7, 27); c.bezierCurveTo(-13, 29, -13, 42, -16, 50);
+      for (let k = 0; k < 4; k++) { const x0 = -16 + k * 8, x1 = x0 + 8; c.quadraticCurveTo((x0 + x1) / 2, 57 - (k % 3 ? 0 : 1), x1, 50); }
+      c.bezierCurveTo(13, 42, 13, 29, 7, 27); c.closePath();
+      const g = c.createRadialGradient(-5, 34, 2, 0, 40, 20); g.addColorStop(0, shade(GLASS.orange, .55)); g.addColorStop(.55, GLASS.orange); g.addColorStop(1, shade(GLASS.orange, -.3));
+      c.fillStyle = g; c.fill(); outline(c);
+      c.strokeStyle = 'rgba(255,240,215,.75)'; c.lineWidth = 1.1; c.beginPath(); c.moveTo(-4, 31); c.quadraticCurveTo(-7, 40, -8, 49); c.moveTo(4, 31); c.quadraticCurveTo(7, 40, 8, 49); c.stroke();
+      c.fillStyle = 'rgba(255,255,255,.8)'; c.beginPath(); c.ellipse(-6, 36, 2.2, 5, .25, 0, 7); c.fill();
+    } else if (kind === 'leaf') {
+      c.beginPath(); c.moveTo(0, 0); c.lineTo(0, 6); c.stroke();
+      c.translate(0, 18); c.rotate(Math.PI / 2);
+      leafPath(c, 12, 7); c.fillStyle = glassFill(c, GLASS.leaf, 10); c.fill();
+      c.save(); c.clip(); veins(c, 12, 7); c.restore(); leafPath(c, 12, 7); outline(c);
+    } else if (kind === 'tube') {
+      c.beginPath(); c.moveTo(0, 0); c.lineTo(0, 5); c.stroke();
+      c.fillStyle = glassFill(c, GLASS.red, 8); c.beginPath(); c.roundRect(-5, 5, 10, 17, 4); c.fill(); outline(c); shine(c, 6, .8, 1.4);
+    }
+    c.restore();
+  }
+
   function drawStrand(amp = 92) {
     const dpr = Math.min(2, window.devicePixelRatio || 1), w = strandEl.clientWidth, h = strandEl.clientHeight;
     if (!w) return;
@@ -136,28 +254,37 @@
     const ctx = strandEl.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    ctx.strokeStyle = '#a1a1a6'; ctx.lineWidth = 1.5;
+    // Gold wire under everything.
+    ctx.strokeStyle = '#c9a24a'; ctx.lineWidth = 1.8;
     ctx.beginPath(); ctx.moveTo(-10, sag(-10, w, amp));
     for (let x = -4; x <= w + 10; x += 6) ctx.lineTo(x, sag(x, w, amp));
     ctx.stroke();
+    const sw = strand.swing;
+    strand.beads.forEach(b => { if (b.drop) drawDrop(ctx, b.drop, b.x, sag(b.x, w, amp) + (b.drop === 'bell' ? b.r * .62 : b.r * .6), sw * (b.drop === 'bell' ? 1 : 1.4) * (b.dir || 1)); });
     strand.beads.forEach((b, i) => {
       const bead = i === strand.slot && strand.look ? { ...b, ...strand.look, r: b.r } : b;
-      S.drawBead(ctx, bead, b.x, sag(b.x, w, amp), 0);
+      // little gold loops at each end, like her wire-wrapped links
+      const y = sag(b.x, w, amp), a = slope(b.x, w, amp);
+      ctx.strokeStyle = '#c9a24a'; ctx.lineWidth = 1.4;
+      for (const s of [-1, 1]) { const ex = b.x + Math.cos(a) * s * (b.half || b.r) + Math.cos(a) * s * 3, ey = y + Math.sin(a) * s * ((b.half || b.r) + 3); ctx.beginPath(); ctx.arc(ex, ey, 2.4, 0, 7); ctx.stroke(); }
+      drawGlass(ctx, bead.kind === 'glass' || bead.kind === 'dots' || bead.kind === 'stripe' ? { ...bead, kind: 'plain' } : bead, b.x, y, a);
     });
   }
-  // A damped spring: the cord dips and wobbles for about a second.
+  // A damped spring: the cord dips and wobbles for about a second, and the drops swing a little longer.
   function bounceStrand() {
     const t0 = performance.now();
     cancelAnimationFrame(strand.raf);
     const anim = now => {
       const t = now - t0;
+      strand.swing = 0.22 * Math.exp(-t / 520) * Math.sin(t / 150);
       drawStrand(92 * (1 + 0.12 * Math.exp(-t / 300) * Math.sin(t / 60)));
-      strand.raf = t < 1300 ? requestAnimationFrame(anim) : 0;
-      if (!strand.raf) drawStrand();
+      strand.raf = t < 2000 ? requestAnimationFrame(anim) : 0;
+      if (!strand.raf) { strand.swing = 0; drawStrand(); }
     };
     strand.raf = requestAnimationFrame(anim);
   }
   if (strandEl) {
+    if (!reduceMotion) strand.look = { color: GLASS.amber, kind: 'plain' };  // until the flower bead drops in (Moment 2)
     layoutStrand(); drawStrand();
     let lastW = strandEl.clientWidth;
     new ResizeObserver(() => {
@@ -183,6 +310,7 @@
     el.innerHTML = `<span class="gbead-y"><span class="gbead-ball"><svg viewBox="0 0 40 40">
         <g class="gb-dots" fill="#fff">${[[20, 7], [32, 16], [28, 31], [12, 31], [8, 16], [20, 20]].map(([cx, cy], k) => `<circle cx="${cx}" cy="${cy}" r="${k === 5 ? 2.4 : 3}"/>`).join('')}</g>
         <g class="gb-stripes" fill="none" stroke="#fff8ee" stroke-width="3.2" stroke-linecap="round">${[11, 20, 29].map(y => `<path d="M2 ${y}Q11 ${y - 6} 20 ${y}T38 ${y}"/>`).join('')}</g>
+        <g class="gb-flower">${[[20, 20, 7], [9, 10, 4.5], [31, 11, 4.2], [22, 34, 4.2]].map(([x, y, f]) => [0, 1, 2, 3, 4].map(k => `<circle cx="${(x + Math.cos(k * 1.2566 - 1.5708) * f * .55).toFixed(1)}" cy="${(y + Math.sin(k * 1.2566 - 1.5708) * f * .55).toFixed(1)}" r="${(f * .4).toFixed(1)}" fill="#fbfaf2"/>`).join('') + `<circle cx="${x}" cy="${y}" r="${(f * .27).toFixed(1)}" fill="${f > 6 ? '#c42a1e' : '#e9c13a'}"/>`).join('')}</g>
       </svg></span></span>`;
     setLook(el, look);
     return el;
@@ -192,6 +320,7 @@
     el.querySelector('.gbead-ball').style.setProperty('--c', look.color);
     el.querySelector('.gb-dots').style.display = look.kind === 'dots' ? '' : 'none';
     el.querySelector('.gb-stripes').style.display = look.kind === 'stripe' ? '' : 'none';
+    el.querySelector('.gb-flower').style.display = look.kind === 'flower' ? '' : 'none';
   }
   const parts = el => ({ y: el.querySelector('.gbead-y'), ball: el.querySelector('.gbead-ball'), svg: el.querySelector('svg') });
   const IN = 'cubic-bezier(.5, 0, .9, .5)', OUT = 'cubic-bezier(.1, .5, .5, 1)';
@@ -420,9 +549,10 @@
       busy = false;
     }
 
-    // First time the strand comes into view: a new bead drops in from above.
+    // First time the strand comes into view: the middle has a plain amber bead in it, and her green flower bead
+    // drops in from above to finish the necklace.
     once(strandEl, () => {
-      const s = slotPos(), el = makeBead(s.r * 2, { color: css('--cobalt'), kind: 'dots' });
+      const s = slotPos(), el = makeBead(s.r * 2, { color: GLASS.green, kind: 'flower' });
       story.appendChild(el);
       el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250 });
       swapIn(el, s.x, s.y - 240);
