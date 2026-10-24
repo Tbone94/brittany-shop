@@ -314,8 +314,8 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 .signup input { border: 2px solid var(--ink); }
 .signup .thanks { margin-top: 18px; font-weight: 600; }
 
-/* Footer: a green band, everything in white */
-footer { --band: #1a7a46; margin-top: -40px; padding: 88px var(--gutter) 32px; font-size: 13px; color: rgba(255,255,255,.78); }
+/* Footer: an olive green band, everything in white */
+footer { --band: #66752c; margin-top: -40px; padding: 88px var(--gutter) 32px; font-size: 13px; color: rgba(255,255,255,.78); }
 .foot { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 24px; }
 footer .logo { font-size: clamp(56px, 7vw, 84px); color: #fff; }
 footer nav { display: flex; flex-wrap: wrap; gap: 0 24px; }
