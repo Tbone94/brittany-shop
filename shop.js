@@ -13,8 +13,9 @@
   // (a tint of the splash's second color, so no white shows behind the chest shots).
   const tintHex = (hex, amt) => { const n = parseInt(hex.slice(1), 16); return `rgb(${[n >> 16, (n >> 8) & 255, n & 255].map(v => Math.round(v + (255 - v) * amt))})`; };
   const tileBg = p => tintHex(p.splash[1] || p.splash[0], 0.5);
-  // The angle a card turns to on hover: turned right (5) if there's a real photo of it, else any other real photo.
-  const sideOf = p => (!p.angles ? 5 : p.angles.includes(5) ? 5 : p.angles.find(a => a !== 3));
+  // The angle a card turns to on hover: turned right (5, then 4 or 6) if there's a real photo of it, so every card
+  // turns the same way; else any other real photo.
+  const sideOf = p => (!p.angles ? 5 : [5, 4, 6].find(a => p.angles.includes(a)) ?? p.angles.find(a => a !== 3));
   // Every form on the site goes to the shop inbox for now (the owner's email), through FormSubmit's free email
   // forwarding (formsubmit.co, no account). The address is activated, and this is FormSubmit's random alias for it,
   // so the address itself never appears in the site's code.

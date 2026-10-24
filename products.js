@@ -11,7 +11,7 @@ window.PRODUCTS = [
     // Brittany's first real necklace (photo in photos/source/, prompt in photos/source/garden-party-prompt.md).
     // Name and length are placeholders.
     // heroZoom: how far the hero crops into a wide photo (default 1.2). Her shoulders sit wider in this shot.
-    slug: 'garden-party', angles: [3, 5], collection: 'garden-gnome', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', heroZoom: 1, name: 'Garden Party', price: 75, family: 'greens', sold: false,
+    slug: 'garden-party', angles: [3, 4, 5], collection: 'garden-gnome', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', heroZoom: 1, name: 'Garden Party', price: 75, family: 'greens', sold: false,
     backdrop: '#3f8f3a', accentInk: '#ffffff', splash: ['#5aa83c', '#f2b23a', '#f27a5e'],
     desc: 'Leaf, flower and honey glass on gold wire-wrapped links, with a little orange bell flower at the center.',
     details: { Length: '18 in', Glass: 'Leaf green, amber, aqua, coral', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -29,7 +29,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'jewel-box', angles: [1, 3], collection: 'chaotic-good', beadType: 'Lampwork', metal: 'Gold', splashShape: 'daisy', name: 'Jewel Box', price: 75, family: 'purples', sold: false,
+    slug: 'jewel-box', angles: [1, 3, 5], collection: 'chaotic-good', beadType: 'Lampwork', metal: 'Gold', splashShape: 'daisy', name: 'Jewel Box', price: 75, family: 'purples', sold: false,
     backdrop: '#7a3fb0', accentInk: '#ffffff', splash: ['#8a4fbf', '#f2a03a', '#1f8fa8'],
     desc: 'Purple, amber and teal glass with three dotted white lampwork beads swinging along the front.',
     details: { Length: '18 in', Glass: 'Purple, amber, teal, lime', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
@@ -38,7 +38,7 @@ window.PRODUCTS = [
     bead(i) { return { r: 0.06, kind: 'glass', color: this.palette[i % this.palette.length] }; },
   },
   {
-    slug: 'honeysuckle', angles: [2, 3], collection: 'garden-gnome', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', name: 'Honeysuckle', price: 75, family: 'warm', sold: false,
+    slug: 'honeysuckle', angles: [2, 3, 4], collection: 'garden-gnome', beadType: 'Flowers', metal: 'Gold', splashShape: 'bloom', name: 'Honeysuckle', price: 75, family: 'warm', sold: false,
     backdrop: '#e8692e', accentInk: '#1b1a22', splash: ['#f2803a', '#7ccf4a', '#f2b23a'],
     desc: 'A garden of green glass leaves and peach and orange bell flowers on gold links.',
     details: { Length: '18 in', Glass: 'Leaf green, peach, orange, amber', Links: 'Gold-tone wire-wrapped', Clasp: 'Lobster' },
