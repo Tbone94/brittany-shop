@@ -126,14 +126,16 @@ h3 { font-size: clamp(24px, 2.4vw, 30px); }
 @keyframes appsheet-bob { 50% { transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { .appbar, .appsheet, .top { transition: none; } .appsheet-arrow { animation: none; } }
 .logo { font-family: var(--serif); font-size: 28px; line-height: 1; text-decoration: none; color: var(--ink); }
-.top .logo { align-self: flex-start; margin-top: 12px; white-space: nowrap; font-size: clamp(42px, 8vw, 112px); transform-origin: 0 0; transition: transform .35s var(--ease); }
-.top.small .logo { transform: translateY(-3px) scale(var(--logo-small, .3)); }
-.logo .i { position: relative; display: inline-block; }
-/* The O's are glass rings: a glass color with an ink outline (brand/logo/a-glass-os.svg). The stroke is painted
-   under the fill, so only its outer half shows and the letters keep their shape. */
-.logo .o { color: var(--g); -webkit-text-stroke: .09em var(--ink); paint-order: stroke fill; }
-/* The logo uses a dotless ı; this bead is its dot. shop.js measures where the font draws the real dot.
-   The dot is a little 8-ball (so is the "!"'s dot in the tagline, and the bead that flies in to become each). */
+/* The logo is the pile (tools/logo_groovy.py): capitals wedged on each other like the "Shop by color" names, on a
+   black drop shadow, with glass O's and an 8-ball on the I. It opens big, hanging below the bar; once the page
+   scrolls it gives way to the one-line pile, which reads better at bar height. */
+.logo img { display: block; height: auto; }
+.top .logo { align-self: flex-start; margin-top: 8px; position: relative; }
+.top .logo-big { width: clamp(150px, 17vw, 240px); transform-origin: 0 0; transition: opacity .25s, transform .35s var(--ease); }
+.top .logo-line { position: absolute; left: 0; top: 0; width: auto; height: 46px; opacity: 0; transition: opacity .25s .05s; }
+.top.small .logo-big { opacity: 0; transform: scale(.35); pointer-events: none; }
+.top.small .logo-line { opacity: 1; }
+/* The 8-ball: the tagline's "!" dot, the footer logo's I, and the bead that flies in to become each. */
 :root { --eightball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3CradialGradient id='b' cx='.5' cy='.42' r='.8'%3E%3Cstop offset='.3' stop-color='%233a3a40'/%3E%3Cstop offset='1' stop-color='%230b0b0d'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='20' cy='20' r='20' fill='url(%23b)'/%3E%3Ccircle cx='20' cy='17.5' r='9' fill='%23fff'/%3E%3Ctext x='20' y='22.4' text-anchor='middle' font-family='Arial, sans-serif' font-weight='700' font-size='14' fill='%231d1d1f'%3E8%3C/text%3E%3Cellipse cx='11.5' cy='8' rx='5' ry='2.8' fill='%23fff' opacity='.6' transform='rotate(-32 11.5 8)'/%3E%3C/svg%3E"); }
 .logo .dot { position: absolute; left: var(--dot-left, .06em); top: var(--dot-top, .02em); width: var(--dot-size, .26em); height: var(--dot-size, .26em); border-radius: 50%; background: var(--eightball) center / 100% 100% no-repeat; }
 .nav { display: flex; align-items: center; gap: 28px; margin-left: auto; font-size: 17px; font-weight: 500; }
@@ -375,7 +377,11 @@ footer { --band: #c6e8b4; margin-top: -40px; padding: 88px var(--gutter) 32px; f
 /* Under the signup band, its pink runs on beneath the footer's wavy top, so no white peeks through where the wave dips (phones). */
 main:has(> .signup:last-child) + footer { background: linear-gradient(#f58aa8 0 96px, transparent 0); }
 .foot { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 24px; }
-footer .logo { font-size: clamp(56px, 7vw, 84px); color: #fff; -webkit-text-stroke: .09em var(--ink); paint-order: stroke fill; }  /* inked like the band titles */
+footer .logo { display: block; position: relative; width: clamp(220px, 27vw, 340px); container-type: inline-size; }
+footer .logo img { width: 100%; }
+/* The footer's pile is drawn without its 8-ball (icons/logo-pile-noball.svg); play.js drops one in here, on the I.
+   Ring and shadow match the drawing: 16 of its 914 units wide. */
+footer .logo .dot { left: 70.07%; top: 13.65%; width: 7.88%; height: auto; aspect-ratio: 1; box-shadow: 0 0 0 1.75cqw var(--ink), 1.75cqw 1.75cqw 0 1.75cqw var(--ink); }
 footer nav { display: flex; flex-wrap: wrap; gap: 0 24px; }
 footer nav a { display: inline-block; padding: 12px 0; text-decoration: none; }
 footer nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
@@ -633,7 +639,8 @@ body { position: relative; }
   .menu-list { left: auto; right: -70px; }
   .top { gap: 16px; }
   /* Sized so the name, Shop and the bag flower all fit across a phone (the name used to push the bag off the edge). */
-  .top .logo { --logo-small: .62; font-size: clamp(24px, 15vw - 28px, 48px); }
+  .top .logo-big { width: 128px; }
+  .top .logo-line { height: 36px; top: 6px; }  /* fits beside Shop and the bag */
   .grid { gap: 32px 14px; }
   .card-name { font-size: 16px; }
   .card .badge { top: 10px; left: 10px; font-size: 10px; }
@@ -667,7 +674,6 @@ body { position: relative; }
   body { background-size: 340px 340px; }  /* smaller wallpaper shapes next to phone-sized text */
 }
 @media (max-width: 460px) {
-  .top .logo { --logo-small: .85; }  /* already small on narrow phones, so it barely shrinks on scroll */
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
@@ -675,7 +681,7 @@ body { position: relative; }
 
 /* Info pages (shipping/, privacy/): the logo, then one outlined white card of plain text, then the footer. */
 .info-top { max-width: 860px; margin: 0 auto; padding: 18px var(--gutter) 6px; background: var(--paper); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.info-top .logo { font-size: clamp(32px, 6vw, 44px); }
+.info-top .logo img { height: clamp(40px, 7vw, 54px); width: auto; }
 .info-back { font-weight: 500; color: var(--ink); text-decoration: none; }
 .info-back:hover { text-decoration: underline; text-underline-offset: 4px; }
 .info-page { max-width: 860px; margin: 0 auto 120px; padding: 18px var(--gutter) 28px; background: var(--paper); border-radius: 0 0 36px 36px; }  /* plain behind the text; the wallpaper shows around it */
