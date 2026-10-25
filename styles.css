@@ -379,9 +379,10 @@ main:has(> .signup:last-child) + footer { background: linear-gradient(#f58aa8 0 
 .foot { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 24px; }
 footer .logo { display: block; position: relative; width: clamp(220px, 27vw, 340px); container-type: inline-size; }
 footer .logo img { width: 100%; }
-/* The footer's pile is drawn without its 8-ball (icons/logo-pile-noball.svg); play.js drops one in here, on the I.
-   Ring and shadow match the drawing: 16 of its 914 units wide. */
-footer .logo .dot { left: 70.07%; top: 13.65%; width: 7.88%; height: auto; aspect-ratio: 1; box-shadow: 0 0 0 1.75cqw var(--ink), 1.75cqw 1.75cqw 0 1.75cqw var(--ink); }
+/* The footer's pile is drawn without its 8-ball (icons/logo-pile-noball.svg); the 8-ball is its own piece, cut from
+   the same drawing with its outline and shadow (icons/logo-pile-ball.svg, placed by tools/logo_groovy.py's numbers),
+   and play.js drops it onto the I. */
+footer .logo .dot { left: 68.32%; top: 10.94%; width: 13.13%; height: auto; aspect-ratio: 1; border-radius: 0; background: url("icons/logo-pile-ball.svg?v=1") center / 100% 100% no-repeat; }
 footer nav { display: flex; flex-wrap: wrap; gap: 0 24px; }
 footer nav a { display: inline-block; padding: 12px 0; text-decoration: none; }
 footer nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }

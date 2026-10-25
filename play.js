@@ -618,21 +618,22 @@
     story.addEventListener('keydown', putBack);
   }
 
-  /* ---------- Moment 3: a bead drops into the footer logo's i-dot ---------- */
+  /* ---------- Moment 3: the footer logo's 8-ball drops onto its I ---------- */
+  // The 8-ball is a piece cut from the logo drawing itself (styles.css footer .logo .dot), so the one that falls is
+  // exactly the one that stays: it drops from above, squashes on landing, and the logo gives a little bounce.
   const footLogo = document.querySelector('footer .logo'), footDot = footLogo?.querySelector('.dot');
-  if (footLogo && footDot) {
-    const foot = document.querySelector('footer');
+  if (footLogo && footDot && !reduceMotion) {
     footDot.style.opacity = '0';
     once(footLogo, async () => {
-      const d = footDot.getBoundingClientRect(), f = foot.getBoundingClientRect();
-      const cx = d.left - f.left + d.width / 2, cy = d.top - f.top + d.height / 2;
-      const el = makeBead(d.width, { color: '#17171a', kind: 'eight' });
-      foot.appendChild(el);
-      el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
-      await fly(el, { duration: 520, xs: [[0, cx], [1, cx]], ys: [[0, cy - 150, IN], [1, cy]] });
-      el.remove();
       footDot.style.opacity = '1';
-      footDot.animate([{ scale: '1 1' }, { scale: '1.3 .7' }, { scale: '.9 1.1' }, { scale: '1 1' }], { duration: 380, easing: 'ease-out' });
+      footDot.style.transformOrigin = '50% 100%';
+      const drop = footDot.animate([
+        { translate: '0 -170px', opacity: 0, easing: 'cubic-bezier(.5, 0, .9, .5)' },
+        { translate: '0 -120px', opacity: 1, offset: 0.15, easing: 'cubic-bezier(.5, 0, .9, .5)' },
+        { translate: '0 0' },
+      ], { duration: 560 });
+      await drop.finished.catch(() => {});
+      footDot.animate([{ scale: '1 1' }, { scale: '1.22 .78' }, { scale: '.94 1.08' }, { scale: '1 1' }], { duration: 380, easing: 'ease-out' });
       footLogo.animate([{ translate: '0 0' }, { translate: '0 4px' }, { translate: '0 -2px' }, { translate: '0 0' }], { duration: 420, easing: 'ease-out' });
     }, 0.8);
   }

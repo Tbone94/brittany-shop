@@ -210,10 +210,20 @@ def final():
     dest = SITE_DIR / 'logo-pile-noball.svg'
     groovy('pile', letters, TURN['pile'], depth=16, ball=ball, front=front, draw_ball=False, out=dest)
     flatten(dest)
+    # ...and that 8-ball on its own, with the same black outline and drop shadow, for play.js to drop in
     vx, vy, vw, vh = LAST['vb']
     bx, by, br = LAST['ball']
-    print(f'footer 8-ball: left {(bx - br - vx) / vw * 100:.2f}%  top {(by - br - vy) / vh * 100:.2f}%  '
-          f'width {2 * br / vw * 100:.2f}%  (logo aspect {vw / vh:.4f})')
+    edge, depth = LW + 7, 16  # the outline's reach past the ball, and the drop shadow's depth (as in groovy())
+    a = Art()
+    for k in range(depth, -1, -2):
+        a.add(f'<circle cx="{bx + k:.2f}" cy="{by + k:.2f}" r="{br + edge:.2f}" fill="{INK}"/>')
+    eightball(a, bx, by, br, LW)
+    x0, y0, size = bx - br - edge, by - br - edge, 2 * (br + edge) + depth
+    (SITE_DIR / 'logo-pile-ball.svg').write_text(
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x0:.2f} {y0:.2f} {size:.2f} {size:.2f}" width="{size:.0f}" '
+        f'height="{size:.0f}">\n' + '\n'.join(a.parts) + '\n</svg>\n')
+    print(f'footer 8-ball (styles.css footer .logo .dot): left {(x0 - vx) / vw * 100:.2f}%  '
+          f'top {(y0 - vy) / vh * 100:.2f}%  width {size / vw * 100:.2f}%')
 
 
 if __name__ == '__main__':
